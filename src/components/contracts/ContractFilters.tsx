@@ -41,7 +41,7 @@ export function ContractFilters({ filters, onFiltersChange, onSearch, onAddContr
               <SelectValue placeholder="Chọn trạng thái" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tất cả</SelectItem>
+              <SelectItem value="all">Tất cả</SelectItem>
               <SelectItem value="true">Có</SelectItem>
               <SelectItem value="false">Không</SelectItem>
             </SelectContent>

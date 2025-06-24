@@ -14,7 +14,7 @@ const ContractsPage = () => {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<ContractFiltersType>({
     customer_name: '',
-    auto_renewal: ''
+    auto_renewal: 'all'
   });
   const [sortConfig, setSortConfig] = useState<ContractSortConfig>({
     key: null,
@@ -40,7 +40,14 @@ const ContractsPage = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setContracts(data || []);
+      
+      // Convert contract_files from JSON to ContractFile[]
+      const contractsData = (data || []).map(contract => ({
+        ...contract,
+        contract_files: Array.isArray(contract.contract_files) ? contract.contract_files : []
+      }));
+      
+      setContracts(contractsData);
     } catch (error) {
       console.error('Error fetching contracts:', error);
       toast({
@@ -62,7 +69,7 @@ const ContractsPage = () => {
       );
     }
 
-    if (filters.auto_renewal) {
+    if (filters.auto_renewal && filters.auto_renewal !== 'all') {
       const autoRenewal = filters.auto_renewal === 'true';
       filtered = filtered.filter(contract => contract.auto_renewal === autoRenewal);
     }

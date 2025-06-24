@@ -135,7 +135,7 @@ export function ContractForm({ isOpen, onClose, contract, onSave }: ContractForm
     try {
       const contractData = {
         ...formData,
-        contract_files: files,
+        contract_files: files as any, // Convert to JSON for database
         updated_at: new Date().toISOString()
       };
 
