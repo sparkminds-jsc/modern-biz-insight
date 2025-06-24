@@ -117,15 +117,6 @@ export function LoginForm() {
               {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Chưa có tài khoản?{' '}
-              <Link to="/signup" className="text-blue-600 hover:text-blue-500 font-medium">
-                Đăng ký ngay
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
     </div>
