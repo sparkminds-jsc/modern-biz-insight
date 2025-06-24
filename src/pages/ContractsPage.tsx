@@ -46,7 +46,7 @@ const ContractsPage = () => {
         ...contract,
         auto_renewal: contract.auto_renewal ?? false,
         contract_files: Array.isArray(contract.contract_files) 
-          ? (contract.contract_files as ContractFile[])
+          ? (contract.contract_files as unknown as ContractFile[])
           : []
       }));
       
