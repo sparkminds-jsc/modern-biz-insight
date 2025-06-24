@@ -96,6 +96,110 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_items: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          invoice_id: string
+          note: string | null
+          qty: number
+          unit: string
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          description: string
+          id?: string
+          invoice_id: string
+          note?: string | null
+          qty?: number
+          unit: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          invoice_id?: string
+          note?: string | null
+          qty?: number
+          unit?: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          additional_info: string | null
+          created_at: string
+          created_date: string
+          customer_address: string | null
+          customer_name: string
+          due_date: string
+          id: string
+          invoice_name: string
+          is_crypto: boolean
+          payment_status: string
+          payment_unit: string
+          remaining_amount: number
+          status: string
+          total_amount: number
+          updated_at: string
+          vnd_exchange_rate: number | null
+        }
+        Insert: {
+          additional_info?: string | null
+          created_at?: string
+          created_date?: string
+          customer_address?: string | null
+          customer_name: string
+          due_date: string
+          id?: string
+          invoice_name: string
+          is_crypto?: boolean
+          payment_status?: string
+          payment_unit?: string
+          remaining_amount?: number
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          vnd_exchange_rate?: number | null
+        }
+        Update: {
+          additional_info?: string | null
+          created_at?: string
+          created_date?: string
+          customer_address?: string | null
+          customer_name?: string
+          due_date?: string
+          id?: string
+          invoice_name?: string
+          is_crypto?: boolean
+          payment_status?: string
+          payment_unit?: string
+          remaining_amount?: number
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          vnd_exchange_rate?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
