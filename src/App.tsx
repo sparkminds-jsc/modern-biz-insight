@@ -13,6 +13,7 @@ import EmployeesPage from "./pages/EmployeesPage";
 import ContractsPage from "./pages/ContractsPage";
 import KPIPage from "./pages/KPIPage";
 import SalaryPage from "./pages/SalaryPage";
+import SalaryDetailPage from "./pages/SalaryDetailPage";
 import InvoicePage from "./pages/InvoicePage";
 import RevenuePage from "./pages/RevenuePage";
 import ExpensesPage from "./pages/ExpensesPage";
@@ -54,6 +55,11 @@ const App = () => (
           <Route path="/salary" element={
             <ProtectedRoute>
               <SalaryPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/salary/:id" element={
+            <ProtectedRoute>
+              <SalaryDetailPage />
             </ProtectedRoute>
           } />
           <Route path="/invoice" element={

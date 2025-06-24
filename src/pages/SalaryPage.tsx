@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { SalaryFilters } from '../components/salary/SalaryFilters';
 import { SalarySummary } from '../components/salary/SalarySummary';
@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 
 const SalaryPage = () => {
+  const navigate = useNavigate();
   const [salarySheets, setSalarySheets] = useState<SalarySheet[]>([]);
   const [filteredSalarySheets, setFilteredSalarySheets] = useState<SalarySheet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,11 +94,7 @@ const SalaryPage = () => {
   };
 
   const handleViewDetails = (salarySheet: SalarySheet) => {
-    toast({
-      title: 'Chi tiết bảng lương',
-      description: `Xem chi tiết bảng lương tháng ${salarySheet.month.toString().padStart(2, '0')}/${salarySheet.year}`,
-    });
-    // TODO: Navigate to salary detail page
+    navigate(`/salary/${salarySheet.id}`);
   };
 
   const handleCreateSalarySheet = () => {
