@@ -21,73 +21,82 @@ import ExpensesPage from "./pages/ExpensesPage";
 import ReportsPage from "./pages/ReportsPage";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
-const App: React.FC = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LoginForm />} />
-          <Route path="/forgot-password" element={<ForgotPasswordForm />} />
-          <Route path="/reset-password" element={<ResetPasswordForm />} />
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/employees" element={
-            <ProtectedRoute>
-              <EmployeesPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/contracts" element={
-            <ProtectedRoute>
-              <ContractsPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/kpi" element={
-            <ProtectedRoute>
-              <KPIPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/salary" element={
-            <ProtectedRoute>
-              <SalaryPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/salary/:id" element={
-            <ProtectedRoute>
-              <SalaryDetailPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/invoice" element={
-            <ProtectedRoute>
-              <InvoicePage />
-            </ProtectedRoute>
-          } />
-          <Route path="/revenue" element={
-            <ProtectedRoute>
-              <RevenuePage />
-            </ProtectedRoute>
-          } />
-          <Route path="/expenses" element={
-            <ProtectedRoute>
-              <ExpensesPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/reports" element={
-            <ProtectedRoute>
-              <ReportsPage />
-            </ProtectedRoute>
-          } />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<LoginForm />} />
+            <Route path="/forgot-password" element={<ForgotPasswordForm />} />
+            <Route path="/reset-password" element={<ResetPasswordForm />} />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/employees" element={
+              <ProtectedRoute>
+                <EmployeesPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/contracts" element={
+              <ProtectedRoute>
+                <ContractsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/kpi" element={
+              <ProtectedRoute>
+                <KPIPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/salary" element={
+              <ProtectedRoute>
+                <SalaryPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/salary/:id" element={
+              <ProtectedRoute>
+                <SalaryDetailPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/invoice" element={
+              <ProtectedRoute>
+                <InvoicePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/revenue" element={
+              <ProtectedRoute>
+                <RevenuePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/expenses" element={
+              <ProtectedRoute>
+                <ExpensesPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/reports" element={
+              <ProtectedRoute>
+                <ReportsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+}
 
 export default App;
