@@ -3,6 +3,7 @@ export interface SalarySheet {
   id: string;
   year: number;
   month: number;
+  status: string;
   total_net_salary: number;
   total_personal_income_tax: number;
   total_company_insurance: number;

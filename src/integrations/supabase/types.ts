@@ -283,6 +283,7 @@ export type Database = {
           created_at: string
           id: string
           month: number
+          status: string
           total_company_insurance: number
           total_net_salary: number
           total_payment: number
@@ -295,6 +296,7 @@ export type Database = {
           created_at?: string
           id?: string
           month: number
+          status?: string
           total_company_insurance?: number
           total_net_salary?: number
           total_payment?: number
@@ -307,6 +309,7 @@ export type Database = {
           created_at?: string
           id?: string
           month?: number
+          status?: string
           total_company_insurance?: number
           total_net_salary?: number
           total_payment?: number

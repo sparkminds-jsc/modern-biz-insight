@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
@@ -38,15 +39,55 @@ const SalaryPage = () => {
   const fetchSalarySheets = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Fetch salary sheets
+      const { data: sheetsData, error: sheetsError } = await supabase
         .from('salary_sheets')
         .select('*')
         .order('year', { ascending: false })
         .order('month', { ascending: false });
 
-      if (error) throw error;
-      
-      setSalarySheets(data || []);
+      if (sheetsError) throw sheetsError;
+
+      // For each salary sheet, calculate totals from salary_details
+      const sheetsWithCalculatedTotals = await Promise.all(
+        (sheetsData || []).map(async (sheet) => {
+          const { data: detailsData, error: detailsError } = await supabase
+            .from('salary_details')
+            .select('*')
+            .eq('salary_sheet_id', sheet.id);
+
+          if (detailsError) {
+            console.error('Error fetching details for sheet:', sheet.id, detailsError);
+            return sheet;
+          }
+
+          // Calculate totals from details
+          const totals = (detailsData || []).reduce(
+            (acc, detail) => ({
+              total_net_salary: acc.total_net_salary + detail.net_salary,
+              total_personal_income_tax: acc.total_personal_income_tax + detail.total_personal_income_tax,
+              total_company_insurance: acc.total_company_insurance + detail.total_bhdn,
+              total_personal_insurance: acc.total_personal_insurance + detail.total_bhnld,
+              total_payment: acc.total_payment + (detail.net_salary + detail.total_personal_income_tax + detail.total_bhdn + detail.total_bhnld)
+            }),
+            {
+              total_net_salary: 0,
+              total_personal_income_tax: 0,
+              total_company_insurance: 0,
+              total_personal_insurance: 0,
+              total_payment: 0
+            }
+          );
+
+          return {
+            ...sheet,
+            ...totals
+          };
+        })
+      );
+
+      setSalarySheets(sheetsWithCalculatedTotals);
     } catch (error) {
       console.error('Error fetching salary sheets:', error);
       toast({
@@ -101,6 +142,78 @@ const SalaryPage = () => {
     setShowCreateForm(true);
   };
 
+  const handleCompleteSalarySheet = async (salarySheet: SalarySheet) => {
+    try {
+      const { error } = await supabase
+        .from('salary_sheets')
+        .update({ status: 'Hoàn thành' })
+        .eq('id', salarySheet.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Thành công',
+        description: 'Đã hoàn thành bảng lương',
+      });
+
+      fetchSalarySheets();
+    } catch (error) {
+      console.error('Error completing salary sheet:', error);
+      toast({
+        title: 'Lỗi',
+        description: 'Không thể hoàn thành bảng lương',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDeleteSalarySheet = async (salarySheet: SalarySheet) => {
+    if (salarySheet.status === 'Hoàn thành') {
+      toast({
+        title: 'Không thể xóa',
+        description: 'Không thể xóa bảng lương đã hoàn thành',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!confirm(`Bạn có chắc chắn muốn xóa bảng lương tháng ${salarySheet.month}/${salarySheet.year}?`)) {
+      return;
+    }
+
+    try {
+      // First delete salary details
+      const { error: detailsError } = await supabase
+        .from('salary_details')
+        .delete()
+        .eq('salary_sheet_id', salarySheet.id);
+
+      if (detailsError) throw detailsError;
+
+      // Then delete salary sheet
+      const { error: sheetError } = await supabase
+        .from('salary_sheets')
+        .delete()
+        .eq('id', salarySheet.id);
+
+      if (sheetError) throw sheetError;
+
+      toast({
+        title: 'Thành công',
+        description: 'Đã xóa bảng lương',
+      });
+
+      fetchSalarySheets();
+    } catch (error) {
+      console.error('Error deleting salary sheet:', error);
+      toast({
+        title: 'Lỗi',
+        description: 'Không thể xóa bảng lương',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleFormSave = () => {
     fetchSalarySheets();
   };
@@ -144,6 +257,8 @@ const SalaryPage = () => {
         <SalaryTable
           salarySheets={filteredSalarySheets}
           onViewDetails={handleViewDetails}
+          onComplete={handleCompleteSalarySheet}
+          onDelete={handleDeleteSalarySheet}
         />
 
         {/* Create salary sheet form */}
