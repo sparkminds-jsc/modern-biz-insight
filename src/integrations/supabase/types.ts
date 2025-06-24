@@ -143,6 +143,7 @@ export type Database = {
           employee_name: string
           gross_salary: number
           id: string
+          insurance_base_amount: number
           insurance_deduction: number
           kpi_bonus: number
           month: number
@@ -190,6 +191,7 @@ export type Database = {
           employee_name: string
           gross_salary?: number
           id?: string
+          insurance_base_amount?: number
           insurance_deduction?: number
           kpi_bonus?: number
           month: number
@@ -237,6 +239,7 @@ export type Database = {
           employee_name?: string
           gross_salary?: number
           id?: string
+          insurance_base_amount?: number
           insurance_deduction?: number
           kpi_bonus?: number
           month?: number

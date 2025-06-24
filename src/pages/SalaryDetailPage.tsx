@@ -66,7 +66,7 @@ const SalaryDetailPage = () => {
       if (sheetError) throw sheetError;
       setSalarySheet(sheetData);
 
-      // Fetch salary details with proper handling of insurance_base_amount
+      // Fetch salary details
       const { data: detailsData, error: detailsError } = await supabase
         .from('salary_details')
         .select('*')
@@ -74,14 +74,7 @@ const SalaryDetailPage = () => {
         .order('employee_code');
 
       if (detailsError) throw detailsError;
-      
-      // Ensure insurance_base_amount exists, default to 0 if not
-      const processedDetails = (detailsData || []).map(detail => ({
-        ...detail,
-        insurance_base_amount: detail.insurance_base_amount || 0
-      }));
-      
-      setSalaryDetails(processedDetails);
+      setSalaryDetails(detailsData || []);
     } catch (error) {
       console.error('Error fetching salary data:', error);
       toast({
