@@ -227,6 +227,51 @@ export type Database = {
         }
         Relationships: []
       }
+      revenue: {
+        Row: {
+          amount_usd: number
+          amount_usdt: number
+          amount_vnd: number
+          content: string
+          created_at: string
+          created_date: string
+          id: string
+          is_finalized: boolean
+          needs_debt_collection: boolean
+          revenue_type: string
+          updated_at: string
+          wallet_type: string
+        }
+        Insert: {
+          amount_usd?: number
+          amount_usdt?: number
+          amount_vnd?: number
+          content: string
+          created_at?: string
+          created_date?: string
+          id?: string
+          is_finalized?: boolean
+          needs_debt_collection?: boolean
+          revenue_type: string
+          updated_at?: string
+          wallet_type: string
+        }
+        Update: {
+          amount_usd?: number
+          amount_usdt?: number
+          amount_vnd?: number
+          content?: string
+          created_at?: string
+          created_date?: string
+          id?: string
+          is_finalized?: boolean
+          needs_debt_collection?: boolean
+          revenue_type?: string
+          updated_at?: string
+          wallet_type?: string
+        }
+        Relationships: []
+      }
       salary_details: {
         Row: {
           actual_payment: number
