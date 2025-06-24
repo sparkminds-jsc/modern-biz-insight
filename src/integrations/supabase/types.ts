@@ -9,6 +9,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      contracts: {
+        Row: {
+          auto_renewal: boolean | null
+          contract_code: string
+          contract_files: Json | null
+          contract_name: string
+          created_at: string
+          customer_name: string
+          expire_date: string
+          id: string
+          sign_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          auto_renewal?: boolean | null
+          contract_code: string
+          contract_files?: Json | null
+          contract_name: string
+          created_at?: string
+          customer_name: string
+          expire_date: string
+          id?: string
+          sign_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          auto_renewal?: boolean | null
+          contract_code?: string
+          contract_files?: Json | null
+          contract_name?: string
+          created_at?: string
+          customer_name?: string
+          expire_date?: string
+          id?: string
+          sign_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       employees: {
         Row: {
           birth_date: string | null
