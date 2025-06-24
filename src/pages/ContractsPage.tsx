@@ -41,10 +41,13 @@ const ContractsPage = () => {
 
       if (error) throw error;
       
-      // Convert contract_files from JSON to ContractFile[]
-      const contractsData = (data || []).map(contract => ({
+      // Convert contract_files from JSON to ContractFile[] and handle null values
+      const contractsData: Contract[] = (data || []).map(contract => ({
         ...contract,
-        contract_files: Array.isArray(contract.contract_files) ? contract.contract_files : []
+        auto_renewal: contract.auto_renewal ?? false,
+        contract_files: Array.isArray(contract.contract_files) 
+          ? (contract.contract_files as ContractFile[])
+          : []
       }));
       
       setContracts(contractsData);
