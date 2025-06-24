@@ -1,10 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { SalaryDetailFilters } from '../components/salary/SalaryDetailFilters';
 import { SalaryDetailSummary } from '../components/salary/SalaryDetailSummary';
 import { SalaryDetailTable } from '../components/salary/SalaryDetailTable';
+import { SalaryDetailEditForm } from '../components/salary/SalaryDetailEditForm';
+import { CopySalarySheetDialog } from '../components/salary/CopySalarySheetDialog';
 import { 
   SalaryDetail, 
   SalaryDetailFilters as SalaryDetailFiltersType, 
@@ -35,6 +36,11 @@ const SalaryDetailPage = () => {
     total_personal_insurance: 0,
     total_payment: 0
   });
+
+  // New state for modals
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editingSalaryDetail, setEditingSalaryDetail] = useState<SalaryDetail | null>(null);
+  const [showCopyDialog, setShowCopyDialog] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -132,27 +138,25 @@ const SalaryDetailPage = () => {
   };
 
   const handleEdit = (detail: SalaryDetail) => {
-    toast({
-      title: 'Chỉnh sửa lương nhân viên',
-      description: `Chỉnh sửa lương của ${detail.employee_name} (${detail.employee_code})`,
-    });
-    // TODO: Open edit salary detail modal
+    setEditingSalaryDetail(detail);
+    setShowEditForm(true);
   };
 
   const handleAddEmployee = () => {
-    toast({
-      title: 'Thêm lương nhân viên',
-      description: 'Mở form thêm lương cho nhân viên mới',
-    });
-    // TODO: Open add employee salary modal
+    setEditingSalaryDetail(null);
+    setShowEditForm(true);
   };
 
   const handleCopySalarySheet = () => {
-    toast({
-      title: 'Copy bảng lương',
-      description: 'Sao chép bảng lương hiện tại',
-    });
-    // TODO: Implement copy salary sheet functionality
+    setShowCopyDialog(true);
+  };
+
+  const handleFormSave = () => {
+    fetchSalarySheetAndDetails();
+  };
+
+  const handleCopySuccess = () => {
+    navigate('/salary');
   };
 
   if (loading) {
@@ -241,6 +245,25 @@ const SalaryDetailPage = () => {
           salaryDetails={filteredSalaryDetails}
           onViewDetail={handleViewDetail}
           onEdit={handleEdit}
+        />
+
+        {/* Edit/Add Form */}
+        <SalaryDetailEditForm
+          isOpen={showEditForm}
+          onClose={() => setShowEditForm(false)}
+          onSave={handleFormSave}
+          salaryDetail={editingSalaryDetail}
+          salarySheetId={id!}
+          month={salarySheet.month}
+          year={salarySheet.year}
+        />
+
+        {/* Copy Dialog */}
+        <CopySalarySheetDialog
+          isOpen={showCopyDialog}
+          onClose={() => setShowCopyDialog(false)}
+          onSuccess={handleCopySuccess}
+          salarySheetId={id!}
         />
       </div>
     </AppLayout>
