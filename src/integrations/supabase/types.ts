@@ -123,6 +123,45 @@ export type Database = {
         }
         Relationships: []
       }
+      salary_sheets: {
+        Row: {
+          created_at: string
+          id: string
+          month: number
+          total_company_insurance: number
+          total_net_salary: number
+          total_payment: number
+          total_personal_income_tax: number
+          total_personal_insurance: number
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month: number
+          total_company_insurance?: number
+          total_net_salary?: number
+          total_payment?: number
+          total_personal_income_tax?: number
+          total_personal_insurance?: number
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month?: number
+          total_company_insurance?: number
+          total_net_salary?: number
+          total_payment?: number
+          total_personal_income_tax?: number
+          total_personal_insurance?: number
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
