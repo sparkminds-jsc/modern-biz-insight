@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Search, Plus, Copy } from 'lucide-react';
-import { SalaryDetailFilters } from '@/types/salary';
+import type { SalaryDetailFilters } from '@/types/salary';
 
 interface SalaryDetailFiltersProps {
   filters: SalaryDetailFilters;
