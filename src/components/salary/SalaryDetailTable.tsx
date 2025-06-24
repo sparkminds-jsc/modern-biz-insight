@@ -113,13 +113,13 @@ export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit }: Salar
               <SortableHeader field="insurance_deduction">Giảm trừ bảo hiểm</SortableHeader>
               <SortableHeader field="total_deduction">Tổng giảm trừ</SortableHeader>
               <SortableHeader field="taxable_income">Thu nhập chịu thuế</SortableHeader>
-              <SortableHeader field="tax_5_percent">TNCN 5% (0=>5tr)</SortableHeader>
-              <SortableHeader field="tax_10_percent">TNCN 10% (5=>10tr)</SortableHeader>
-              <SortableHeader field="tax_15_percent">TNCN 15% (10=>18tr)</SortableHeader>
-              <SortableHeader field="tax_20_percent">TNCN 20% (18=>32tr)</SortableHeader>
-              <SortableHeader field="tax_25_percent">TNCN 25% (32=>52tr)</SortableHeader>
-              <SortableHeader field="tax_30_percent">TNCN 30% (52=>80tr)</SortableHeader>
-              <SortableHeader field="tax_35_percent">TNCN 35% (>80tr)</SortableHeader>
+              <SortableHeader field="tax_5_percent">TNCN 5% (0-5tr)</SortableHeader>
+              <SortableHeader field="tax_10_percent">TNCN 10% (5-10tr)</SortableHeader>
+              <SortableHeader field="tax_15_percent">TNCN 15% (10-18tr)</SortableHeader>
+              <SortableHeader field="tax_20_percent">TNCN 20% (18-32tr)</SortableHeader>
+              <SortableHeader field="tax_25_percent">TNCN 25% (32-52tr)</SortableHeader>
+              <SortableHeader field="tax_30_percent">TNCN 30% (52-80tr)</SortableHeader>
+              <SortableHeader field="tax_35_percent">TNCN 35% ({'>'}80tr)</SortableHeader>
               <SortableHeader field="total_personal_income_tax">Tổng thuế TNCN</SortableHeader>
               <SortableHeader field="net_salary">Lương Net</SortableHeader>
               <SortableHeader field="advance_payment">Tạm Ứng</SortableHeader>
