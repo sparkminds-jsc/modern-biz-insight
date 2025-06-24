@@ -7,26 +7,7 @@ import { EmployeeForm } from '../components/employees/EmployeeForm';
 import { EmployeeDetail } from '../components/employees/EmployeeDetail';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-
-interface Employee {
-  id: string;
-  employee_code: string;
-  full_name: string;
-  email: string;
-  birth_date: string | null;
-  contract_type: string;
-  contract_end_date: string | null;
-  position: string;
-  team: string;
-  status: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface SortConfig {
-  key: keyof Employee | null;
-  direction: 'asc' | 'desc';
-}
+import { Employee, SortConfig } from '@/types/employee';
 
 const EmployeesPage = () => {
   const [filters, setFilters] = useState({

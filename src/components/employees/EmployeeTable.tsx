@@ -1,4 +1,3 @@
-
 import { Eye, Edit, UserX, ArrowUp, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,24 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
-interface Employee {
-  id: string;
-  employee_code: string;
-  full_name: string;
-  email: string;
-  birth_date: string | null;
-  contract_type: string;
-  contract_end_date: string | null;
-  position: string;
-  team: string;
-  status: string;
-}
-
-interface SortConfig {
-  key: keyof Employee | null;
-  direction: 'asc' | 'desc';
-}
+import { Employee, SortConfig } from '@/types/employee';
 
 interface EmployeeTableProps {
   employees: Employee[];
