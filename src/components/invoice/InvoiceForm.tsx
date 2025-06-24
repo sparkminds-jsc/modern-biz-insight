@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -43,11 +42,14 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
   const [items, setItems] = useState<CreateInvoiceItemData[]>([]);
   const [showItemForm, setShowItemForm] = useState(false);
   const [editingItem, setEditingItem] = useState<number | null>(null);
-  const [createdDate, setCreatedDate] = useState<Date>();
-  const [dueDate, setDueDate] = useState<Date>();
+  const [createdDate, setCreatedDate] = useState<Date>(new Date());
+  const [dueDate, setDueDate] = useState<Date>(new Date());
 
   useEffect(() => {
     if (invoice && mode === 'edit') {
+      const invoiceCreatedDate = new Date(invoice.created_date);
+      const invoiceDueDate = new Date(invoice.due_date);
+      
       setFormData({
         customer_name: invoice.customer_name,
         customer_address: invoice.customer_address || '',
@@ -62,8 +64,8 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
         remaining_amount: invoice.remaining_amount,
         is_crypto: invoice.is_crypto
       });
-      setCreatedDate(new Date(invoice.created_date));
-      setDueDate(new Date(invoice.due_date));
+      setCreatedDate(invoiceCreatedDate);
+      setDueDate(invoiceDueDate);
       
       setItems(invoiceItems.map(item => ({
         description: item.description,
@@ -72,13 +74,47 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
         unit_price: item.unit_price,
         note: item.note || ''
       })));
+    } else if (mode === 'create') {
+      // Reset to default values for create mode
+      const today = new Date();
+      setCreatedDate(today);
+      setDueDate(today);
+      setFormData({
+        customer_name: '',
+        customer_address: '',
+        additional_info: '',
+        invoice_name: '',
+        payment_unit: 'VND',
+        created_date: format(today, 'yyyy-MM-dd'),
+        due_date: format(today, 'yyyy-MM-dd'),
+        status: 'Mới tạo',
+        vnd_exchange_rate: undefined,
+        payment_status: 'Chưa thu',
+        remaining_amount: 0,
+        is_crypto: false
+      });
+      setItems([]);
     }
-  }, [invoice, invoiceItems, mode]);
+  }, [invoice, invoiceItems, mode, open]);
 
   const totalAmount = items.reduce((sum, item) => sum + (item.qty * item.unit_price), 0);
 
   const handleInputChange = (field: keyof CreateInvoiceData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleCreatedDateChange = (date: Date | undefined) => {
+    if (date) {
+      setCreatedDate(date);
+      setFormData(prev => ({ ...prev, created_date: format(date, 'yyyy-MM-dd') }));
+    }
+  };
+
+  const handleDueDateChange = (date: Date | undefined) => {
+    if (date) {
+      setDueDate(date);
+      setFormData(prev => ({ ...prev, due_date: format(date, 'yyyy-MM-dd') }));
+    }
   };
 
   const handleAddItem = (itemData: CreateInvoiceItemData) => {
@@ -105,8 +141,8 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
   const handleSubmit = () => {
     const submitData = {
       ...formData,
-      created_date: createdDate ? format(createdDate, 'yyyy-MM-dd') : formData.created_date,
-      due_date: dueDate ? format(dueDate, 'yyyy-MM-dd') : formData.due_date,
+      created_date: format(createdDate, 'yyyy-MM-dd'),
+      due_date: format(dueDate, 'yyyy-MM-dd'),
     };
     onSubmit(submitData, items);
     onClose();
@@ -192,12 +228,13 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
                       {createdDate ? format(createdDate, 'PPP', { locale: vi }) : "Chọn ngày"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={createdDate}
-                      onSelect={setCreatedDate}
+                      onSelect={handleCreatedDateChange}
                       initialFocus
+                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
@@ -218,12 +255,13 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
                       {dueDate ? format(dueDate, 'PPP', { locale: vi }) : "Chọn ngày"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
                       mode="single"
                       selected={dueDate}
-                      onSelect={setDueDate}
+                      onSelect={handleDueDateChange}
                       initialFocus
+                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
