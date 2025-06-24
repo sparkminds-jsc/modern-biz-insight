@@ -1,5 +1,5 @@
 
-import { Eye, Edit, UserX } from 'lucide-react';
+import { Eye, Edit, UserX, ArrowUp, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -23,14 +23,28 @@ interface Employee {
   status: string;
 }
 
+interface SortConfig {
+  key: keyof Employee | null;
+  direction: 'asc' | 'desc';
+}
+
 interface EmployeeTableProps {
   employees: Employee[];
   onViewDetail: (employee: Employee) => void;
   onEdit: (employee: Employee) => void;
   onTerminate: (employee: Employee) => void;
+  sortConfig: SortConfig;
+  onSort: (key: keyof Employee) => void;
 }
 
-export function EmployeeTable({ employees, onViewDetail, onEdit, onTerminate }: EmployeeTableProps) {
+export function EmployeeTable({ 
+  employees, 
+  onViewDetail, 
+  onEdit, 
+  onTerminate,
+  sortConfig,
+  onSort
+}: EmployeeTableProps) {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('vi-VN');
@@ -49,6 +63,29 @@ export function EmployeeTable({ employees, onViewDetail, onEdit, onTerminate }: 
     );
   };
 
+  const getSortIcon = (columnKey: keyof Employee) => {
+    if (sortConfig.key !== columnKey) {
+      return null;
+    }
+    return sortConfig.direction === 'asc' ? (
+      <ArrowUp className="w-4 h-4 ml-1" />
+    ) : (
+      <ArrowDown className="w-4 h-4 ml-1" />
+    );
+  };
+
+  const SortableHeader = ({ children, sortKey }: { children: React.ReactNode; sortKey: keyof Employee }) => (
+    <TableHead 
+      className="cursor-pointer hover:bg-gray-50 select-none"
+      onClick={() => onSort(sortKey)}
+    >
+      <div className="flex items-center">
+        {children}
+        {getSortIcon(sortKey)}
+      </div>
+    </TableHead>
+  );
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="p-6 border-b border-gray-200">
@@ -60,15 +97,15 @@ export function EmployeeTable({ employees, onViewDetail, onEdit, onTerminate }: 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Mã nhân viên</TableHead>
-              <TableHead>Họ và tên</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Ngày sinh</TableHead>
-              <TableHead>Loại HĐ</TableHead>
-              <TableHead>Ngày kết thúc HĐ</TableHead>
-              <TableHead>Chức vụ</TableHead>
-              <TableHead>Team</TableHead>
-              <TableHead>Trạng thái</TableHead>
+              <SortableHeader sortKey="employee_code">Mã nhân viên</SortableHeader>
+              <SortableHeader sortKey="full_name">Họ và tên</SortableHeader>
+              <SortableHeader sortKey="email">Email</SortableHeader>
+              <SortableHeader sortKey="birth_date">Ngày sinh</SortableHeader>
+              <SortableHeader sortKey="contract_type">Loại HĐ</SortableHeader>
+              <SortableHeader sortKey="contract_end_date">Ngày kết thúc HĐ</SortableHeader>
+              <SortableHeader sortKey="position">Chức vụ</SortableHeader>
+              <SortableHeader sortKey="team">Team</SortableHeader>
+              <SortableHeader sortKey="status">Trạng thái</SortableHeader>
               <TableHead>Thao tác</TableHead>
             </TableRow>
           </TableHeader>

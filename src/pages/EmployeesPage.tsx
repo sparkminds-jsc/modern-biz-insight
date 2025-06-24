@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AppLayout } from '../components/layout/AppLayout';
 import { EmployeeFilters } from '../components/employees/EmployeeFilters';
@@ -24,11 +23,21 @@ interface Employee {
   updated_at: string;
 }
 
+interface SortConfig {
+  key: keyof Employee | null;
+  direction: 'asc' | 'desc';
+}
+
 const EmployeesPage = () => {
   const [filters, setFilters] = useState({
     name: '',
     team: '',
     email: ''
+  });
+  
+  const [sortConfig, setSortConfig] = useState<SortConfig>({
+    key: null,
+    direction: 'asc'
   });
   
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -60,6 +69,42 @@ const EmployeesPage = () => {
       return data as Employee[];
     }
   });
+
+  // Sort employees
+  const sortedEmployees = useMemo(() => {
+    if (!sortConfig.key) {
+      return employees;
+    }
+
+    return [...employees].sort((a, b) => {
+      const aValue = a[sortConfig.key!];
+      const bValue = b[sortConfig.key!];
+
+      // Handle null values
+      if (aValue === null && bValue === null) return 0;
+      if (aValue === null) return sortConfig.direction === 'asc' ? 1 : -1;
+      if (bValue === null) return sortConfig.direction === 'asc' ? -1 : 1;
+
+      // Convert to string for comparison
+      const aStr = String(aValue).toLowerCase();
+      const bStr = String(bValue).toLowerCase();
+
+      if (aStr < bStr) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (aStr > bStr) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [employees, sortConfig]);
+
+  const handleSort = (key: keyof Employee) => {
+    setSortConfig(prevConfig => ({
+      key,
+      direction: prevConfig.key === key && prevConfig.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
 
   // Create employee
   const createEmployeeMutation = useMutation({
@@ -211,10 +256,12 @@ const EmployeesPage = () => {
         />
 
         <EmployeeTable
-          employees={employees}
+          employees={sortedEmployees}
           onViewDetail={handleViewDetail}
           onEdit={handleEditEmployee}
           onTerminate={handleTerminateEmployee}
+          sortConfig={sortConfig}
+          onSort={handleSort}
         />
 
         <EmployeeForm
