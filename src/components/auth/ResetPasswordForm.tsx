@@ -1,8 +1,9 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export function ResetPasswordForm() {
   const [newPassword, setNewPassword] = useState('');
@@ -12,6 +13,15 @@ export function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [resetSuccessful, setResetSuccessful] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Handle the password reset redirect
+    supabase.auth.onAuthStateChange(async (event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        // User is now able to reset their password
+      }
+    });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,20 +46,38 @@ export function ResetPasswordForm() {
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setResetSuccessful(true);
-      toast({
-        title: "Đặt lại mật khẩu thành công!",
-        description: "Bạn có thể đăng nhập bằng mật khẩu mới.",
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
       });
+
+      if (error) {
+        toast({
+          title: "Lỗi",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        setResetSuccessful(true);
+        toast({
+          title: "Đặt lại mật khẩu thành công!",
+          description: "Bạn có thể đăng nhập bằng mật khẩu mới.",
+        });
+        
+        // Redirect to login after 2 seconds
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+      }
+    } catch (error) {
+      toast({
+        title: "Lỗi hệ thống",
+        description: "Có lỗi xảy ra, vui lòng thử lại.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-      
-      // Redirect to login after 2 seconds
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
-    }, 1000);
+    }
   };
 
   if (resetSuccessful) {

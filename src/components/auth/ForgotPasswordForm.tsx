@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
@@ -13,15 +14,33 @@ export function ForgotPasswordForm() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setEmailSent(true);
-      toast({
-        title: "Email đã được gửi!",
-        description: "Vui lòng kiểm tra email để đặt lại mật khẩu.",
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
       });
+
+      if (error) {
+        toast({
+          title: "Lỗi",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        setEmailSent(true);
+        toast({
+          title: "Email đã được gửi!",
+          description: "Vui lòng kiểm tra email để đặt lại mật khẩu.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Lỗi hệ thống",
+        description: "Có lỗi xảy ra, vui lòng thử lại.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   if (emailSent) {
