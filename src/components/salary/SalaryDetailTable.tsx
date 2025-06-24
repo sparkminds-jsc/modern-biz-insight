@@ -72,6 +72,7 @@ export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit }: Salar
               <SortableTableHeader field="overtime_2" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>Tăng ca 2</SortableTableHeader>
               <SortableTableHeader field="overtime_3" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>Tăng ca 3</SortableTableHeader>
               <SortableTableHeader field="total_income" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>Tổng thu nhập</SortableTableHeader>
+              <SortableTableHeader field="insurance_base_amount" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>Mức đóng BH</SortableTableHeader>
               <SortableTableHeader field="bhdn_bhxh" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>BHDN (BHXH-17%)</SortableTableHeader>
               <SortableTableHeader field="bhdn_tnld" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>BHDN (TNLD-0.5%)</SortableTableHeader>
               <SortableTableHeader field="bhdn_bhyt" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>BHDN (BHYT-3%)</SortableTableHeader>
@@ -94,7 +95,7 @@ export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit }: Salar
               <SortableTableHeader field="tax_20_percent" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>TNCN 20% (18-32tr)</SortableTableHeader>
               <SortableTableHeader field="tax_25_percent" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>TNCN 25% (32-52tr)</SortableTableHeader>
               <SortableTableHeader field="tax_30_percent" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>TNCN 30% (52-80tr)</SortableTableHeader>
-              <SortableTableHeader field="tax_35_percent" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>TNCN 35% ({'>'}80tr)</SortableTableHeader>
+              <SortableTableHeader field="tax_35_percent" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>TNCN 35% (>80tr)</SortableTableHeader>
               <SortableTableHeader field="total_personal_income_tax" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>Tổng thuế TNCN</SortableTableHeader>
               <SortableTableHeader field="net_salary" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>Lương Net</SortableTableHeader>
               <SortableTableHeader field="advance_payment" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>Tạm Ứng</SortableTableHeader>
@@ -105,7 +106,7 @@ export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit }: Salar
           <TableBody>
             {sortedDetails.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={40} className="text-center text-gray-500 py-8">
+                <TableCell colSpan={41} className="text-center text-gray-500 py-8">
                   Không có dữ liệu chi tiết lương
                 </TableCell>
               </TableRow>

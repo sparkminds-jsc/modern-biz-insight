@@ -39,6 +39,7 @@ export function SalaryTableRow({ detail, index, onViewDetail, onEdit }: SalaryTa
       <TableCell className="text-right">{formatCurrency(detail.overtime_2)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.overtime_3)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.total_income)}</TableCell>
+      <TableCell className="text-right">{formatCurrency(detail.insurance_base_amount)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.bhdn_bhxh)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.bhdn_tnld)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.bhdn_bhyt)}</TableCell>

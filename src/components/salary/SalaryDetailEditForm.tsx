@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -50,6 +49,7 @@ interface FormData {
   overtime_1_5: number;
   overtime_2: number;
   overtime_3: number;
+  insurance_base_amount: number;
   dependent_count: number;
   advance_payment: number;
 }
@@ -108,6 +108,7 @@ export function SalaryDetailEditForm({
       overtime_1_5: 0,
       overtime_2: 0,
       overtime_3: 0,
+      insurance_base_amount: 0,
       dependent_count: 0,
       advance_payment: 0
     }
@@ -134,6 +135,7 @@ export function SalaryDetailEditForm({
         overtime_1_5: salaryDetail.overtime_1_5,
         overtime_2: salaryDetail.overtime_2,
         overtime_3: salaryDetail.overtime_3,
+        insurance_base_amount: salaryDetail.insurance_base_amount,
         dependent_count: salaryDetail.dependent_count,
         advance_payment: salaryDetail.advance_payment
       });
@@ -185,21 +187,21 @@ export function SalaryDetailEditForm({
     // Tổng thu nhập
     const total_income = daily_salary + values.kpi_bonus + values.overtime_1_5 + values.overtime_2 + values.overtime_3;
     
-    // BHDN calculations (chỉ tính nếu là "Lương có BH")
+    // BHDN calculations (based on insurance_base_amount and only if "Lương có BH")
     const isSalaryWithInsurance = values.salary_type === 'Lương có BH';
-    const bhdn_bhxh = isSalaryWithInsurance ? total_income * 0.17 : 0;
-    const bhdn_tnld = isSalaryWithInsurance ? total_income * 0.005 : 0;
-    const bhdn_bhyt = isSalaryWithInsurance ? total_income * 0.03 : 0;
-    const bhdn_bhtn = isSalaryWithInsurance ? total_income * 0.01 : 0;
+    const bhdn_bhxh = isSalaryWithInsurance ? values.insurance_base_amount * 0.17 : 0;
+    const bhdn_tnld = isSalaryWithInsurance ? values.insurance_base_amount * 0.005 : 0;
+    const bhdn_bhyt = isSalaryWithInsurance ? values.insurance_base_amount * 0.03 : 0;
+    const bhdn_bhtn = isSalaryWithInsurance ? values.insurance_base_amount * 0.01 : 0;
     const total_bhdn = bhdn_bhxh + bhdn_tnld + bhdn_bhyt + bhdn_bhtn;
     
     // Tổng DN chi trả
     const total_company_payment = total_income + total_bhdn;
     
-    // BHNLD calculations (chỉ tính nếu là "Lương có BH")
-    const bhnld_bhxh = isSalaryWithInsurance ? total_income * 0.08 : 0;
-    const bhnld_bhyt = isSalaryWithInsurance ? total_income * 0.015 : 0;
-    const bhnld_bhtn = isSalaryWithInsurance ? total_income * 0.01 : 0;
+    // BHNLD calculations (based on insurance_base_amount and only if "Lương có BH")
+    const bhnld_bhxh = isSalaryWithInsurance ? values.insurance_base_amount * 0.08 : 0;
+    const bhnld_bhyt = isSalaryWithInsurance ? values.insurance_base_amount * 0.015 : 0;
+    const bhnld_bhtn = isSalaryWithInsurance ? values.insurance_base_amount * 0.01 : 0;
     const total_bhnld = bhnld_bhxh + bhnld_bhyt + bhnld_bhtn;
     
     // Giảm trừ calculations
@@ -321,6 +323,7 @@ export function SalaryDetailEditForm({
         overtime_2: data.overtime_2,
         overtime_3: data.overtime_3,
         total_income: calculatedValues.total_income,
+        insurance_base_amount: data.insurance_base_amount,
         bhdn_bhxh: calculatedValues.bhdn_bhxh,
         bhdn_tnld: calculatedValues.bhdn_tnld,
         bhdn_bhyt: calculatedValues.bhdn_bhyt,
@@ -535,6 +538,15 @@ export function SalaryDetailEditForm({
                 value={formatCurrency(calculatedValues.total_income)}
                 readOnly
                 className="bg-gray-100"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="insurance_base_amount">Mức đóng BH</Label>
+              <Input
+                type="number"
+                {...register('insurance_base_amount', { valueAsNumber: true })}
+                placeholder="0"
               />
             </div>
 
