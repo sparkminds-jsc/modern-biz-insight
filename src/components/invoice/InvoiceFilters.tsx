@@ -15,9 +15,11 @@ interface InvoiceFiltersProps {
 
 export function InvoiceFilters({ filters, onFiltersChange, onSearch, onAddInvoice }: InvoiceFiltersProps) {
   const handleFilterChange = (key: keyof InvoiceFiltersType, value: string) => {
+    // Convert "all" values back to empty strings for the actual filter
+    const actualValue = value === "all" ? "" : value;
     onFiltersChange({
       ...filters,
-      [key]: value
+      [key]: actualValue
     });
   };
 
@@ -50,12 +52,12 @@ export function InvoiceFilters({ filters, onFiltersChange, onSearch, onAddInvoic
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Trạng thái
           </label>
-          <Select value={filters.status} onValueChange={(value) => handleFilterChange('status', value)}>
+          <Select value={filters.status || "all"} onValueChange={(value) => handleFilterChange('status', value)}>
             <SelectTrigger>
               <SelectValue placeholder="Chọn trạng thái" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tất cả</SelectItem>
+              <SelectItem value="all">Tất cả</SelectItem>
               <SelectItem value="Mới tạo">Mới tạo</SelectItem>
               <SelectItem value="Đã xuất hóa đơn">Đã xuất hóa đơn</SelectItem>
             </SelectContent>
@@ -66,12 +68,12 @@ export function InvoiceFilters({ filters, onFiltersChange, onSearch, onAddInvoic
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Thu tiền
           </label>
-          <Select value={filters.payment_status} onValueChange={(value) => handleFilterChange('payment_status', value)}>
+          <Select value={filters.payment_status || "all"} onValueChange={(value) => handleFilterChange('payment_status', value)}>
             <SelectTrigger>
               <SelectValue placeholder="Chọn tình trạng thu tiền" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tất cả</SelectItem>
+              <SelectItem value="all">Tất cả</SelectItem>
               <SelectItem value="Chưa thu">Chưa thu</SelectItem>
               <SelectItem value="Đã thu đủ">Đã thu đủ</SelectItem>
               <SelectItem value="Thu một phần">Thu một phần</SelectItem>
@@ -83,12 +85,12 @@ export function InvoiceFilters({ filters, onFiltersChange, onSearch, onAddInvoic
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Là Crypto
           </label>
-          <Select value={filters.is_crypto} onValueChange={(value) => handleFilterChange('is_crypto', value)}>
+          <Select value={filters.is_crypto || "all"} onValueChange={(value) => handleFilterChange('is_crypto', value)}>
             <SelectTrigger>
               <SelectValue placeholder="Chọn loại" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Tất cả</SelectItem>
+              <SelectItem value="all">Tất cả</SelectItem>
               <SelectItem value="true">Đúng</SelectItem>
               <SelectItem value="false">Không</SelectItem>
             </SelectContent>
