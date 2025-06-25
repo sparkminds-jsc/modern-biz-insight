@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
@@ -8,6 +7,8 @@ import { TeamReportDetailTable } from '../components/reports/TeamReportDetailTab
 import { TeamReportDetailEditDialog } from '../components/reports/TeamReportDetailEditDialog';
 import { CreateTeamReportDetailDialog } from '../components/reports/CreateTeamReportDetailDialog';
 import { CopyTeamReportDialog } from '../components/reports/CopyTeamReportDialog';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -150,6 +151,10 @@ const TeamReportDetailPage = () => {
     }
   };
 
+  const handleBackToReports = () => {
+    navigate('/reports');
+  };
+
   if (loading) {
     return (
       <AppLayout>
@@ -176,11 +181,21 @@ const TeamReportDetailPage = () => {
   return (
     <AppLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Báo cáo chi tiết - {teamReport.team} ({teamReport.month}/{teamReport.year})
-          </h1>
-          <p className="text-gray-600">Chi tiết báo cáo từng nhân viên</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Báo cáo chi tiết - {teamReport.team} ({teamReport.month}/{teamReport.year})
+            </h1>
+            <p className="text-gray-600">Chi tiết báo cáo từng nhân viên</p>
+          </div>
+          <Button
+            onClick={handleBackToReports}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Quay lại
+          </Button>
         </div>
 
         {/* Filters */}

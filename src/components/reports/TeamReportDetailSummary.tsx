@@ -17,11 +17,11 @@ export function TeamReportDetailSummary({ reportDetails }: TeamReportDetailSumma
     }).format(rounded);
   };
 
-  // Calculate totals based on final values in the details
-  const totalBill = reportDetails.reduce((sum, item) => sum + (item.converted_vnd || 0), 0);
+  // Calculate totals based on the new logic
+  const totalBill = reportDetails.reduce((sum, item) => sum + (item.converted_vnd || 0) + (item.package_vnd || 0), 0);
   const totalPay = reportDetails.reduce((sum, item) => sum + (item.total_payment || 0), 0);
-  const totalSave = reportDetails.reduce((sum, item) => sum + (item.converted_vnd || 0) + (item.package_vnd || 0) - (item.total_payment || 0), 0);
-  const totalEarn = reportDetails.reduce((sum, item) => sum + (item.converted_vnd || 0) + (item.package_vnd || 0), 0);
+  const totalSave = totalBill * 0.3; // 30% of Bill
+  const totalEarn = totalBill - totalPay - totalSave; // Bill - Pay - Save (can be negative)
   const totalUSD = reportDetails.reduce((sum, item) => sum + (item.storage_usd || 0), 0);
   const totalUSDT = reportDetails.reduce((sum, item) => sum + (item.storage_usdt || 0), 0);
 
@@ -47,8 +47,8 @@ export function TeamReportDetailSummary({ reportDetails }: TeamReportDetailSumma
     {
       title: 'Earn',
       value: formatCurrency(totalEarn, 'VND'),
-      bgColor: 'bg-purple-50',
-      textColor: 'text-purple-600'
+      bgColor: totalEarn >= 0 ? 'bg-purple-50' : 'bg-red-50',
+      textColor: totalEarn >= 0 ? 'text-purple-600' : 'text-red-600'
     },
     {
       title: 'USD',
