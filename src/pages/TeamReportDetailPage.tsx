@@ -119,9 +119,54 @@ const TeamReportDetailPage = () => {
 
   const handleCopyReport = async (month: number, year: number) => {
     try {
+      console.log('Starting copy report for:', { month, year, team: teamReport.team });
+      
+      // Check if team report already exists for the target month/year
+      const { data: existingReport, error: checkError } = await supabase
+        .from('team_reports')
+        .select('id')
+        .eq('team', teamReport.team)
+        .eq('month', month)
+        .eq('year', year)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+
+      let targetTeamReportId;
+
+      if (existingReport) {
+        // Use existing team report
+        targetTeamReportId = existingReport.id;
+        console.log('Using existing team report:', targetTeamReportId);
+      } else {
+        // Create new team report
+        const { data: newTeamReport, error: createError } = await supabase
+          .from('team_reports')
+          .insert({
+            team: teamReport.team,
+            month: month,
+            year: year,
+            final_bill: 0,
+            final_pay: 0,
+            final_save: 0,
+            final_earn: 0,
+            storage_usd: 0,
+            storage_usdt: 0,
+            notes: null
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        targetTeamReportId = newTeamReport.id;
+        console.log('Created new team report:', targetTeamReportId);
+      }
+
       // Copy all current report details to new month/year
-      const copyPromises = reportDetails.map(detail => 
-        supabase.from('team_report_details').insert({
+      if (reportDetails.length > 0) {
+        const detailsToInsert = reportDetails.map(detail => ({
           employee_code: detail.employee_code,
           employee_name: detail.employee_name,
           team: detail.team,
@@ -138,10 +183,16 @@ const TeamReportDetailPage = () => {
           storage_usd: detail.storage_usd,
           storage_usdt: detail.storage_usdt,
           notes: detail.notes
-        })
-      );
+        }));
 
-      await Promise.all(copyPromises);
+        console.log('Copying details:', detailsToInsert.length);
+
+        const { error: insertError } = await supabase
+          .from('team_report_details')
+          .insert(detailsToInsert);
+
+        if (insertError) throw insertError;
+      }
       
       toast.success('Copy báo cáo thành công');
       navigate('/reports');
