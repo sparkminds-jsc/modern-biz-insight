@@ -17,6 +17,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Employee {
   id?: string;
@@ -40,7 +41,6 @@ interface EmployeeFormProps {
 }
 
 const CONTRACT_TYPES = ['Fresher', 'Thử việc', 'Một năm', 'Ba năm', 'Vĩnh viễn', 'Thời vụ'];
-const TEAMS = ['Team Đạt', 'Team Giang', 'Team Yến', 'Team Support'];
 const STATUSES = ['Đang làm', 'Đã nghỉ'];
 
 export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: EmployeeFormProps) {
@@ -52,9 +52,33 @@ export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: Emp
     contract_type: 'Fresher',
     contract_end_date: null,
     position: '',
-    team: 'Team Đạt',
+    team: '',
     status: 'Đang làm'
   });
+  const [teams, setTeams] = useState<string[]>([]);
+
+  // Fetch teams from database
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('teams')
+          .select('name')
+          .order('name');
+
+        if (error) throw error;
+        setTeams(data?.map(team => team.name) || []);
+      } catch (error) {
+        console.error('Error fetching teams:', error);
+        // Fallback to default teams if database fetch fails
+        setTeams(['Team Đạt', 'Team Giang', 'Team Yến', 'Team Support']);
+      }
+    };
+
+    if (isOpen) {
+      fetchTeams();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (employee) {
@@ -68,11 +92,11 @@ export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: Emp
         contract_type: 'Fresher',
         contract_end_date: null,
         position: '',
-        team: 'Team Đạt',
+        team: teams.length > 0 ? teams[0] : '',
         status: 'Đang làm'
       });
     }
-  }, [employee, isOpen]);
+  }, [employee, isOpen, teams]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,10 +198,10 @@ export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: Emp
               <Label htmlFor="team">Team</Label>
               <Select value={formData.team} onValueChange={(value) => handleChange('team', value)}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Chọn team" />
                 </SelectTrigger>
                 <SelectContent>
-                  {TEAMS.map((team) => (
+                  {teams.map((team) => (
                     <SelectItem key={team} value={team}>{team}</SelectItem>
                   ))}
                 </SelectContent>

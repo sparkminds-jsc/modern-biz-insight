@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { ReportsFilters } from '../components/reports/ReportsFilters';
@@ -9,6 +8,7 @@ import { TeamSummary } from '../components/reports/TeamSummary';
 import { TeamTable } from '../components/reports/TeamTable';
 import { TeamReportEditDialog } from '../components/reports/TeamReportEditDialog';
 import { CreateTeamReportDialog } from '../components/reports/CreateTeamReportDialog';
+import { CreateTeamDialog } from '../components/reports/CreateTeamDialog';
 import { RevenueDetailDialog } from '../components/revenue/RevenueDetailDialog';
 import { ExpenseDetailDialog } from '../components/expenses/ExpenseDetailDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -35,20 +35,21 @@ const ReportsPage = () => {
   const [showExpenseDetail, setShowExpenseDetail] = useState(false);
   const [showTeamEditDialog, setShowTeamEditDialog] = useState(false);
   const [showCreateTeamDialog, setShowCreateTeamDialog] = useState(false);
+  const [showCreateTeamReportDialog, setShowCreateTeamReportDialog] = useState(false);
 
   const fetchData = async () => {
     try {
-      const [revenueResult, expenseResult, teamReportsResult, employeesResult] = await Promise.all([
+      const [revenueResult, expenseResult, teamReportsResult, teamsResult] = await Promise.all([
         supabase.from('revenue').select('*').order('created_date', { ascending: false }),
         supabase.from('expenses').select('*').order('created_date', { ascending: false }),
         supabase.from('team_reports').select('*').order('year', { ascending: false }).order('month', { ascending: false }),
-        supabase.from('employees').select('team').order('team')
+        supabase.from('teams').select('name').order('name')
       ]);
 
       if (revenueResult.error) throw revenueResult.error;
       if (expenseResult.error) throw expenseResult.error;
       if (teamReportsResult.error) throw teamReportsResult.error;
-      if (employeesResult.error) throw employeesResult.error;
+      if (teamsResult.error) throw teamsResult.error;
 
       setRevenues(revenueResult.data || []);
       setExpenses(expenseResult.data || []);
@@ -58,9 +59,9 @@ const ReportsPage = () => {
       setTeamReports(teamReportsResult.data || []);
       setFilteredTeamReports(teamReportsResult.data || []);
       
-      // Get unique teams
-      const uniqueTeams = [...new Set(employeesResult.data?.map(emp => emp.team).filter(Boolean))];
-      setTeams(uniqueTeams);
+      // Get teams from the teams table
+      const teamNames = teamsResult.data?.map(team => team.name) || [];
+      setTeams(teamNames);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Có lỗi xảy ra khi tải dữ liệu');
@@ -170,16 +171,36 @@ const ReportsPage = () => {
     setShowTeamEditDialog(true);
   };
 
+  const handleDeleteTeamReport = async (report: any) => {
+    try {
+      const { error } = await supabase
+        .from('team_reports')
+        .delete()
+        .eq('id', report.id);
+
+      if (error) throw error;
+
+      toast.success('Xóa báo cáo thành công');
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting team report:', error);
+      toast.error('Có lỗi xảy ra khi xóa báo cáo');
+    }
+  };
+
   const handleCreateTeamReport = () => {
-    setShowCreateTeamDialog(true);
+    setShowCreateTeamReportDialog(true);
   };
 
   const handleCreateTeam = () => {
-    // TODO: Navigate to create team page
-    toast.info('Chức năng tạo team đang được phát triển');
+    setShowCreateTeamDialog(true);
   };
 
   const handleTeamReportSaved = () => {
+    fetchData();
+  };
+
+  const handleTeamCreated = () => {
     fetchData();
   };
 
@@ -245,6 +266,7 @@ const ReportsPage = () => {
               data={filteredTeamReports}
               onViewDetail={handleViewTeamDetail}
               onEdit={handleEditTeamReport}
+              onDelete={handleDeleteTeamReport}
             />
           </TabsContent>
         </Tabs>
@@ -270,10 +292,16 @@ const ReportsPage = () => {
         />
 
         <CreateTeamReportDialog
-          open={showCreateTeamDialog}
-          onClose={() => setShowCreateTeamDialog(false)}
+          open={showCreateTeamReportDialog}
+          onClose={() => setShowCreateTeamReportDialog(false)}
           teams={teams}
           onSave={handleTeamReportSaved}
+        />
+
+        <CreateTeamDialog
+          open={showCreateTeamDialog}
+          onClose={() => setShowCreateTeamDialog(false)}
+          onSave={handleTeamCreated}
         />
       </div>
     </AppLayout>
