@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+
 import { AppLayout } from '../components/layout/AppLayout';
 import { ReportsFilters } from '../components/reports/ReportsFilters';
 import { ReportsSummary } from '../components/reports/ReportsSummary';
@@ -12,230 +12,64 @@ import { CreateTeamDialog } from '../components/reports/CreateTeamDialog';
 import { RevenueDetailDialog } from '../components/revenue/RevenueDetailDialog';
 import { ExpenseDetailDialog } from '../components/expenses/ExpenseDetailDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { useReportsData } from '../hooks/useReportsData';
+import { useReportsFilters } from '../hooks/useReportsFilters';
+import { useTeamReportOperations } from '../hooks/useTeamReportOperations';
+import { useRevenueExpenseOperations } from '../hooks/useRevenueExpenseOperations';
 
 const ReportsPage = () => {
-  const [revenues, setRevenues] = useState<any[]>([]);
-  const [expenses, setExpenses] = useState<any[]>([]);
-  const [filteredRevenues, setFilteredRevenues] = useState<any[]>([]);
-  const [filteredExpenses, setFilteredExpenses] = useState<any[]>([]);
-  const [combinedData, setCombinedData] = useState<any[]>([]);
-  
-  // Team reports state
-  const [teamReports, setTeamReports] = useState<any[]>([]);
-  const [filteredTeamReports, setFilteredTeamReports] = useState<any[]>([]);
-  const [teams, setTeams] = useState<string[]>([]);
-  
-  const [loading, setLoading] = useState(true);
-  const [selectedRevenue, setSelectedRevenue] = useState<any>(null);
-  const [selectedExpense, setSelectedExpense] = useState<any>(null);
-  const [selectedTeamReport, setSelectedTeamReport] = useState<any>(null);
-  const [showRevenueDetail, setShowRevenueDetail] = useState(false);
-  const [showExpenseDetail, setShowExpenseDetail] = useState(false);
-  const [showTeamEditDialog, setShowTeamEditDialog] = useState(false);
-  const [showCreateTeamDialog, setShowCreateTeamDialog] = useState(false);
-  const [showCreateTeamReportDialog, setShowCreateTeamReportDialog] = useState(false);
+  const {
+    revenues,
+    expenses,
+    filteredRevenues,
+    filteredExpenses,
+    combinedData,
+    teamReports,
+    filteredTeamReports,
+    teams,
+    loading,
+    fetchData,
+    setFilteredRevenues,
+    setFilteredExpenses,
+    setFilteredTeamReports
+  } = useReportsData();
 
-  const fetchData = async () => {
-    try {
-      const [revenueResult, expenseResult, teamReportsResult, teamsResult] = await Promise.all([
-        supabase.from('revenue').select('*').order('created_date', { ascending: false }),
-        supabase.from('expenses').select('*').order('created_date', { ascending: false }),
-        supabase.from('team_reports').select('*').order('year', { ascending: false }).order('month', { ascending: false }),
-        supabase.from('teams').select('name').order('name')
-      ]);
+  const { handleFilter, handleTeamFilter } = useReportsFilters(
+    revenues,
+    expenses,
+    teamReports,
+    setFilteredRevenues,
+    setFilteredExpenses,
+    setFilteredTeamReports
+  );
 
-      if (revenueResult.error) throw revenueResult.error;
-      if (expenseResult.error) throw expenseResult.error;
-      if (teamReportsResult.error) throw teamReportsResult.error;
-      if (teamsResult.error) throw teamsResult.error;
+  const {
+    selectedTeamReport,
+    showTeamEditDialog,
+    showCreateTeamDialog,
+    showCreateTeamReportDialog,
+    setShowTeamEditDialog,
+    setShowCreateTeamDialog,
+    setShowCreateTeamReportDialog,
+    handleViewTeamDetail,
+    handleEditTeamReport,
+    handleDeleteTeamReport,
+    handleCreateTeamReport,
+    handleCreateTeam,
+    handleTeamReportSaved,
+    handleTeamCreated
+  } = useTeamReportOperations(fetchData);
 
-      setRevenues(revenueResult.data || []);
-      setExpenses(expenseResult.data || []);
-      setFilteredRevenues(revenueResult.data || []);
-      setFilteredExpenses(expenseResult.data || []);
-      
-      // Calculate final values from team_report_details for each team report
-      const teamReportsWithCalculatedValues = await Promise.all(
-        (teamReportsResult.data || []).map(async (report) => {
-          const { data: details } = await supabase
-            .from('team_report_details')
-            .select('*')
-            .eq('team', report.team)
-            .eq('month', report.month)
-            .eq('year', report.year);
-
-          if (details && details.length > 0) {
-            const final_bill = details.reduce((sum, item) => sum + (item.converted_vnd || 0), 0);
-            const final_pay = details.reduce((sum, item) => sum + (item.total_payment || 0), 0);
-            const final_save = details.reduce((sum, item) => sum + (item.converted_vnd || 0) + (item.package_vnd || 0) - (item.total_payment || 0), 0);
-            const final_earn = details.reduce((sum, item) => sum + (item.converted_vnd || 0) + (item.package_vnd || 0), 0);
-            const storage_usd = details.reduce((sum, item) => sum + (item.storage_usd || 0), 0);
-            const storage_usdt = details.reduce((sum, item) => sum + (item.storage_usdt || 0), 0);
-
-            return {
-              ...report,
-              final_bill,
-              final_pay,
-              final_save,
-              final_earn,
-              storage_usd,
-              storage_usdt
-            };
-          }
-
-          return report;
-        })
-      );
-      
-      setTeamReports(teamReportsWithCalculatedValues);
-      setFilteredTeamReports(teamReportsWithCalculatedValues);
-      
-      // Get teams from the teams table
-      const teamNames = teamsResult.data?.map(team => team.name) || [];
-      setTeams(teamNames);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      toast.error('Có lỗi xảy ra khi tải dữ liệu');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    // Combine revenue and expense data for the table
-    const revenueItems = filteredRevenues.map(item => ({
-      ...item,
-      type: 'revenue',
-      category: item.revenue_type,
-      wallet_type: item.wallet_type
-    }));
-
-    const expenseItems = filteredExpenses.map(item => ({
-      ...item,
-      type: 'expense',
-      category: item.expense_type,
-      wallet_type: item.wallet_type
-    }));
-
-    const combined = [...revenueItems, ...expenseItems].sort((a, b) => 
-      new Date(b.created_date).getTime() - new Date(a.created_date).getTime()
-    );
-
-    setCombinedData(combined);
-  }, [filteredRevenues, filteredExpenses]);
-
-  const handleFilter = (filters: any) => {
-    let filteredRevenue = [...revenues];
-    let filteredExpense = [...expenses];
-
-    if (filters.startDate) {
-      filteredRevenue = filteredRevenue.filter(item => 
-        new Date(item.created_date) >= filters.startDate
-      );
-      filteredExpense = filteredExpense.filter(item => 
-        new Date(item.created_date) >= filters.startDate
-      );
-    }
-
-    if (filters.endDate) {
-      filteredRevenue = filteredRevenue.filter(item => 
-        new Date(item.created_date) <= filters.endDate
-      );
-      filteredExpense = filteredExpense.filter(item => 
-        new Date(item.created_date) <= filters.endDate
-      );
-    }
-
-    if (filters.walletType) {
-      filteredRevenue = filteredRevenue.filter(item => 
-        item.wallet_type === filters.walletType
-      );
-      filteredExpense = filteredExpense.filter(item => 
-        item.wallet_type === filters.walletType
-      );
-    }
-
-    setFilteredRevenues(filteredRevenue);
-    setFilteredExpenses(filteredExpense);
-  };
-
-  const handleTeamFilter = async (filters: any) => {
-    let filtered = [...teamReports];
-
-    if (filters.months.length > 0) {
-      filtered = filtered.filter(item => filters.months.includes(item.month));
-    }
-
-    if (filters.years.length > 0) {
-      filtered = filtered.filter(item => filters.years.includes(item.year));
-    }
-
-    if (filters.team) {
-      filtered = filtered.filter(item => item.team === filters.team);
-    }
-
-    setFilteredTeamReports(filtered);
-  };
-
-  const handleViewRevenue = (revenue: any) => {
-    setSelectedRevenue(revenue);
-    setShowRevenueDetail(true);
-  };
-
-  const handleViewExpense = (expense: any) => {
-    setSelectedExpense(expense);
-    setShowExpenseDetail(true);
-  };
-
-  const handleViewTeamDetail = (report: any) => {
-    // TODO: Navigate to detailed team report page
-    console.log('View team detail:', report);
-    toast.info('Màn hình báo cáo chi tiết đang được phát triển');
-  };
-
-  const handleEditTeamReport = (report: any) => {
-    setSelectedTeamReport(report);
-    setShowTeamEditDialog(true);
-  };
-
-  const handleDeleteTeamReport = async (report: any) => {
-    try {
-      const { error } = await supabase
-        .from('team_reports')
-        .delete()
-        .eq('id', report.id);
-
-      if (error) throw error;
-
-      toast.success('Xóa báo cáo thành công');
-      fetchData();
-    } catch (error) {
-      console.error('Error deleting team report:', error);
-      toast.error('Có lỗi xảy ra khi xóa báo cáo');
-    }
-  };
-
-  const handleCreateTeamReport = () => {
-    setShowCreateTeamReportDialog(true);
-  };
-
-  const handleCreateTeam = () => {
-    setShowCreateTeamDialog(true);
-  };
-
-  const handleTeamReportSaved = () => {
-    fetchData();
-  };
-
-  const handleTeamCreated = () => {
-    fetchData();
-  };
+  const {
+    selectedRevenue,
+    selectedExpense,
+    showRevenueDetail,
+    showExpenseDetail,
+    setShowRevenueDetail,
+    setShowExpenseDetail,
+    handleViewRevenue,
+    handleViewExpense
+  } = useRevenueExpenseOperations();
 
   if (loading) {
     return (
