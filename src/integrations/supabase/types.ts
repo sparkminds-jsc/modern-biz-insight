@@ -517,6 +517,81 @@ export type Database = {
         }
         Relationships: []
       }
+      team_report_details: {
+        Row: {
+          billable_hours: number
+          company_payment: number
+          converted_vnd: number | null
+          created_at: string
+          employee_code: string
+          employee_name: string
+          fx_rate: number
+          has_salary: boolean
+          id: string
+          month: number
+          notes: string | null
+          package_vnd: number
+          percentage: number
+          percentage_ratio: number | null
+          rate: number
+          salary_13: number
+          storage_usd: number
+          storage_usdt: number
+          team: string
+          total_payment: number | null
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          billable_hours?: number
+          company_payment?: number
+          converted_vnd?: number | null
+          created_at?: string
+          employee_code: string
+          employee_name: string
+          fx_rate?: number
+          has_salary?: boolean
+          id?: string
+          month: number
+          notes?: string | null
+          package_vnd?: number
+          percentage?: number
+          percentage_ratio?: number | null
+          rate?: number
+          salary_13?: number
+          storage_usd?: number
+          storage_usdt?: number
+          team: string
+          total_payment?: number | null
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          billable_hours?: number
+          company_payment?: number
+          converted_vnd?: number | null
+          created_at?: string
+          employee_code?: string
+          employee_name?: string
+          fx_rate?: number
+          has_salary?: boolean
+          id?: string
+          month?: number
+          notes?: string | null
+          package_vnd?: number
+          percentage?: number
+          percentage_ratio?: number | null
+          rate?: number
+          salary_13?: number
+          storage_usd?: number
+          storage_usdt?: number
+          team?: string
+          total_payment?: number | null
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
       team_reports: {
         Row: {
           created_at: string

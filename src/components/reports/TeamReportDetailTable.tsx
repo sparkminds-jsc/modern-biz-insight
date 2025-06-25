@@ -1,24 +1,26 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Eye, Edit, ArrowUpDown } from 'lucide-react';
+import { Edit, Trash2, ArrowUpDown } from 'lucide-react';
 
-interface TeamTableProps {
+interface TeamReportDetailTableProps {
   data: any[];
-  onViewDetail: (report: any) => void;
-  onEdit: (report: any) => void;
+  onEdit: (detail: any) => void;
+  onDelete: (detail: any) => void;
 }
 
-export function TeamTable({ data, onViewDetail, onEdit }: TeamTableProps) {
-  const navigate = useNavigate();
+export function TeamReportDetailTable({ data, onEdit, onDelete }: TeamReportDetailTableProps) {
   const [sortField, setSortField] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   const formatCurrency = (amount: number) => {
-    const rounded = Math.round(amount);
+    const rounded = Math.round(amount || 0);
     return rounded.toLocaleString('vi-VN');
+  };
+
+  const formatPercentage = (value: number) => {
+    return `${Math.round(value || 0)}%`;
   };
 
   const handleSort = (field: string) => {
@@ -28,10 +30,6 @@ export function TeamTable({ data, onViewDetail, onEdit }: TeamTableProps) {
       setSortField(field);
       setSortDirection('asc');
     }
-  };
-
-  const handleViewDetail = (report: any) => {
-    navigate(`/reports/team/${report.id}`);
   };
 
   const sortedData = [...data].sort((a, b) => {
@@ -70,13 +68,21 @@ export function TeamTable({ data, onViewDetail, onEdit }: TeamTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-16">STT</TableHead>
-            <SortableHeader field="team">Team</SortableHeader>
-            <SortableHeader field="year">Năm</SortableHeader>
+            <SortableHeader field="employee_code">Mã nhân viên</SortableHeader>
+            <SortableHeader field="employee_name">Tên nhân viên</SortableHeader>
             <SortableHeader field="month">Tháng</SortableHeader>
-            <SortableHeader field="final_bill">Final Bill</SortableHeader>
-            <SortableHeader field="final_pay">Final Pay</SortableHeader>
-            <SortableHeader field="final_save">Final Save</SortableHeader>
-            <SortableHeader field="final_earn">Final Earn</SortableHeader>
+            <SortableHeader field="year">Năm</SortableHeader>
+            <SortableHeader field="billable_hours">Giờ có bill</SortableHeader>
+            <SortableHeader field="rate">Rate</SortableHeader>
+            <SortableHeader field="fx_rate">FX Rate</SortableHeader>
+            <SortableHeader field="percentage">Percentage</SortableHeader>
+            <SortableHeader field="converted_vnd">Qui đổi VND</SortableHeader>
+            <SortableHeader field="package_vnd">Trọn gói VND</SortableHeader>
+            <SortableHeader field="has_salary">Có tính lương</SortableHeader>
+            <SortableHeader field="company_payment">Công ty chi trả</SortableHeader>
+            <SortableHeader field="salary_13">Lương 13</SortableHeader>
+            <SortableHeader field="total_payment">Tổng chi trả</SortableHeader>
+            <SortableHeader field="percentage_ratio">Tỉ lệ %</SortableHeader>
             <SortableHeader field="storage_usd">Lưu trữ USD</SortableHeader>
             <SortableHeader field="storage_usdt">Lưu trữ USDT</SortableHeader>
             <TableHead>Chú thích</TableHead>
@@ -87,13 +93,21 @@ export function TeamTable({ data, onViewDetail, onEdit }: TeamTableProps) {
           {sortedData.map((item, index) => (
             <TableRow key={item.id}>
               <TableCell>{index + 1}</TableCell>
-              <TableCell>{item.team}</TableCell>
-              <TableCell>{item.year}</TableCell>
+              <TableCell>{item.employee_code}</TableCell>
+              <TableCell>{item.employee_name}</TableCell>
               <TableCell>{String(item.month).padStart(2, '0')}</TableCell>
-              <TableCell>{formatCurrency(item.final_bill)}</TableCell>
-              <TableCell>{formatCurrency(item.final_pay)}</TableCell>
-              <TableCell>{formatCurrency(item.final_save)}</TableCell>
-              <TableCell>{formatCurrency(item.final_earn)}</TableCell>
+              <TableCell>{item.year}</TableCell>
+              <TableCell>{formatCurrency(item.billable_hours)}</TableCell>
+              <TableCell>{formatCurrency(item.rate)}</TableCell>
+              <TableCell>{formatCurrency(item.fx_rate)}</TableCell>
+              <TableCell>{item.percentage}%</TableCell>
+              <TableCell>{formatCurrency(item.converted_vnd)}</TableCell>
+              <TableCell>{formatCurrency(item.package_vnd)}</TableCell>
+              <TableCell>{item.has_salary ? 'Có' : 'Không'}</TableCell>
+              <TableCell>{formatCurrency(item.company_payment)}</TableCell>
+              <TableCell>{formatCurrency(item.salary_13)}</TableCell>
+              <TableCell>{formatCurrency(item.total_payment)}</TableCell>
+              <TableCell>{formatPercentage(item.percentage_ratio)}</TableCell>
               <TableCell>{formatCurrency(item.storage_usd)}</TableCell>
               <TableCell>{formatCurrency(item.storage_usdt)}</TableCell>
               <TableCell className="max-w-32 truncate">
@@ -104,16 +118,16 @@ export function TeamTable({ data, onViewDetail, onEdit }: TeamTableProps) {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleViewDetail(item)}
+                    onClick={() => onEdit(item)}
                   >
-                    <Eye className="h-3 w-3" />
+                    <Edit className="h-3 w-3" />
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => onEdit(item)}
+                    onClick={() => onDelete(item)}
                   >
-                    <Edit className="h-3 w-3" />
+                    <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
               </TableCell>
