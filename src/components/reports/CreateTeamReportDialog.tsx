@@ -21,12 +21,6 @@ export function CreateTeamReportDialog({ open, onClose, teams, onSave }: CreateT
     year: new Date().getFullYear().toString(),
     month: (new Date().getMonth() + 1).toString(),
     team: '',
-    final_bill: '',
-    final_pay: '',
-    final_save: '',
-    final_earn: '',
-    storage_usd: '',
-    storage_usdt: '',
     notes: ''
   });
   const [loading, setLoading] = useState(false);
@@ -46,12 +40,12 @@ export function CreateTeamReportDialog({ open, onClose, teams, onSave }: CreateT
           year: parseInt(formData.year),
           month: parseInt(formData.month),
           team: formData.team,
-          final_bill: parseFloat(formData.final_bill) || 0,
-          final_pay: parseFloat(formData.final_pay) || 0,
-          final_save: parseFloat(formData.final_save) || 0,
-          final_earn: parseFloat(formData.final_earn) || 0,
-          storage_usd: parseFloat(formData.storage_usd) || 0,
-          storage_usdt: parseFloat(formData.storage_usdt) || 0,
+          final_bill: 0, // Will be calculated from details
+          final_pay: 0, // Will be calculated from details
+          final_save: 0, // Will be calculated from details
+          final_earn: 0, // Will be calculated from details
+          storage_usd: 0, // Will be calculated from details
+          storage_usdt: 0, // Will be calculated from details
           notes: formData.notes
         });
 
@@ -65,12 +59,6 @@ export function CreateTeamReportDialog({ open, onClose, teams, onSave }: CreateT
         year: new Date().getFullYear().toString(),
         month: (new Date().getMonth() + 1).toString(),
         team: '',
-        final_bill: '',
-        final_pay: '',
-        final_save: '',
-        final_earn: '',
-        storage_usd: '',
-        storage_usdt: '',
         notes: ''
       });
     } catch (error) {
@@ -90,13 +78,13 @@ export function CreateTeamReportDialog({ open, onClose, teams, onSave }: CreateT
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Tạo báo cáo Team</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="year">Năm</Label>
               <Input
@@ -119,88 +107,20 @@ export function CreateTeamReportDialog({ open, onClose, teams, onSave }: CreateT
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="team">Team</Label>
-              <Select value={formData.team} onValueChange={(value) => handleInputChange('team', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn team" />
-                </SelectTrigger>
-                <SelectContent>
-                  {teams.map((team) => (
-                    <SelectItem key={team} value={team}>{team}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="final_bill">Final Bill</Label>
-              <Input
-                id="final_bill"
-                type="number"
-                step="0.01"
-                value={formData.final_bill}
-                onChange={(e) => handleInputChange('final_bill', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="final_pay">Final Pay</Label>
-              <Input
-                id="final_pay"
-                type="number"
-                step="0.01"
-                value={formData.final_pay}
-                onChange={(e) => handleInputChange('final_pay', e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="final_save">Final Save</Label>
-              <Input
-                id="final_save"
-                type="number"
-                step="0.01"
-                value={formData.final_save}
-                onChange={(e) => handleInputChange('final_save', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="final_earn">Final Earn</Label>
-              <Input
-                id="final_earn"
-                type="number"
-                step="0.01"
-                value={formData.final_earn}
-                onChange={(e) => handleInputChange('final_earn', e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="storage_usd">Lưu trữ USD</Label>
-              <Input
-                id="storage_usd"
-                type="number"
-                step="0.01"
-                value={formData.storage_usd}
-                onChange={(e) => handleInputChange('storage_usd', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="storage_usdt">Lưu trữ USDT</Label>
-              <Input
-                id="storage_usdt"
-                type="number"
-                step="0.01"
-                value={formData.storage_usdt}
-                onChange={(e) => handleInputChange('storage_usdt', e.target.value)}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="team">Team</Label>
+            <Select value={formData.team} onValueChange={(value) => handleInputChange('team', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn team" />
+              </SelectTrigger>
+              <SelectContent>
+                {teams.map((team) => (
+                  <SelectItem key={team} value={team}>{team}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

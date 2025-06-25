@@ -19,8 +19,6 @@ export function TeamReportEditDialog({ open, onClose, report, onSave }: TeamRepo
   const [formData, setFormData] = useState({
     year: '',
     month: '',
-    storage_usd: '',
-    storage_usdt: '',
     notes: ''
   });
   const [loading, setLoading] = useState(false);
@@ -30,8 +28,6 @@ export function TeamReportEditDialog({ open, onClose, report, onSave }: TeamRepo
       setFormData({
         year: report.year?.toString() || '',
         month: report.month?.toString() || '',
-        storage_usd: report.storage_usd?.toString() || '',
-        storage_usdt: report.storage_usdt?.toString() || '',
         notes: report.notes || ''
       });
     }
@@ -48,8 +44,6 @@ export function TeamReportEditDialog({ open, onClose, report, onSave }: TeamRepo
         .update({
           year: parseInt(formData.year),
           month: parseInt(formData.month),
-          storage_usd: parseFloat(formData.storage_usd) || 0,
-          storage_usdt: parseFloat(formData.storage_usdt) || 0,
           notes: formData.notes,
           updated_at: new Date().toISOString()
         })
@@ -109,28 +103,6 @@ export function TeamReportEditDialog({ open, onClose, report, onSave }: TeamRepo
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="storage_usd">Lưu trữ USD</Label>
-            <Input
-              id="storage_usd"
-              type="number"
-              step="0.01"
-              value={formData.storage_usd}
-              onChange={(e) => handleInputChange('storage_usd', e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="storage_usdt">Lưu trữ USDT</Label>
-            <Input
-              id="storage_usdt" 
-              type="number"
-              step="0.01"
-              value={formData.storage_usdt}
-              onChange={(e) => handleInputChange('storage_usdt', e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="notes">Chú thích</Label>
             <Textarea
               id="notes"
@@ -138,6 +110,12 @@ export function TeamReportEditDialog({ open, onClose, report, onSave }: TeamRepo
               onChange={(e) => handleInputChange('notes', e.target.value)}
               rows={3}
             />
+          </div>
+
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-600 mb-2">
+              <strong>Lưu ý:</strong> Các giá trị Final Bill, Final Pay, Final Save, Final Earn, Lưu trữ USD và Lưu trữ USDT sẽ được tính toán tự động từ dữ liệu chi tiết.
+            </p>
           </div>
 
           <div className="flex justify-end space-x-2">

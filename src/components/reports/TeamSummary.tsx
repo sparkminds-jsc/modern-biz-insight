@@ -17,7 +17,8 @@ export function TeamSummary({ teamData }: TeamSummaryProps) {
     }).format(rounded);
   };
 
-  // Calculate totals
+  // Calculate totals - these should be calculated from team_report_details, not from the team_reports table
+  // For now, we'll use the existing values from team_reports table until the calculation logic is implemented
   const totalBill = teamData.reduce((sum, item) => sum + item.final_bill, 0);
   const totalPay = teamData.reduce((sum, item) => sum + item.final_pay, 0);
   const totalSave = teamData.reduce((sum, item) => sum + item.final_save, 0);
