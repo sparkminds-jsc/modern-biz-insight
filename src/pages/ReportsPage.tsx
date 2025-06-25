@@ -56,8 +56,41 @@ const ReportsPage = () => {
       setFilteredRevenues(revenueResult.data || []);
       setFilteredExpenses(expenseResult.data || []);
       
-      setTeamReports(teamReportsResult.data || []);
-      setFilteredTeamReports(teamReportsResult.data || []);
+      // Calculate final values from team_report_details for each team report
+      const teamReportsWithCalculatedValues = await Promise.all(
+        (teamReportsResult.data || []).map(async (report) => {
+          const { data: details } = await supabase
+            .from('team_report_details')
+            .select('*')
+            .eq('team', report.team)
+            .eq('month', report.month)
+            .eq('year', report.year);
+
+          if (details && details.length > 0) {
+            const final_bill = details.reduce((sum, item) => sum + (item.converted_vnd || 0), 0);
+            const final_pay = details.reduce((sum, item) => sum + (item.total_payment || 0), 0);
+            const final_save = details.reduce((sum, item) => sum + (item.converted_vnd || 0) + (item.package_vnd || 0) - (item.total_payment || 0), 0);
+            const final_earn = details.reduce((sum, item) => sum + (item.converted_vnd || 0) + (item.package_vnd || 0), 0);
+            const storage_usd = details.reduce((sum, item) => sum + (item.storage_usd || 0), 0);
+            const storage_usdt = details.reduce((sum, item) => sum + (item.storage_usdt || 0), 0);
+
+            return {
+              ...report,
+              final_bill,
+              final_pay,
+              final_save,
+              final_earn,
+              storage_usd,
+              storage_usdt
+            };
+          }
+
+          return report;
+        })
+      );
+      
+      setTeamReports(teamReportsWithCalculatedValues);
+      setFilteredTeamReports(teamReportsWithCalculatedValues);
       
       // Get teams from the teams table
       const teamNames = teamsResult.data?.map(team => team.name) || [];
@@ -132,7 +165,7 @@ const ReportsPage = () => {
     setFilteredExpenses(filteredExpense);
   };
 
-  const handleTeamFilter = (filters: any) => {
+  const handleTeamFilter = async (filters: any) => {
     let filtered = [...teamReports];
 
     if (filters.months.length > 0) {
