@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
@@ -18,12 +19,13 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 
 const SalaryDetailPage = () => {
-  const { id } = useParams<{ id: string }>();
+  const { salarySheetId } = useParams<{ salarySheetId: string }>();
   const navigate = useNavigate();
   const [salarySheet, setSalarySheet] = useState<SalarySheet | null>(null);
   const [salaryDetails, setSalaryDetails] = useState<SalaryDetail[]>([]);
   const [filteredSalaryDetails, setFilteredSalaryDetails] = useState<SalaryDetail[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<SalaryDetailFiltersType>({
     employee_code: '',
     employee_name: '',
@@ -43,10 +45,14 @@ const SalaryDetailPage = () => {
   const [showCopyDialog, setShowCopyDialog] = useState(false);
 
   useEffect(() => {
-    if (id) {
+    console.log('SalaryDetailPage - salarySheetId:', salarySheetId);
+    if (salarySheetId) {
       fetchSalarySheetAndDetails();
+    } else {
+      setError('Không tìm thấy ID bảng lương');
+      setLoading(false);
     }
-  }, [id]);
+  }, [salarySheetId]);
 
   useEffect(() => {
     handleSearch();
@@ -55,28 +61,50 @@ const SalaryDetailPage = () => {
   const fetchSalarySheetAndDetails = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      console.log('Fetching salary sheet with ID:', salarySheetId);
       
       // Fetch salary sheet
       const { data: sheetData, error: sheetError } = await supabase
         .from('salary_sheets')
         .select('*')
-        .eq('id', id)
+        .eq('id', salarySheetId)
         .single();
 
-      if (sheetError) throw sheetError;
+      console.log('Salary sheet data:', sheetData);
+      console.log('Salary sheet error:', sheetError);
+
+      if (sheetError) {
+        console.error('Error fetching salary sheet:', sheetError);
+        throw sheetError;
+      }
+      
+      if (!sheetData) {
+        throw new Error('Không tìm thấy bảng lương');
+      }
+
       setSalarySheet(sheetData);
 
       // Fetch salary details
       const { data: detailsData, error: detailsError } = await supabase
         .from('salary_details')
         .select('*')
-        .eq('salary_sheet_id', id)
+        .eq('salary_sheet_id', salarySheetId)
         .order('employee_code');
 
-      if (detailsError) throw detailsError;
+      console.log('Salary details data:', detailsData);
+      console.log('Salary details error:', detailsError);
+
+      if (detailsError) {
+        console.error('Error fetching salary details:', detailsError);
+        throw detailsError;
+      }
+
       setSalaryDetails(detailsData || []);
     } catch (error) {
       console.error('Error fetching salary data:', error);
+      setError(error instanceof Error ? error.message : 'Không thể tải dữ liệu chi tiết bảng lương');
       toast({
         title: 'Lỗi',
         description: 'Không thể tải dữ liệu chi tiết bảng lương',
@@ -185,7 +213,7 @@ const SalaryDetailPage = () => {
     );
   }
 
-  if (!salarySheet) {
+  if (error || !salarySheet) {
     return (
       <AppLayout>
         <div className="space-y-6">
@@ -200,8 +228,18 @@ const SalaryDetailPage = () => {
             </Button>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Chi tiết bảng lương</h1>
-              <p className="text-gray-600">Không tìm thấy bảng lương</p>
+              <p className="text-gray-600">Lỗi tải dữ liệu</p>
             </div>
+          </div>
+          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
+            <p className="text-red-500">{error || 'Không tìm thấy bảng lương'}</p>
+            <Button 
+              onClick={fetchSalarySheetAndDetails} 
+              className="mt-4"
+              variant="outline"
+            >
+              Thử lại
+            </Button>
           </div>
         </div>
       </AppLayout>
@@ -253,7 +291,7 @@ const SalaryDetailPage = () => {
           onClose={() => setShowEditForm(false)}
           onSave={handleFormSave}
           salaryDetail={editingSalaryDetail}
-          salarySheetId={id!}
+          salarySheetId={salarySheetId!}
           month={salarySheet.month}
           year={salarySheet.year}
         />
@@ -263,7 +301,7 @@ const SalaryDetailPage = () => {
           isOpen={showCopyDialog}
           onClose={() => setShowCopyDialog(false)}
           onSuccess={handleCopySuccess}
-          salarySheetId={id!}
+          salarySheetId={salarySheetId!}
         />
       </div>
     </AppLayout>
