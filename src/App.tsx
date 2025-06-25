@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Index from './pages/Index';
@@ -12,7 +13,7 @@ import InvoicePage from './pages/InvoicePage';
 import ContractsPage from './pages/ContractsPage';
 import KPIPage from './pages/KPIPage';
 import NotFound from './pages/NotFound';
-import ProtectedRoute from './components/auth/ProtectedRoute';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import TeamReportDetailPage from './pages/TeamReportDetailPage';
 
 function App() {
