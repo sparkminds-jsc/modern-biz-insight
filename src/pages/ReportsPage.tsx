@@ -4,6 +4,11 @@ import { AppLayout } from '../components/layout/AppLayout';
 import { ReportsFilters } from '../components/reports/ReportsFilters';
 import { ReportsSummary } from '../components/reports/ReportsSummary';
 import { ReportsTable } from '../components/reports/ReportsTable';
+import { TeamFilters } from '../components/reports/TeamFilters';
+import { TeamSummary } from '../components/reports/TeamSummary';
+import { TeamTable } from '../components/reports/TeamTable';
+import { TeamReportEditDialog } from '../components/reports/TeamReportEditDialog';
+import { CreateTeamReportDialog } from '../components/reports/CreateTeamReportDialog';
 import { RevenueDetailDialog } from '../components/revenue/RevenueDetailDialog';
 import { ExpenseDetailDialog } from '../components/expenses/ExpenseDetailDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,26 +21,46 @@ const ReportsPage = () => {
   const [filteredRevenues, setFilteredRevenues] = useState<any[]>([]);
   const [filteredExpenses, setFilteredExpenses] = useState<any[]>([]);
   const [combinedData, setCombinedData] = useState<any[]>([]);
+  
+  // Team reports state
+  const [teamReports, setTeamReports] = useState<any[]>([]);
+  const [filteredTeamReports, setFilteredTeamReports] = useState<any[]>([]);
+  const [teams, setTeams] = useState<string[]>([]);
+  
   const [loading, setLoading] = useState(true);
   const [selectedRevenue, setSelectedRevenue] = useState<any>(null);
   const [selectedExpense, setSelectedExpense] = useState<any>(null);
+  const [selectedTeamReport, setSelectedTeamReport] = useState<any>(null);
   const [showRevenueDetail, setShowRevenueDetail] = useState(false);
   const [showExpenseDetail, setShowExpenseDetail] = useState(false);
+  const [showTeamEditDialog, setShowTeamEditDialog] = useState(false);
+  const [showCreateTeamDialog, setShowCreateTeamDialog] = useState(false);
 
   const fetchData = async () => {
     try {
-      const [revenueResult, expenseResult] = await Promise.all([
+      const [revenueResult, expenseResult, teamReportsResult, employeesResult] = await Promise.all([
         supabase.from('revenue').select('*').order('created_date', { ascending: false }),
-        supabase.from('expenses').select('*').order('created_date', { ascending: false })
+        supabase.from('expenses').select('*').order('created_date', { ascending: false }),
+        supabase.from('team_reports').select('*').order('year', { ascending: false }).order('month', { ascending: false }),
+        supabase.from('employees').select('team').order('team')
       ]);
 
       if (revenueResult.error) throw revenueResult.error;
       if (expenseResult.error) throw expenseResult.error;
+      if (teamReportsResult.error) throw teamReportsResult.error;
+      if (employeesResult.error) throw employeesResult.error;
 
       setRevenues(revenueResult.data || []);
       setExpenses(expenseResult.data || []);
       setFilteredRevenues(revenueResult.data || []);
       setFilteredExpenses(expenseResult.data || []);
+      
+      setTeamReports(teamReportsResult.data || []);
+      setFilteredTeamReports(teamReportsResult.data || []);
+      
+      // Get unique teams
+      const uniqueTeams = [...new Set(employeesResult.data?.map(emp => emp.team).filter(Boolean))];
+      setTeams(uniqueTeams);
     } catch (error) {
       console.error('Error fetching data:', error);
       toast.error('Có lỗi xảy ra khi tải dữ liệu');
@@ -106,6 +131,24 @@ const ReportsPage = () => {
     setFilteredExpenses(filteredExpense);
   };
 
+  const handleTeamFilter = (filters: any) => {
+    let filtered = [...teamReports];
+
+    if (filters.months.length > 0) {
+      filtered = filtered.filter(item => filters.months.includes(item.month));
+    }
+
+    if (filters.years.length > 0) {
+      filtered = filtered.filter(item => filters.years.includes(item.year));
+    }
+
+    if (filters.team) {
+      filtered = filtered.filter(item => item.team === filters.team);
+    }
+
+    setFilteredTeamReports(filtered);
+  };
+
   const handleViewRevenue = (revenue: any) => {
     setSelectedRevenue(revenue);
     setShowRevenueDetail(true);
@@ -114,6 +157,30 @@ const ReportsPage = () => {
   const handleViewExpense = (expense: any) => {
     setSelectedExpense(expense);
     setShowExpenseDetail(true);
+  };
+
+  const handleViewTeamDetail = (report: any) => {
+    // TODO: Navigate to detailed team report page
+    console.log('View team detail:', report);
+    toast.info('Màn hình báo cáo chi tiết đang được phát triển');
+  };
+
+  const handleEditTeamReport = (report: any) => {
+    setSelectedTeamReport(report);
+    setShowTeamEditDialog(true);
+  };
+
+  const handleCreateTeamReport = () => {
+    setShowCreateTeamDialog(true);
+  };
+
+  const handleCreateTeam = () => {
+    // TODO: Navigate to create team page
+    toast.info('Chức năng tạo team đang được phát triển');
+  };
+
+  const handleTeamReportSaved = () => {
+    fetchData();
   };
 
   if (loading) {
@@ -162,9 +229,23 @@ const ReportsPage = () => {
           </TabsContent>
           
           <TabsContent value="team" className="space-y-6">
-            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
-              <p className="text-gray-500">Tab Team đang được phát triển</p>
-            </div>
+            {/* Team Filters */}
+            <TeamFilters 
+              onFilter={handleTeamFilter}
+              onCreateReport={handleCreateTeamReport}
+              onCreateTeam={handleCreateTeam}
+              teams={teams}
+            />
+
+            {/* Team Summary */}
+            <TeamSummary teamData={filteredTeamReports} />
+
+            {/* Team Table */}
+            <TeamTable 
+              data={filteredTeamReports}
+              onViewDetail={handleViewTeamDetail}
+              onEdit={handleEditTeamReport}
+            />
           </TabsContent>
         </Tabs>
 
@@ -179,6 +260,20 @@ const ReportsPage = () => {
           open={showExpenseDetail}
           onClose={() => setShowExpenseDetail(false)}
           expense={selectedExpense}
+        />
+
+        <TeamReportEditDialog
+          open={showTeamEditDialog}
+          onClose={() => setShowTeamEditDialog(false)}
+          report={selectedTeamReport}
+          onSave={handleTeamReportSaved}
+        />
+
+        <CreateTeamReportDialog
+          open={showCreateTeamDialog}
+          onClose={() => setShowCreateTeamDialog(false)}
+          teams={teams}
+          onSave={handleTeamReportSaved}
         />
       </div>
     </AppLayout>

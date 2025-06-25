@@ -517,6 +517,54 @@ export type Database = {
         }
         Relationships: []
       }
+      team_reports: {
+        Row: {
+          created_at: string
+          final_bill: number
+          final_earn: number
+          final_pay: number
+          final_save: number
+          id: string
+          month: number
+          notes: string | null
+          storage_usd: number
+          storage_usdt: number
+          team: string
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          final_bill?: number
+          final_earn?: number
+          final_pay?: number
+          final_save?: number
+          id?: string
+          month: number
+          notes?: string | null
+          storage_usd?: number
+          storage_usdt?: number
+          team: string
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          final_bill?: number
+          final_earn?: number
+          final_pay?: number
+          final_save?: number
+          id?: string
+          month?: number
+          notes?: string | null
+          storage_usd?: number
+          storage_usdt?: number
+          team?: string
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
