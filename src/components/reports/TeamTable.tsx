@@ -64,6 +64,7 @@ export function TeamTable({ data, onViewDetail, onEdit }: TeamTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-16">STT</TableHead>
+            <SortableHeader field="team">Team</SortableHeader>
             <SortableHeader field="year">Năm</SortableHeader>
             <SortableHeader field="month">Tháng</SortableHeader>
             <SortableHeader field="final_bill">Final Bill</SortableHeader>
@@ -80,6 +81,7 @@ export function TeamTable({ data, onViewDetail, onEdit }: TeamTableProps) {
           {sortedData.map((item, index) => (
             <TableRow key={item.id}>
               <TableCell>{index + 1}</TableCell>
+              <TableCell>{item.team}</TableCell>
               <TableCell>{item.year}</TableCell>
               <TableCell>{String(item.month).padStart(2, '0')}</TableCell>
               <TableCell>{formatCurrency(item.final_bill)}</TableCell>
