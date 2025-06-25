@@ -28,7 +28,7 @@ const menuItems = [
   { icon: Receipt, label: 'Quản lý Invoice', path: '/invoice' },
   { icon: TrendingUp, label: 'Quản lý doanh thu', path: '/revenue' },
   { icon: PieChart, label: 'Quản lý chi phí', path: '/expenses' },
-  { icon: FileBarChart, label: 'Quản lý báo cáo team', path: '/reports' },
+  { icon: FileBarChart, label: 'Quản lý báo cáo', path: '/reports' },
 ];
 
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {

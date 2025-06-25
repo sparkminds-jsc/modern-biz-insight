@@ -181,21 +181,25 @@ const TeamReportDetailPage = () => {
   return (
     <AppLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Báo cáo chi tiết - {teamReport.team} ({teamReport.month}/{teamReport.year})
-            </h1>
-            <p className="text-gray-600">Chi tiết báo cáo từng nhân viên</p>
-          </div>
+        {/* Back button positioned at the top left */}
+        <div className="flex items-center gap-4">
           <Button
             onClick={handleBackToReports}
             variant="outline"
+            size="sm"
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
             Quay lại
           </Button>
+        </div>
+
+        {/* Header */}
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Báo cáo chi tiết - {teamReport.team} ({teamReport.month}/{teamReport.year})
+          </h1>
+          <p className="text-gray-600">Chi tiết báo cáo từng nhân viên</p>
         </div>
 
         {/* Filters */}
