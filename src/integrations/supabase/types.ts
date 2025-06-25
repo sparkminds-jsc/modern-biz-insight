@@ -96,6 +96,54 @@ export type Database = {
         }
         Relationships: []
       }
+      expenses: {
+        Row: {
+          amount_usd: number
+          amount_usdt: number
+          amount_vnd: number
+          content: string
+          created_at: string
+          created_date: string
+          expense_type: string
+          id: string
+          invoice_files: Json | null
+          is_finalized: boolean
+          notes: string | null
+          updated_at: string
+          wallet_type: string
+        }
+        Insert: {
+          amount_usd?: number
+          amount_usdt?: number
+          amount_vnd?: number
+          content: string
+          created_at?: string
+          created_date?: string
+          expense_type: string
+          id?: string
+          invoice_files?: Json | null
+          is_finalized?: boolean
+          notes?: string | null
+          updated_at?: string
+          wallet_type: string
+        }
+        Update: {
+          amount_usd?: number
+          amount_usdt?: number
+          amount_vnd?: number
+          content?: string
+          created_at?: string
+          created_date?: string
+          expense_type?: string
+          id?: string
+          invoice_files?: Json | null
+          is_finalized?: boolean
+          notes?: string | null
+          updated_at?: string
+          wallet_type?: string
+        }
+        Relationships: []
+      }
       invoice_items: {
         Row: {
           amount: number
