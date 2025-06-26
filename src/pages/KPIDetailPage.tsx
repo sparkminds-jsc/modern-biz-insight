@@ -40,32 +40,32 @@ const KPIDetailPage = () => {
       totalMonthlyKPI: 102,
       workProductivity: {
         total: 95,
-        completedOnTime: '0',
+        completedOnTime: 0,
         overdueTask: 2,
-        taskTarget: '0',
+        taskTarget: 0,
         locTarget: 12000,
         lotTarget: 1200,
-        effortRatio: '0',
-        gitActivity: '0'
+        effortRatio: 0,
+        gitActivity: 0
       },
       workQuality: {
         total: 88,
         prodBugs: 1,
         testBugs: 3,
-        mergeRatio: '0'
+        mergeRatio: 0
       },
       attitude: {
         total: 92,
-        positiveAttitude: '0',
+        positiveAttitude: 0,
         techSharing: 2,
         techArticles: 1,
         mentoring: 1,
-        teamManagement: '1'
+        teamManagement: 1
       },
       progress: {
         total: 87,
-        onTimeCompletion: '0',
-        storyPointAccuracy: '0',
+        onTimeCompletion: 0,
+        storyPointAccuracy: 0,
         planChanges: 2
       },
       requirements: {
@@ -75,9 +75,9 @@ const KPIDetailPage = () => {
       },
       recruitment: {
         total: 0,
-        cvCount: '0',
+        cvCount: 0,
         passedCandidates: 0,
-        recruitmentCost: '0'
+        recruitmentCost: 0
       },
       revenue: {
         clientsOver100M: 1
@@ -95,32 +95,32 @@ const KPIDetailPage = () => {
       totalMonthlyKPI: 114,
       workProductivity: {
         total: 98,
-        completedOnTime: '0.5',
+        completedOnTime: 0.5,
         overdueTask: 0,
-        taskTarget: '0.2',
+        taskTarget: 0.2,
         locTarget: 15000,
         lotTarget: 1500,
-        effortRatio: '0.2',
-        gitActivity: '0.1'
+        effortRatio: 0.2,
+        gitActivity: 0.1
       },
       workQuality: {
         total: 95,
         prodBugs: 0,
         testBugs: 1,
-        mergeRatio: '0.01'
+        mergeRatio: 0.01
       },
       attitude: {
         total: 96,
-        positiveAttitude: '0.001',
+        positiveAttitude: 0.001,
         techSharing: 3,
         techArticles: 2,
         mentoring: 2,
-        teamManagement: '1'
+        teamManagement: 1
       },
       progress: {
         total: 94,
-        onTimeCompletion: '0.05',
-        storyPointAccuracy: '0.02',
+        onTimeCompletion: 0.05,
+        storyPointAccuracy: 0.02,
         planChanges: 1
       },
       requirements: {
@@ -130,9 +130,9 @@ const KPIDetailPage = () => {
       },
       recruitment: {
         total: 85,
-        cvCount: '1',
+        cvCount: 1,
         passedCandidates: 5,
-        recruitmentCost: '2000000'
+        recruitmentCost: 2000000
       },
       revenue: {
         clientsOver100M: 2
