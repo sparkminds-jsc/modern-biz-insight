@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
@@ -7,6 +6,7 @@ import { SalaryDetailSummary } from '../components/salary/SalaryDetailSummary';
 import { SalaryDetailTable } from '../components/salary/SalaryDetailTable';
 import { SalaryDetailEditForm } from '../components/salary/SalaryDetailEditForm';
 import { CopySalarySheetDialog } from '../components/salary/CopySalarySheetDialog';
+import { DeleteSalaryConfirmDialog } from '../components/salary/DeleteSalaryConfirmDialog';
 import { 
   SalaryDetail, 
   SalaryDetailFilters as SalaryDetailFiltersType, 
@@ -16,7 +16,8 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
+import { exportSalaryToExcel } from '@/utils/excelExport';
 
 const SalaryDetailPage = () => {
   const { salarySheetId } = useParams<{ salarySheetId: string }>();
@@ -43,6 +44,10 @@ const SalaryDetailPage = () => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingSalaryDetail, setEditingSalaryDetail] = useState<SalaryDetail | null>(null);
   const [showCopyDialog, setShowCopyDialog] = useState(false);
+
+  // New state for delete confirmation
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletingSalaryDetail, setDeleteSalaryDetail] = useState<SalaryDetail | null>(null);
 
   useEffect(() => {
     console.log('SalaryDetailPage - salarySheetId:', salarySheetId);
@@ -187,6 +192,60 @@ const SalaryDetailPage = () => {
     navigate('/salary');
   };
 
+  const handleDelete = (detail: SalaryDetail) => {
+    setDeleteSalaryDetail(detail);
+    setShowDeleteDialog(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingSalaryDetail) return;
+
+    try {
+      const { error } = await supabase
+        .from('salary_details')
+        .delete()
+        .eq('id', deletingSalaryDetail.id);
+
+      if (error) {
+        console.error('Error deleting salary detail:', error);
+        throw error;
+      }
+
+      toast({
+        title: 'Thành công',
+        description: `Đã xóa lương của nhân viên ${deletingSalaryDetail.employee_name}`,
+      });
+
+      // Refresh data
+      fetchSalarySheetAndDetails();
+      setShowDeleteDialog(false);
+      setDeleteSalaryDetail(null);
+    } catch (error) {
+      console.error('Error deleting salary detail:', error);
+      toast({
+        title: 'Lỗi',
+        description: 'Không thể xóa lương nhân viên',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleDownloadExcel = () => {
+    if (salarySheet && filteredSalaryDetails.length > 0) {
+      exportSalaryToExcel(filteredSalaryDetails, salarySheet.month, salarySheet.year);
+      toast({
+        title: 'Thành công',
+        description: 'File Excel đã được tải xuống',
+      });
+    } else {
+      toast({
+        title: 'Thông báo',
+        description: 'Không có dữ liệu để xuất Excel',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (loading) {
     return (
       <AppLayout>
@@ -258,12 +317,20 @@ const SalaryDetailPage = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Quay lại
           </Button>
-          <div>
+          <div className="flex-1">
             <h1 className="text-3xl font-bold text-gray-900">Chi tiết bảng lương</h1>
             <p className="text-gray-600">
-              Tháng {salarySheet.month.toString().padStart(2, '0')}/{salarySheet.year}
+              Tháng {salarySheet?.month.toString().padStart(2, '0')}/{salarySheet?.year}
             </p>
           </div>
+          <Button
+            onClick={handleDownloadExcel}
+            className="flex items-center gap-2"
+            disabled={!filteredSalaryDetails.length}
+          >
+            <Download className="w-4 h-4" />
+            Download Excel
+          </Button>
         </div>
 
         {/* Phần 1: Filters */}
@@ -283,6 +350,7 @@ const SalaryDetailPage = () => {
           salaryDetails={filteredSalaryDetails}
           onViewDetail={handleViewDetail}
           onEdit={handleEdit}
+          onDelete={handleDelete}
         />
 
         {/* Edit/Add Form */}
@@ -292,8 +360,8 @@ const SalaryDetailPage = () => {
           onSave={handleFormSave}
           salaryDetail={editingSalaryDetail}
           salarySheetId={salarySheetId!}
-          month={salarySheet.month}
-          year={salarySheet.year}
+          month={salarySheet?.month || 1}
+          year={salarySheet?.year || 2024}
         />
 
         {/* Copy Dialog */}
@@ -302,6 +370,14 @@ const SalaryDetailPage = () => {
           onClose={() => setShowCopyDialog(false)}
           onSuccess={handleCopySuccess}
           salarySheetId={salarySheetId!}
+        />
+
+        {/* Delete Confirmation Dialog */}
+        <DeleteSalaryConfirmDialog
+          isOpen={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+          onConfirm={handleDeleteConfirm}
+          salaryDetail={deletingSalaryDetail}
         />
       </div>
     </AppLayout>

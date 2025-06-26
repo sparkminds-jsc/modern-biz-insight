@@ -16,12 +16,13 @@ interface SalaryDetailTableProps {
   salaryDetails: SalaryDetail[];
   onViewDetail: (detail: SalaryDetail) => void;
   onEdit: (detail: SalaryDetail) => void;
+  onDelete: (detail: SalaryDetail) => void;
 }
 
 type SortField = keyof SalaryDetail;
 type SortDirection = 'asc' | 'desc';
 
-export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit }: SalaryDetailTableProps) {
+export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit, onDelete }: SalaryDetailTableProps) {
   const [sortField, setSortField] = useState<SortField>('employee_code');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
@@ -100,7 +101,7 @@ export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit }: Salar
               <SortableTableHeader field="net_salary" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>Lương Net</SortableTableHeader>
               <SortableTableHeader field="advance_payment" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>Tạm Ứng</SortableTableHeader>
               <SortableTableHeader field="actual_payment" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>Thực nhận</SortableTableHeader>
-              <TableHead className="w-32">Action</TableHead>
+              <TableHead className="w-48">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -118,6 +119,7 @@ export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit }: Salar
                   index={index}
                   onViewDetail={onViewDetail}
                   onEdit={onEdit}
+                  onDelete={onDelete}
                 />
               ))
             )}

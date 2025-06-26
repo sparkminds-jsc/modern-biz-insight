@@ -8,9 +8,10 @@ interface SalaryTableRowProps {
   index: number;
   onViewDetail: (detail: SalaryDetail) => void;
   onEdit: (detail: SalaryDetail) => void;
+  onDelete: (detail: SalaryDetail) => void;
 }
 
-export function SalaryTableRow({ detail, index, onViewDetail, onEdit }: SalaryTableRowProps) {
+export function SalaryTableRow({ detail, index, onViewDetail, onEdit, onDelete }: SalaryTableRowProps) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -21,6 +22,10 @@ export function SalaryTableRow({ detail, index, onViewDetail, onEdit }: SalaryTa
   const formatNumber = (amount: number) => {
     return Math.round(amount).toLocaleString('vi-VN');
   };
+
+  // Calculate corrected insurance values
+  const correctedBhdnBhtn = detail.gross_salary * 0.01;
+  const correctedBhnldBhtn = detail.gross_salary * 0.01;
 
   return (
     <TableRow>
@@ -43,12 +48,12 @@ export function SalaryTableRow({ detail, index, onViewDetail, onEdit }: SalaryTa
       <TableCell className="text-right">{formatCurrency(detail.bhdn_bhxh)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.bhdn_tnld)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.bhdn_bhyt)}</TableCell>
-      <TableCell className="text-right">{formatCurrency(detail.bhdn_bhtn)}</TableCell>
+      <TableCell className="text-right">{formatCurrency(correctedBhdnBhtn)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.total_bhdn)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.total_company_payment)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.bhnld_bhxh)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.bhnld_bhyt)}</TableCell>
-      <TableCell className="text-right">{formatCurrency(detail.bhnld_bhtn)}</TableCell>
+      <TableCell className="text-right">{formatCurrency(correctedBhnldBhtn)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.total_bhnld)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.personal_deduction)}</TableCell>
       <TableCell className="text-right">{formatNumber(detail.dependent_count)}</TableCell>
@@ -72,6 +77,7 @@ export function SalaryTableRow({ detail, index, onViewDetail, onEdit }: SalaryTa
           detail={detail}
           onViewDetail={onViewDetail}
           onEdit={onEdit}
+          onDelete={onDelete}
         />
       </TableCell>
     </TableRow>
