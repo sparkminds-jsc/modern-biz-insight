@@ -26,25 +26,24 @@ export interface FormData {
   // Work quality fields
   prodBugs: number;
   testBugs: number;
-  // Pull request fields
-  mergeRatio: number;
+  mergeRatio: string;
   // Attitude fields
-  positiveAttitude: number;
+  positiveAttitude: string;
   techSharing: number;
   techArticles: number;
   mentoring: number;
-  teamManagement: number;
+  teamManagement: string;
   // Progress fields
-  onTimeCompletion: number;
-  storyPointAccuracy: number;
+  onTimeCompletion: string;
+  storyPointAccuracy: string;
   planChanges: number;
   // Requirements fields
   changeRequests: number;
   misunderstandingErrors: number;
   // Recruitment fields
-  cvCount: number;
+  cvCount: string;
   passedCandidates: number;
-  recruitmentCost: number;
+  recruitmentCost: string;
   // Revenue fields
   clientsOver100M: number;
 }
@@ -59,7 +58,6 @@ export interface CalculatedValues {
   hasKPIGap: boolean;
   workProductivityTotal: number;
   workQualityTotal: number;
-  pullRequestMergeRatio: number;
   attitudeTotal: number;
   progressTotal: number;
   requirementsTotal: number;

@@ -39,7 +39,7 @@ export function useKPICalculations(watchedValues: FormData, month: number, year:
     // Helper function to convert string values to numbers, treating 'na' as 0
     const parseValue = (value: string | number): number => {
       if (typeof value === 'number') return value;
-      if (value === 'na') return 0;
+      if (value === 'na' || value === '') return 0;
       return parseFloat(value) || 0;
     };
 
@@ -59,35 +59,31 @@ export function useKPICalculations(watchedValues: FormData, month: number, year:
       parseValue(watchedValues.effortRatio) +
       parseValue(watchedValues.gitActivity);
 
-    // Pull Request calculations
-    const pullRequestMergeRatio = watchedValues.mergeRatio > 30 ? 0.1 : -0.1;
+    // Work Quality calculations (new formula: Merge ratio - Bug production * 0.0005 - Bug test * 0.00001)
+    const workQualityTotal = 
+      parseValue(watchedValues.mergeRatio) -
+      (watchedValues.prodBugs * 0.0005) -
+      (watchedValues.testBugs * 0.00001);
 
-    // Work Quality calculations (now includes pull request)
-    const workQualityTotal = -(watchedValues.prodBugs * 0.1) - (watchedValues.testBugs * 0.05) + pullRequestMergeRatio;
-
-    // Attitude calculations (removed techContribution)
+    // Attitude calculations (new formula: Positive attitude + Tech sharing * 0.001 + Tech articles * 0.001)
     const attitudeTotal = 
-      (watchedValues.positiveAttitude / 100) +
-      (watchedValues.techSharing * 0.05) +
-      (watchedValues.techArticles * 0.1) +
-      (watchedValues.mentoring * 0.05) +
-      (watchedValues.teamManagement / 100);
+      parseValue(watchedValues.positiveAttitude) +
+      (watchedValues.techSharing * 0.001) +
+      (watchedValues.techArticles * 0.001);
 
-    // Progress calculations
+    // Progress calculations (new formula: On time completion + Story point accuracy + Plan changes * 0.01)
     const progressTotal = 
-      (watchedValues.onTimeCompletion / 100) +
-      (watchedValues.storyPointAccuracy / 100) -
-      (watchedValues.planChanges * 0.05);
+      parseValue(watchedValues.onTimeCompletion) +
+      parseValue(watchedValues.storyPointAccuracy) +
+      (watchedValues.planChanges * 0.01);
 
-    // Requirements calculations
+    // Requirements calculations (new formula: -(Change requests * 0.001 + Misunderstanding errors * 0.001))
     const requirementsTotal = 
-      -(watchedValues.changeRequests * 0.05) -
-      (watchedValues.misunderstandingErrors * 0.1);
+      -((watchedValues.changeRequests * 0.001) +
+        (watchedValues.misunderstandingErrors * 0.001));
 
-    // Recruitment calculations
-    const recruitmentTotal = 
-      (watchedValues.passedCandidates * 0.5) -
-      Math.max(0, (watchedValues.recruitmentCost - 2000000) / 1000000);
+    // Recruitment calculations (new formula: CV count only)
+    const recruitmentTotal = parseValue(watchedValues.cvCount);
 
     // KPI Coefficient calculation
     const kpiCoefficient = 
@@ -102,12 +98,12 @@ export function useKPICalculations(watchedValues: FormData, month: number, year:
     const totalMonthlyKPI = 
       (basicSalary * kpiCoefficient) +
       (100000 * watchedValues.mentoring) +
-      (watchedValues.teamManagement * 2000000) +
+      (parseValue(watchedValues.teamManagement) * 2000000) +
       (watchedValues.clientsOver100M * 4000000) +
       watchedValues.locTarget +
       watchedValues.lotTarget +
       (watchedValues.passedCandidates * 500000) +
-      (watchedValues.recruitmentCost - 2000000);
+      parseValue(watchedValues.recruitmentCost);
 
     const hasKPIGap = Math.abs(kpi - totalMonthlyKPI) > 0.01;
 
@@ -121,7 +117,6 @@ export function useKPICalculations(watchedValues: FormData, month: number, year:
       hasKPIGap,
       workProductivityTotal: parseFloat(workProductivityTotal.toFixed(2)),
       workQualityTotal: parseFloat(workQualityTotal.toFixed(2)),
-      pullRequestMergeRatio: parseFloat(pullRequestMergeRatio.toFixed(2)),
       attitudeTotal: parseFloat(attitudeTotal.toFixed(2)),
       progressTotal: parseFloat(progressTotal.toFixed(2)),
       requirementsTotal: parseFloat(requirementsTotal.toFixed(2)),

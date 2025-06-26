@@ -39,20 +39,20 @@ export function KPIFormContent({
       gitActivity: '0',
       prodBugs: 0,
       testBugs: 0,
-      mergeRatio: 0,
-      positiveAttitude: 0,
+      mergeRatio: '0',
+      positiveAttitude: '0',
       techSharing: 0,
       techArticles: 0,
       mentoring: 0,
-      teamManagement: 0,
-      onTimeCompletion: 0,
-      storyPointAccuracy: 0,
+      teamManagement: '0',
+      onTimeCompletion: '0',
+      storyPointAccuracy: '0',
       planChanges: 0,
       changeRequests: 0,
       misunderstandingErrors: 0,
-      cvCount: 0,
+      cvCount: '0',
       passedCandidates: 0,
-      recruitmentCost: 0,
+      recruitmentCost: '0',
       clientsOver100M: 0
     }
   });
@@ -119,20 +119,20 @@ export function KPIFormContent({
           total: calculatedValues.workQualityTotal,
           prodBugs: data.prodBugs,
           testBugs: data.testBugs,
-          mergeRatio: data.mergeRatio
+          mergeRatio: parseFloat(data.mergeRatio)
         },
         attitude: {
           total: calculatedValues.attitudeTotal,
-          positiveAttitude: data.positiveAttitude,
+          positiveAttitude: parseFloat(data.positiveAttitude),
           techSharing: data.techSharing,
           techArticles: data.techArticles,
           mentoring: data.mentoring,
-          teamManagement: data.teamManagement
+          teamManagement: parseFloat(data.teamManagement)
         },
         progress: {
           total: calculatedValues.progressTotal,
-          onTimeCompletion: data.onTimeCompletion,
-          storyPointAccuracy: data.storyPointAccuracy,
+          onTimeCompletion: parseFloat(data.onTimeCompletion),
+          storyPointAccuracy: parseFloat(data.storyPointAccuracy),
           planChanges: data.planChanges
         },
         requirements: {
@@ -142,9 +142,9 @@ export function KPIFormContent({
         },
         recruitment: {
           total: calculatedValues.recruitmentTotal,
-          cvCount: data.cvCount,
+          cvCount: parseFloat(data.cvCount),
           passedCandidates: data.passedCandidates,
-          recruitmentCost: data.recruitmentCost
+          recruitmentCost: parseFloat(data.recruitmentCost)
         },
         revenue: {
           clientsOver100M: data.clientsOver100M

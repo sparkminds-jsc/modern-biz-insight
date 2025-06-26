@@ -1,19 +1,23 @@
 
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { UseFormRegister } from 'react-hook-form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { FormData, CalculatedValues } from './kpiFormTypes';
+import { cvCountOptions, recruitmentCostOptions } from './kpiFormOptions';
 
 interface KPIRecruitmentProps {
   register: UseFormRegister<FormData>;
+  setValue: UseFormSetValue<FormData>;
+  watchedValues: FormData;
   calculatedValues: CalculatedValues;
 }
 
-export function KPIRecruitment({ register, calculatedValues }: KPIRecruitmentProps) {
+export function KPIRecruitment({ register, setValue, watchedValues, calculatedValues }: KPIRecruitmentProps) {
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Tuyển dụng</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="space-y-2">
           <Label>Tổng</Label>
           <Input
@@ -24,16 +28,26 @@ export function KPIRecruitment({ register, calculatedValues }: KPIRecruitmentPro
         </div>
 
         <div className="space-y-2">
-          <Label>Số lượng CV</Label>
-          <Input
-            type="number"
-            {...register('cvCount', { valueAsNumber: true })}
-            placeholder="0"
-          />
+          <Label>CV tuyển dụng</Label>
+          <Select
+            value={watchedValues.cvCount}
+            onValueChange={(value) => setValue('cvCount', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Chọn..." />
+            </SelectTrigger>
+            <SelectContent>
+              {cvCountOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-2">
-          <Label>Ứng viên vượt qua phỏng vấn</Label>
+          <Label>Ứng viên vượt qua (*)</Label>
           <Input
             type="number"
             {...register('passedCandidates', { valueAsNumber: true })}
@@ -42,12 +56,22 @@ export function KPIRecruitment({ register, calculatedValues }: KPIRecruitmentPro
         </div>
 
         <div className="space-y-2">
-          <Label>Chi phí tuyển dụng</Label>
-          <Input
-            type="number"
-            {...register('recruitmentCost', { valueAsNumber: true })}
-            placeholder="0"
-          />
+          <Label>Chi phí/ứng viên</Label>
+          <Select
+            value={watchedValues.recruitmentCost}
+            onValueChange={(value) => setValue('recruitmentCost', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Chọn..." />
+            </SelectTrigger>
+            <SelectContent>
+              {recruitmentCostOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>

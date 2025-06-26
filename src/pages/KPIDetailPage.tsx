@@ -5,6 +5,7 @@ import { KPIDetailFilters } from '../components/kpi/KPIDetailFilters';
 import { KPIDetailSummary } from '../components/kpi/KPIDetailSummary';
 import { KPIDetailTable } from '../components/kpi/KPIDetailTable';
 import { KPIDetailEditForm } from '../components/kpi/KPIDetailEditForm';
+import { CopyKPIDialog } from '../components/kpi/CopyKPIDialog';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
@@ -22,6 +23,9 @@ const KPIDetailPage = () => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingKPIDetail, setEditingKPIDetail] = useState(null);
 
+  // Copy KPI states
+  const [showCopyDialog, setShowCopyDialog] = useState(false);
+
   // Mock data - replace with real data later
   const [kpiDetails, setKpiDetails] = useState([
     {
@@ -36,32 +40,32 @@ const KPIDetailPage = () => {
       totalMonthlyKPI: 102,
       workProductivity: {
         total: 95,
-        completedOnTime: 12,
+        completedOnTime: '0',
         overdueTask: 2,
-        taskTarget: 10,
+        taskTarget: '0',
         locTarget: 12000,
         lotTarget: 1200,
-        effortRatio: 85,
-        gitActivity: 6
+        effortRatio: '0',
+        gitActivity: '0'
       },
       workQuality: {
         total: 88,
         prodBugs: 1,
         testBugs: 3,
-        mergeRatio: 35
+        mergeRatio: '0'
       },
       attitude: {
         total: 92,
-        positiveAttitude: 95,
+        positiveAttitude: '0',
         techSharing: 2,
         techArticles: 1,
         mentoring: 1,
-        teamManagement: 85
+        teamManagement: '1'
       },
       progress: {
         total: 87,
-        onTimeCompletion: 90,
-        storyPointAccuracy: 85,
+        onTimeCompletion: '0',
+        storyPointAccuracy: '0',
         planChanges: 2
       },
       requirements: {
@@ -71,9 +75,9 @@ const KPIDetailPage = () => {
       },
       recruitment: {
         total: 0,
-        cvCount: 0,
+        cvCount: '0',
         passedCandidates: 0,
-        recruitmentCost: 0
+        recruitmentCost: '0'
       },
       revenue: {
         clientsOver100M: 1
@@ -91,32 +95,32 @@ const KPIDetailPage = () => {
       totalMonthlyKPI: 114,
       workProductivity: {
         total: 98,
-        completedOnTime: 15,
+        completedOnTime: '0.5',
         overdueTask: 0,
-        taskTarget: 12,
+        taskTarget: '0.2',
         locTarget: 15000,
         lotTarget: 1500,
-        effortRatio: 92,
-        gitActivity: 8
+        effortRatio: '0.2',
+        gitActivity: '0.1'
       },
       workQuality: {
         total: 95,
         prodBugs: 0,
         testBugs: 1,
-        mergeRatio: 45
+        mergeRatio: '0.01'
       },
       attitude: {
         total: 96,
-        positiveAttitude: 98,
+        positiveAttitude: '0.001',
         techSharing: 3,
         techArticles: 2,
         mentoring: 2,
-        teamManagement: 90
+        teamManagement: '1'
       },
       progress: {
         total: 94,
-        onTimeCompletion: 95,
-        storyPointAccuracy: 92,
+        onTimeCompletion: '0.05',
+        storyPointAccuracy: '0.02',
         planChanges: 1
       },
       requirements: {
@@ -126,9 +130,9 @@ const KPIDetailPage = () => {
       },
       recruitment: {
         total: 85,
-        cvCount: 10,
+        cvCount: '1',
         passedCandidates: 5,
-        recruitmentCost: 2000000
+        recruitmentCost: '2000000'
       },
       revenue: {
         clientsOver100M: 2
@@ -161,7 +165,14 @@ const KPIDetailPage = () => {
   };
 
   const handleCopyKPI = () => {
-    toast.info('Chức năng copy KPI đang được phát triển');
+    setShowCopyDialog(true);
+  };
+
+  const handleCopyConfirm = (copyMonth: number, copyYear: number) => {
+    // In a real app, you would copy the KPI data to the new month/year
+    console.log(`Copying KPI to ${copyMonth}/${copyYear}`);
+    toast.success(`KPI đã được copy sang tháng ${copyMonth}/${copyYear}`);
+    navigate('/kpi');
   };
 
   const handleViewDetail = (id: string) => {
@@ -245,6 +256,13 @@ const KPIDetailPage = () => {
           kpiDetail={editingKPIDetail}
           month={parseInt(month || '1')}
           year={parseInt(year || '2024')}
+        />
+
+        {/* Copy KPI Dialog */}
+        <CopyKPIDialog
+          isOpen={showCopyDialog}
+          onClose={() => setShowCopyDialog(false)}
+          onCopy={handleCopyConfirm}
         />
       </div>
     </AppLayout>

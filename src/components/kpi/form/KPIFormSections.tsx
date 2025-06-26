@@ -49,18 +49,24 @@ export function KPIFormSections({
       {/* Work Quality Section */}
       <KPIWorkQuality
         register={register}
+        setValue={setValue}
+        watchedValues={watchedValues}
         calculatedValues={calculatedValues}
       />
 
       {/* Attitude Section */}
       <KPIAttitude
         register={register}
+        setValue={setValue}
+        watchedValues={watchedValues}
         calculatedValues={calculatedValues}
       />
 
       {/* Progress Section */}
       <KPIProgress
         register={register}
+        setValue={setValue}
+        watchedValues={watchedValues}
         calculatedValues={calculatedValues}
       />
 
@@ -73,6 +79,8 @@ export function KPIFormSections({
       {/* Recruitment Section */}
       <KPIRecruitment
         register={register}
+        setValue={setValue}
+        watchedValues={watchedValues}
         calculatedValues={calculatedValues}
       />
 
