@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { KPIFilters } from '../components/kpi/KPIFilters';
 import { KPITable } from '../components/kpi/KPITable';
+import { CreateKPIDialog } from '../components/kpi/CreateKPIDialog';
 import { toast } from 'sonner';
 
 const KPIPage = () => {
@@ -13,6 +14,9 @@ const KPIPage = () => {
   const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
   const [selectedYears, setSelectedYears] = useState<number[]>([]);
   
+  // Dialog state
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+
   // Mock data - replace with real data later
   const mockKPIData = [
     {
@@ -36,7 +40,16 @@ const KPIPage = () => {
   ];
 
   const handleCreateKPI = () => {
-    toast.info('Chức năng tạo KPI đang được phát triển');
+    setShowCreateDialog(true);
+  };
+
+  const handleCreateConfirm = (month: number, year: number) => {
+    // In a real app, you would create a new KPI record in the database
+    console.log(`Creating KPI for ${month}/${year}`);
+    toast.success(`KPI cho tháng ${month}/${year} đã được tạo thành công`);
+    
+    // Navigate to the newly created KPI detail page
+    navigate(`/kpi/detail/${year}/${month}`);
   };
 
   const handleViewDetail = (year: number, month: number) => {
@@ -64,6 +77,13 @@ const KPIPage = () => {
         <KPITable
           data={mockKPIData}
           onViewDetail={handleViewDetail}
+        />
+
+        {/* Create KPI Dialog */}
+        <CreateKPIDialog
+          isOpen={showCreateDialog}
+          onClose={() => setShowCreateDialog(false)}
+          onCreate={handleCreateConfirm}
         />
       </div>
     </AppLayout>
