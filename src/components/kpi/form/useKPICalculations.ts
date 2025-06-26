@@ -1,153 +1,134 @@
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
+import { FormData, CalculatedValues, SalaryData } from './kpiFormTypes';
 import { supabase } from '@/integrations/supabase/client';
-import { FormData, SalaryData, CalculatedValues } from './kpiFormTypes';
+import { useState, useEffect } from 'react';
 
-export const useKPICalculations = (
-  watchedValues: FormData,
-  month: number,
-  year: number
-) => {
+export function useKPICalculations(watchedValues: FormData, month: number, year: number) {
   const [salaryData, setSalaryData] = useState<SalaryData | null>(null);
-  const [calculatedValues, setCalculatedValues] = useState<CalculatedValues>({
-    basicSalary: 0,
-    kpi: 0,
-    totalSalary: 0,
-    salaryCoefficient: 0,
-    kpiCoefficient: 0,
-    totalMonthlyKPI: 0,
-    hasKPIGap: false,
-    workProductivityTotal: 0,
-    workQualityTotal: 0,
-    pullRequestMergeRatio: 0,
-    attitudeTotal: 0,
-    progressTotal: 0,
-    requirementsTotal: 0,
-    recruitmentTotal: 0
-  });
 
-  const fetchSalaryData = async (employeeCode: string) => {
-    try {
-      // First get salary sheet for the month/year
-      const { data: salarySheet, error: sheetError } = await supabase
-        .from('salary_sheets')
-        .select('id')
-        .eq('month', month)
-        .eq('year', year)
-        .single();
+  useEffect(() => {
+    const fetchSalaryData = async () => {
+      if (!watchedValues.employee_code) return;
 
-      if (sheetError || !salarySheet) {
-        console.log('No salary sheet found for this month/year');
+      try {
+        const { data, error } = await supabase
+          .from('salary_details')
+          .select('gross_salary, kpi_bonus, overtime_1_5, overtime_2, overtime_3')
+          .eq('employee_code', watchedValues.employee_code)
+          .eq('month', month)
+          .eq('year', year)
+          .single();
+
+        if (error) {
+          console.error('Error fetching salary data:', error);
+          setSalaryData(null);
+        } else {
+          setSalaryData(data);
+        }
+      } catch (error) {
+        console.error('Error fetching salary data:', error);
         setSalaryData(null);
-        return;
       }
+    };
 
-      // Then get salary detail for this employee
-      const { data: salaryDetail, error: detailError } = await supabase
-        .from('salary_details')
-        .select('gross_salary, kpi_bonus, overtime_1_5, overtime_2, overtime_3')
-        .eq('salary_sheet_id', salarySheet.id)
-        .eq('employee_code', employeeCode)
-        .single();
+    fetchSalaryData();
+  }, [watchedValues.employee_code, month, year]);
 
-      if (detailError || !salaryDetail) {
-        console.log('No salary detail found for this employee');
-        setSalaryData(null);
-        return;
-      }
+  const calculatedValues = useMemo((): CalculatedValues => {
+    // Helper function to convert string values to numbers, treating 'na' as 0
+    const parseValue = (value: string | number): number => {
+      if (typeof value === 'number') return value;
+      if (value === 'na') return 0;
+      return parseFloat(value) || 0;
+    };
 
-      setSalaryData(salaryDetail);
-    } catch (error) {
-      console.error('Error fetching salary data:', error);
-      setSalaryData(null);
-    }
-  };
-
-  const calculateValues = () => {
-    const values = watchedValues;
-    
-    // Basic salary and KPI from salary data
     const basicSalary = salaryData?.gross_salary || 0;
-    const kpi = salaryData ? (salaryData.kpi_bonus + salaryData.overtime_1_5 + salaryData.overtime_2 + salaryData.overtime_3) : 0;
+    const kpi = salaryData 
+      ? (salaryData.kpi_bonus + salaryData.overtime_1_5 + salaryData.overtime_2 + salaryData.overtime_3)
+      : 0;
+
     const totalSalary = basicSalary + kpi;
-    const salaryCoefficient = basicSalary !== 0 ? parseFloat((kpi / basicSalary).toFixed(3)) : 0;
+    const salaryCoefficient = basicSalary > 0 ? parseFloat((kpi / basicSalary).toFixed(3)) : 0;
 
-    // Work productivity total calculation
+    // Work Productivity calculations
     const workProductivityTotal = 
-      parseFloat(values.completedOnTime) - (values.overdueTask * 0.01) + 
-      parseFloat(values.taskTarget) + 
-      parseFloat(values.effortRatio) + 
-      parseFloat(values.gitActivity);
+      parseValue(watchedValues.completedOnTime) -
+      (watchedValues.overdueTask * 0.01) +
+      parseValue(watchedValues.taskTarget) +
+      parseValue(watchedValues.effortRatio) +
+      parseValue(watchedValues.gitActivity);
 
-    // Work quality total calculation
-    const workQualityTotal = Math.max(0, 100 - values.prodBugs * 5 - values.testBugs * 2);
+    // Work Quality calculations
+    const workQualityTotal = -(watchedValues.prodBugs * 0.1) - (watchedValues.testBugs * 0.05);
 
-    // Pull request merge ratio
-    const pullRequestMergeRatio = values.mergeRatio;
+    // Pull Request calculations
+    const pullRequestMergeRatio = watchedValues.mergeRatio > 30 ? 0.1 : -0.1;
 
-    // Attitude total calculation
+    // Attitude calculations
     const attitudeTotal = 
-      values.positiveAttitude + values.techContribution + values.techSharing * 5 + 
-      values.techArticles * 3 + values.mentoring * 2 + values.teamManagement * 3;
+      (watchedValues.positiveAttitude / 100) +
+      (watchedValues.techContribution / 100) +
+      (watchedValues.techSharing * 0.05) +
+      (watchedValues.techArticles * 0.1) +
+      (watchedValues.mentoring * 0.05) +
+      (watchedValues.teamManagement / 100);
 
-    // Progress total calculation
+    // Progress calculations
     const progressTotal = 
-      values.onTimeCompletion + values.storyPointAccuracy - values.planChanges * 2;
+      (watchedValues.onTimeCompletion / 100) +
+      (watchedValues.storyPointAccuracy / 100) -
+      (watchedValues.planChanges * 0.05);
 
-    // Requirements total calculation
+    // Requirements calculations
     const requirementsTotal = 
-      Math.max(0, 100 - values.changeRequests * 5 - values.misunderstandingErrors * 10);
+      -(watchedValues.changeRequests * 0.05) -
+      (watchedValues.misunderstandingErrors * 0.1);
 
-    // Recruitment total calculation
+    // Recruitment calculations
     const recruitmentTotal = 
-      values.cvCount * 0.5 + values.passedCandidates * 2 + 
-      Math.max(0, (2000000 - values.recruitmentCost) / 10000);
+      (watchedValues.passedCandidates * 0.5) -
+      Math.max(0, (watchedValues.recruitmentCost - 2000000) / 1000000);
 
-    // KPI coefficient calculation
+    // KPI Coefficient calculation
     const kpiCoefficient = 
-      workProductivityTotal + workQualityTotal + attitudeTotal + 
-      progressTotal + requirementsTotal + recruitmentTotal;
+      workProductivityTotal +
+      workQualityTotal +
+      attitudeTotal +
+      progressTotal +
+      requirementsTotal +
+      recruitmentTotal;
 
-    // Total monthly KPI calculation
+    // Total Monthly KPI calculation
     const totalMonthlyKPI = 
-      (basicSalary * kpiCoefficient / 100) + 
-      (100000 * values.mentoring) + 
-      (values.teamManagement * 2000000) + 
-      (values.clientsOver100M * 4000000) + 
-      values.locTarget + values.lotTarget + 
-      (values.passedCandidates * 500000) + 
-      Math.max(0, values.recruitmentCost - 2000000);
+      (basicSalary * kpiCoefficient) +
+      (100000 * watchedValues.mentoring) +
+      (watchedValues.teamManagement * 2000000) +
+      (watchedValues.clientsOver100M * 4000000) +
+      watchedValues.locTarget +
+      watchedValues.lotTarget +
+      (watchedValues.passedCandidates * 500000) +
+      (watchedValues.recruitmentCost - 2000000);
 
-    // Check if there's KPI gap
-    const hasKPIGap = Math.abs(kpi - totalMonthlyKPI) > 1000; // Allow small rounding differences
+    const hasKPIGap = Math.abs(kpi - totalMonthlyKPI) > 0.01;
 
-    setCalculatedValues({
+    return {
       basicSalary,
       kpi,
       totalSalary,
       salaryCoefficient,
       kpiCoefficient: parseFloat(kpiCoefficient.toFixed(3)),
-      totalMonthlyKPI: Math.round(totalMonthlyKPI),
+      totalMonthlyKPI: parseFloat(totalMonthlyKPI.toFixed(2)),
       hasKPIGap,
       workProductivityTotal: parseFloat(workProductivityTotal.toFixed(2)),
-      workQualityTotal: Math.round(workQualityTotal),
-      pullRequestMergeRatio,
-      attitudeTotal: Math.round(attitudeTotal),
-      progressTotal: Math.round(progressTotal),
-      requirementsTotal: Math.round(requirementsTotal),
+      workQualityTotal: parseFloat(workQualityTotal.toFixed(2)),
+      pullRequestMergeRatio: parseFloat(pullRequestMergeRatio.toFixed(2)),
+      attitudeTotal: parseFloat(attitudeTotal.toFixed(2)),
+      progressTotal: parseFloat(progressTotal.toFixed(2)),
+      requirementsTotal: parseFloat(requirementsTotal.toFixed(2)),
       recruitmentTotal: parseFloat(recruitmentTotal.toFixed(2))
-    });
-  };
-
-  useEffect(() => {
-    if (watchedValues.employee_code) {
-      fetchSalaryData(watchedValues.employee_code);
-    }
-  }, [watchedValues.employee_code, month, year]);
-
-  useEffect(() => {
-    calculateValues();
+    };
   }, [watchedValues, salaryData]);
 
   return { calculatedValues };
-};
+}
