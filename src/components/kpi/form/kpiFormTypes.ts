@@ -30,7 +30,6 @@ export interface FormData {
   mergeRatio: number;
   // Attitude fields
   positiveAttitude: number;
-  techContribution: number;
   techSharing: number;
   techArticles: number;
   mentoring: number;

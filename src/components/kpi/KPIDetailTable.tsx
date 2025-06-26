@@ -43,7 +43,6 @@ interface KPIDetailData {
   attitude: {
     total: number;
     positiveAttitude: number;
-    techContribution: number;
     techSharing: number;
     techArticles: number;
     mentoring: number;
@@ -142,7 +141,7 @@ export function KPIDetailTable({ data, onViewDetail, onEdit }: KPIDetailTablePro
             </TableHead>
             
             {/* Thái độ và đóng góp */}
-            <TableHead className="text-center border-l border-gray-200" colSpan={7}>
+            <TableHead className="text-center border-l border-gray-200" colSpan={6}>
               Thái độ và đóng góp
             </TableHead>
             
@@ -200,7 +199,6 @@ export function KPIDetailTable({ data, onViewDetail, onEdit }: KPIDetailTablePro
             {/* Thái độ sub headers */}
             <SortableHeader field="attitude.total" className="text-xs">Tổng</SortableHeader>
             <SortableHeader field="attitude.positiveAttitude" className="text-xs">Thái độ tích cực</SortableHeader>
-            <SortableHeader field="attitude.techContribution" className="text-xs">Đóng góp kĩ thuật</SortableHeader>
             <SortableHeader field="attitude.techSharing" className="text-xs">Tech sharing</SortableHeader>
             <SortableHeader field="attitude.techArticles" className="text-xs">Bài viết kỹ thuật</SortableHeader>
             <SortableHeader field="attitude.mentoring" className="text-xs">Đào tạo nhân sự</SortableHeader>
@@ -232,7 +230,7 @@ export function KPIDetailTable({ data, onViewDetail, onEdit }: KPIDetailTablePro
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={36} className="text-center py-8 text-gray-500">
+              <TableCell colSpan={35} className="text-center py-8 text-gray-500">
                 Không có dữ liệu
               </TableCell>
             </TableRow>
@@ -268,7 +266,6 @@ export function KPIDetailTable({ data, onViewDetail, onEdit }: KPIDetailTablePro
                 {/* Thái độ */}
                 <TableCell className="border-l border-gray-200">{Math.round(item.attitude.total)}</TableCell>
                 <TableCell>{Math.round(item.attitude.positiveAttitude)}</TableCell>
-                <TableCell>{Math.round(item.attitude.techContribution)}</TableCell>
                 <TableCell>{Math.round(item.attitude.techSharing)}</TableCell>
                 <TableCell>{Math.round(item.attitude.techArticles)}</TableCell>
                 <TableCell>{Math.round(item.attitude.mentoring)}</TableCell>

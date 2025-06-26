@@ -33,15 +33,6 @@ export function KPIAttitude({ register, calculatedValues }: KPIAttitudeProps) {
         </div>
 
         <div className="space-y-2">
-          <Label>Đóng góp kỹ thuật</Label>
-          <Input
-            type="number"
-            {...register('techContribution', { valueAsNumber: true })}
-            placeholder="0"
-          />
-        </div>
-
-        <div className="space-y-2">
           <Label>Chia sẻ kiến thức</Label>
           <Input
             type="number"

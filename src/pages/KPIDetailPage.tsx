@@ -53,7 +53,6 @@ const KPIDetailPage = () => {
       attitude: {
         total: 92,
         positiveAttitude: 95,
-        techContribution: 90,
         techSharing: 2,
         techArticles: 1,
         mentoring: 1,
@@ -109,7 +108,6 @@ const KPIDetailPage = () => {
       attitude: {
         total: 96,
         positiveAttitude: 98,
-        techContribution: 95,
         techSharing: 3,
         techArticles: 2,
         mentoring: 2,

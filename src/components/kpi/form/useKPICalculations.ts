@@ -65,10 +65,9 @@ export function useKPICalculations(watchedValues: FormData, month: number, year:
     // Work Quality calculations (now includes pull request)
     const workQualityTotal = -(watchedValues.prodBugs * 0.1) - (watchedValues.testBugs * 0.05) + pullRequestMergeRatio;
 
-    // Attitude calculations
+    // Attitude calculations (removed techContribution)
     const attitudeTotal = 
       (watchedValues.positiveAttitude / 100) +
-      (watchedValues.techContribution / 100) +
       (watchedValues.techSharing * 0.05) +
       (watchedValues.techArticles * 0.1) +
       (watchedValues.mentoring * 0.05) +

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -59,7 +60,6 @@ export function KPIDetailEditForm({
       testBugs: 0,
       mergeRatio: 0,
       positiveAttitude: 0,
-      techContribution: 0,
       techSharing: 0,
       techArticles: 0,
       mentoring: 0,
@@ -146,7 +146,6 @@ export function KPIDetailEditForm({
         attitude: {
           total: calculatedValues.attitudeTotal,
           positiveAttitude: data.positiveAttitude,
-          techContribution: data.techContribution,
           techSharing: data.techSharing,
           techArticles: data.techArticles,
           mentoring: data.mentoring,
