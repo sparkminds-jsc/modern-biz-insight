@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { KPIDetailFilters } from '../components/kpi/KPIDetailFilters';
 import { KPIDetailSummary } from '../components/kpi/KPIDetailSummary';
 import { KPIDetailTable } from '../components/kpi/KPIDetailTable';
+import { KPIDetailEditForm } from '../components/kpi/KPIDetailEditForm';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
@@ -18,6 +18,10 @@ const KPIDetailPage = () => {
   const [employeeName, setEmployeeName] = useState('');
   const [hasKPIGap, setHasKPIGap] = useState('all');
   
+  // Edit form states
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [editingKPIDetail, setEditingKPIDetail] = useState(null);
+
   // Mock data - replace with real data later
   const [kpiDetails, setKpiDetails] = useState([
     {
@@ -158,7 +162,8 @@ const KPIDetailPage = () => {
   };
 
   const handleAddKPI = () => {
-    toast.info('Chức năng thêm KPI đang được phát triển');
+    setEditingKPIDetail(null);
+    setShowEditForm(true);
   };
 
   const handleCopyKPI = () => {
@@ -170,7 +175,15 @@ const KPIDetailPage = () => {
   };
 
   const handleEdit = (id: string) => {
-    toast.info(`Chỉnh sửa KPI của nhân viên ${id}`);
+    const kpiDetail = kpiDetails.find(item => item.id === id);
+    setEditingKPIDetail(kpiDetail);
+    setShowEditForm(true);
+  };
+
+  const handleFormSave = () => {
+    // Refresh data after save
+    // In a real app, you would fetch fresh data from the API
+    toast.success('KPI đã được lưu thành công');
   };
 
   const handleBackToKPI = () => {
@@ -228,6 +241,16 @@ const KPIDetailPage = () => {
           data={filteredData}
           onViewDetail={handleViewDetail}
           onEdit={handleEdit}
+        />
+
+        {/* Edit Form */}
+        <KPIDetailEditForm
+          isOpen={showEditForm}
+          onClose={() => setShowEditForm(false)}
+          onSave={handleFormSave}
+          kpiDetail={editingKPIDetail}
+          month={parseInt(month || '1')}
+          year={parseInt(year || '2024')}
         />
       </div>
     </AppLayout>
