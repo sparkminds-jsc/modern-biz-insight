@@ -248,6 +248,102 @@ export type Database = {
         }
         Relationships: []
       }
+      kpi_details: {
+        Row: {
+          attitude: Json
+          basic_salary: number
+          created_at: string
+          employee_code: string
+          has_kpi_gap: boolean
+          id: string
+          kpi: number
+          kpi_coefficient: number
+          month: number
+          progress: Json
+          recruitment: Json
+          requirements: Json
+          revenue: Json
+          salary_coefficient: number
+          total_monthly_kpi: number
+          total_salary: number
+          updated_at: string
+          work_productivity: Json
+          work_quality: Json
+          year: number
+        }
+        Insert: {
+          attitude?: Json
+          basic_salary?: number
+          created_at?: string
+          employee_code: string
+          has_kpi_gap?: boolean
+          id?: string
+          kpi?: number
+          kpi_coefficient?: number
+          month: number
+          progress?: Json
+          recruitment?: Json
+          requirements?: Json
+          revenue?: Json
+          salary_coefficient?: number
+          total_monthly_kpi?: number
+          total_salary?: number
+          updated_at?: string
+          work_productivity?: Json
+          work_quality?: Json
+          year: number
+        }
+        Update: {
+          attitude?: Json
+          basic_salary?: number
+          created_at?: string
+          employee_code?: string
+          has_kpi_gap?: boolean
+          id?: string
+          kpi?: number
+          kpi_coefficient?: number
+          month?: number
+          progress?: Json
+          recruitment?: Json
+          requirements?: Json
+          revenue?: Json
+          salary_coefficient?: number
+          total_monthly_kpi?: number
+          total_salary?: number
+          updated_at?: string
+          work_productivity?: Json
+          work_quality?: Json
+          year?: number
+        }
+        Relationships: []
+      }
+      kpi_records: {
+        Row: {
+          created_at: string
+          id: string
+          month: number
+          total_employees_with_kpi_gap: number
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month: number
+          total_employees_with_kpi_gap?: number
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month?: number
+          total_employees_with_kpi_gap?: number
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

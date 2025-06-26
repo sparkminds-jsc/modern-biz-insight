@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
@@ -7,8 +8,28 @@ import { KPIDetailTable } from '../components/kpi/KPIDetailTable';
 import { KPIDetailEditForm } from '../components/kpi/KPIDetailEditForm';
 import { CopyKPIDialog } from '../components/kpi/CopyKPIDialog';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+
+interface KPIDetail {
+  id: string;
+  employee_code: string;
+  has_kpi_gap: boolean;
+  basic_salary: number;
+  kpi: number;
+  total_salary: number;
+  salary_coefficient: number;
+  kpi_coefficient: number;
+  total_monthly_kpi: number;
+  work_productivity: any;
+  work_quality: any;
+  attitude: any;
+  progress: any;
+  requirements: any;
+  recruitment: any;
+  revenue: any;
+}
 
 const KPIDetailPage = () => {
   const { year, month } = useParams();
@@ -26,134 +47,51 @@ const KPIDetailPage = () => {
   // Copy KPI states
   const [showCopyDialog, setShowCopyDialog] = useState(false);
 
-  // Mock data - replace with real data later
-  const [kpiDetails, setKpiDetails] = useState([
-    {
-      id: '1',
-      employeeCode: 'EMP001',
-      hasKPIGap: true,
-      basicSalary: 15000000,
-      kpi: 85,
-      totalSalary: 18000000,
-      salaryCoefficient: 1.2,
-      kpiCoefficient: 0.85,
-      totalMonthlyKPI: 102,
-      workProductivity: {
-        total: 95,
-        completedOnTime: 0,
-        overdueTask: 2,
-        taskTarget: 0,
-        locTarget: 12000,
-        lotTarget: 1200,
-        effortRatio: 0,
-        gitActivity: 0
-      },
-      workQuality: {
-        total: 88,
-        prodBugs: 1,
-        testBugs: 3,
-        mergeRatio: 0
-      },
-      attitude: {
-        total: 92,
-        positiveAttitude: 0,
-        techSharing: 2,
-        techArticles: 1,
-        mentoring: 1,
-        teamManagement: 1
-      },
-      progress: {
-        total: 87,
-        onTimeCompletion: 0,
-        storyPointAccuracy: 0,
-        planChanges: 2
-      },
-      requirements: {
-        total: 93,
-        changeRequests: 1,
-        misunderstandingErrors: 0
-      },
-      recruitment: {
-        total: 0,
-        cvCount: 0,
-        passedCandidates: 0,
-        recruitmentCost: 0
-      },
-      revenue: {
-        clientsOver100M: 1
-      }
-    },
-    {
-      id: '2',
-      employeeCode: 'EMP002',
-      hasKPIGap: false,
-      basicSalary: 20000000,
-      kpi: 95,
-      totalSalary: 24000000,
-      salaryCoefficient: 1.2,
-      kpiCoefficient: 0.95,
-      totalMonthlyKPI: 114,
-      workProductivity: {
-        total: 98,
-        completedOnTime: 0.5,
-        overdueTask: 0,
-        taskTarget: 0.2,
-        locTarget: 15000,
-        lotTarget: 1500,
-        effortRatio: 0.2,
-        gitActivity: 0.1
-      },
-      workQuality: {
-        total: 95,
-        prodBugs: 0,
-        testBugs: 1,
-        mergeRatio: 0.01
-      },
-      attitude: {
-        total: 96,
-        positiveAttitude: 0.001,
-        techSharing: 3,
-        techArticles: 2,
-        mentoring: 2,
-        teamManagement: 1
-      },
-      progress: {
-        total: 94,
-        onTimeCompletion: 0.05,
-        storyPointAccuracy: 0.02,
-        planChanges: 1
-      },
-      requirements: {
-        total: 97,
-        changeRequests: 0,
-        misunderstandingErrors: 0
-      },
-      recruitment: {
-        total: 85,
-        cvCount: 1,
-        passedCandidates: 5,
-        recruitmentCost: 2000000
-      },
-      revenue: {
-        clientsOver100M: 2
-      }
-    }
-  ]);
+  // Data states
+  const [kpiDetails, setKpiDetails] = useState<KPIDetail[]>([]);
+  const [filteredData, setFilteredData] = useState<KPIDetail[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [filteredData, setFilteredData] = useState(kpiDetails);
+  useEffect(() => {
+    fetchKPIDetails();
+  }, [year, month]);
+
+  const fetchKPIDetails = async () => {
+    if (!year || !month) return;
+    
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('kpi_details')
+        .select('*')
+        .eq('year', parseInt(year))
+        .eq('month', parseInt(month))
+        .order('employee_code');
+
+      if (error) throw error;
+      
+      setKpiDetails(data || []);
+      setFilteredData(data || []);
+    } catch (error) {
+      console.error('Error fetching KPI details:', error);
+      toast.error('Không thể tải dữ liệu KPI chi tiết');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = () => {
     let filtered = [...kpiDetails];
     
     if (employeeCode) {
       filtered = filtered.filter(item => 
-        item.employeeCode.toLowerCase().includes(employeeCode.toLowerCase())
+        item.employee_code.toLowerCase().includes(employeeCode.toLowerCase())
       );
     }
     
     if (hasKPIGap !== 'all') {
       const hasGap = hasKPIGap === 'yes';
-      filtered = filtered.filter(item => item.hasKPIGap === hasGap);
+      filtered = filtered.filter(item => item.has_kpi_gap === hasGap);
     }
     
     setFilteredData(filtered);
@@ -168,11 +106,51 @@ const KPIDetailPage = () => {
     setShowCopyDialog(true);
   };
 
-  const handleCopyConfirm = (copyMonth: number, copyYear: number) => {
-    // In a real app, you would copy the KPI data to the new month/year
-    console.log(`Copying KPI to ${copyMonth}/${copyYear}`);
-    toast.success(`KPI đã được copy sang tháng ${copyMonth}/${copyYear}`);
-    navigate('/kpi');
+  const handleCopyConfirm = async (copyMonth: number, copyYear: number) => {
+    try {
+      // Copy all KPI details to the new month/year
+      const copyData = kpiDetails.map(detail => ({
+        employee_code: detail.employee_code,
+        month: copyMonth,
+        year: copyYear,
+        has_kpi_gap: detail.has_kpi_gap,
+        basic_salary: detail.basic_salary,
+        kpi: detail.kpi,
+        total_salary: detail.total_salary,
+        salary_coefficient: detail.salary_coefficient,
+        kpi_coefficient: detail.kpi_coefficient,
+        total_monthly_kpi: detail.total_monthly_kpi,
+        work_productivity: detail.work_productivity,
+        work_quality: detail.work_quality,
+        attitude: detail.attitude,
+        progress: detail.progress,
+        requirements: detail.requirements,
+        recruitment: detail.recruitment,
+        revenue: detail.revenue
+      }));
+
+      const { error } = await supabase
+        .from('kpi_details')
+        .insert(copyData);
+
+      if (error) throw error;
+
+      // Update KPI record count
+      const kpiGapCount = copyData.filter(item => item.has_kpi_gap).length;
+      await supabase
+        .from('kpi_records')
+        .upsert({
+          month: copyMonth,
+          year: copyYear,
+          total_employees_with_kpi_gap: kpiGapCount
+        });
+
+      toast.success(`KPI đã được copy sang tháng ${copyMonth}/${copyYear}`);
+      navigate('/kpi');
+    } catch (error) {
+      console.error('Error copying KPI:', error);
+      toast.error('Không thể copy KPI');
+    }
   };
 
   const handleViewDetail = (id: string) => {
@@ -185,9 +163,9 @@ const KPIDetailPage = () => {
     setShowEditForm(true);
   };
 
-  const handleFormSave = () => {
+  const handleFormSave = async () => {
     // Refresh data after save
-    // In a real app, you would fetch fresh data from the API
+    await fetchKPIDetails();
     toast.success('KPI đã được lưu thành công');
   };
 
@@ -195,11 +173,70 @@ const KPIDetailPage = () => {
     navigate('/kpi');
   };
 
-  const totalEmployeesWithKPIGap = filteredData.filter(item => item.hasKPIGap).length;
+  const handleDownloadExcel = () => {
+    // Create CSV content for KPI details
+    const headers = [
+      'STT',
+      'Mã NV',
+      'Lệch KPI',
+      'Lương cơ bản',
+      'KPI (%)',
+      'Tổng lương',
+      'Hệ số lương',
+      'Hệ số KPI',
+      'Tổng KPI tháng',
+      'Năng suất làm việc',
+      'Chất lượng công việc',
+      'Thái độ làm việc',
+      'Tiến độ công việc',
+      'Yêu cầu công việc',
+      'Tuyển dụng',
+      'Doanh thu'
+    ];
+
+    const csvRows = [
+      headers.join(','),
+      ...filteredData.map((detail, index) => [
+        index + 1,
+        detail.employee_code,
+        detail.has_kpi_gap ? 'Có' : 'Không',
+        Math.round(detail.basic_salary),
+        detail.kpi,
+        Math.round(detail.total_salary),
+        detail.salary_coefficient,
+        detail.kpi_coefficient,
+        detail.total_monthly_kpi,
+        detail.work_productivity?.total || 0,
+        detail.work_quality?.total || 0,
+        detail.attitude?.total || 0,
+        detail.progress?.total || 0,
+        detail.requirements?.total || 0,
+        detail.recruitment?.total || 0,
+        detail.revenue?.clientsOver100M || 0
+      ].join(','))
+    ];
+
+    const csvContent = csvRows.join('\n');
+    
+    // Create and download file
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `KPI_Chi_tiet_${month?.padStart(2, '0')}_${year}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast.success('Đã tải xuống file Excel');
+  };
+
+  const totalEmployeesWithKPIGap = filteredData.filter(item => item.has_kpi_gap).length;
 
   useEffect(() => {
     handleSearch();
-  }, []);
+  }, [kpiDetails]);
 
   return (
     <AppLayout>
@@ -214,6 +251,15 @@ const KPIDetailPage = () => {
           >
             <ArrowLeft className="h-4 w-4" />
             Quay lại
+          </Button>
+          <Button
+            onClick={handleDownloadExcel}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Download Excel
           </Button>
         </div>
 
@@ -242,11 +288,17 @@ const KPIDetailPage = () => {
         <KPIDetailSummary totalEmployeesWithKPIGap={totalEmployeesWithKPIGap} />
 
         {/* Table */}
-        <KPIDetailTable
-          data={filteredData}
-          onViewDetail={handleViewDetail}
-          onEdit={handleEdit}
-        />
+        {loading ? (
+          <div className="flex justify-center items-center py-8">
+            <div className="text-gray-500">Đang tải dữ liệu...</div>
+          </div>
+        ) : (
+          <KPIDetailTable
+            data={filteredData}
+            onViewDetail={handleViewDetail}
+            onEdit={handleEdit}
+          />
+        )}
 
         {/* Edit Form */}
         <KPIDetailEditForm
