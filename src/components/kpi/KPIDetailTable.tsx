@@ -196,7 +196,7 @@ export function KPIDetailTable({ data, onViewDetail, onEdit }: KPIDetailTablePro
             <SortableHeader field="workProductivity.taskTarget" className="text-xs">Đạt chỉ tiêu task (10)</SortableHeader>
             <SortableHeader field="workProductivity.locTarget" className="text-xs">LOC vượt chỉ tiêu (10000)</SortableHeader>
             <SortableHeader field="workProductivity.lotTarget" className="text-xs">LOT vượt chỉ tiêu (1000)</SortableHeader>
-            <SortableHeader field="workProductivity.effortRatio" className="text-xs">Tỷ lệ effort (>80%)</SortableHeader>
+            <SortableHeader field="workProductivity.effortRatio" className="text-xs">Tỷ lệ effort ({'>'}80%)</SortableHeader>
             <SortableHeader field="workProductivity.gitActivity" className="text-xs">Git activity (5)</SortableHeader>
             
             {/* Chất lượng công việc sub headers */}
@@ -205,7 +205,7 @@ export function KPIDetailTable({ data, onViewDetail, onEdit }: KPIDetailTablePro
             <SortableHeader field="workQuality.testBugs" className="text-xs">Bug môi trường test</SortableHeader>
             
             {/* Pull request sub header */}
-            <SortableHeader field="pullRequest.mergeRatio" className="text-xs">Merge không chỉnh sửa (>30%)</SortableHeader>
+            <SortableHeader field="pullRequest.mergeRatio" className="text-xs">Merge không chỉnh sửa ({'>'}30%)</SortableHeader>
             
             {/* Thái độ sub headers */}
             <SortableHeader field="attitude.total" className="text-xs">Tổng</SortableHeader>
@@ -234,7 +234,7 @@ export function KPIDetailTable({ data, onViewDetail, onEdit }: KPIDetailTablePro
             <SortableHeader field="recruitment.recruitmentCost" className="text-xs">Chi phí/ứng viên</SortableHeader>
             
             {/* Doanh số sub header */}
-            <SortableHeader field="revenue.clientsOver100M" className="text-xs">KH >100tr/tháng</SortableHeader>
+            <SortableHeader field="revenue.clientsOver100M" className="text-xs">KH {'>'}100tr/tháng</SortableHeader>
             
             <TableHead></TableHead>
           </TableRow>
