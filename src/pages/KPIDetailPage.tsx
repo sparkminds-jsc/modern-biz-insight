@@ -185,11 +185,32 @@ const KPIDetailPage = () => {
       setKpiDetails(data || []);
       const transformedData = (data || []).map(transformKPIDetailData);
       setFilteredData(transformedData);
+
+      // Update the KPI record count to match actual data
+      await updateKPIRecordCount(data || []);
     } catch (error) {
       console.error('Error fetching KPI details:', error);
       toast.error('Không thể tải dữ liệu KPI chi tiết');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const updateKPIRecordCount = async (kpiDetailsData: KPIDetail[]) => {
+    if (!year || !month) return;
+    
+    try {
+      const kpiGapCount = kpiDetailsData.filter(item => item.has_kpi_gap).length;
+      
+      const { error } = await supabase
+        .from('kpi_records')
+        .update({ total_employees_with_kpi_gap: kpiGapCount })
+        .eq('year', parseInt(year))
+        .eq('month', parseInt(month));
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating KPI record count:', error);
     }
   };
 
