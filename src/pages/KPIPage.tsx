@@ -1,18 +1,11 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { KPIFilters } from '../components/kpi/KPIFilters';
 import { KPITable } from '../components/kpi/KPITable';
-import { supabase } from '@/integrations/supabase/client';
+import { CreateKPIDialog } from '../components/kpi/CreateKPIDialog';
 import { toast } from 'sonner';
-
-interface KPIRecord {
-  id: string;
-  year: number;
-  month: number;
-  total_employees_with_kpi_gap: number;
-}
 
 const KPIPage = () => {
   const navigate = useNavigate();
@@ -21,79 +14,60 @@ const KPIPage = () => {
   const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
   const [selectedYears, setSelectedYears] = useState<number[]>([]);
   
-  // Data state
-  const [kpiData, setKpiData] = useState<KPIRecord[]>([]);
-  const [filteredKpiData, setFilteredKpiData] = useState<KPIRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Dialog state
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
-  useEffect(() => {
-    fetchKPIData();
-  }, []);
-
-  useEffect(() => {
-    filterKPIData();
-  }, [kpiData, selectedMonths, selectedYears]);
-
-  const fetchKPIData = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('kpi_records')
-        .select('*')
-        .order('year', { ascending: false })
-        .order('month', { ascending: false });
-
-      if (error) throw error;
-
-      const mappedData: KPIRecord[] = (data || []).map(record => ({
-        id: record.id,
-        year: record.year,
-        month: record.month,
-        total_employees_with_kpi_gap: record.total_employees_with_kpi_gap
-      }));
-
-      setKpiData(mappedData);
-    } catch (error) {
-      console.error('Error fetching KPI data:', error);
-      toast.error('Không thể tải dữ liệu KPI');
-    } finally {
-      setLoading(false);
+  // Mock data - replace with real data later
+  const [mockKPIData, setMockKPIData] = useState([
+    {
+      id: '1',
+      year: 2024,
+      month: 12,
+      totalEmployeesWithKPIGap: 5
+    },
+    {
+      id: '2',
+      year: 2024,
+      month: 11,
+      totalEmployeesWithKPIGap: 3
+    },
+    {
+      id: '3',
+      year: 2024,
+      month: 10,
+      totalEmployeesWithKPIGap: 7
     }
+  ]);
+
+  const handleCreateKPI = () => {
+    setShowCreateDialog(true);
   };
 
-  const filterKPIData = () => {
-    let filtered = [...kpiData];
-
-    if (selectedMonths.length > 0) {
-      filtered = filtered.filter(record => selectedMonths.includes(record.month));
-    }
-
-    if (selectedYears.length > 0) {
-      filtered = filtered.filter(record => selectedYears.includes(record.year));
-    }
-
-    setFilteredKpiData(filtered);
+  const handleCreateConfirm = (month: number, year: number) => {
+    // Generate new ID
+    const newId = (mockKPIData.length + 1).toString();
+    
+    // Create new KPI record
+    const newKPIRecord = {
+      id: newId,
+      year: year,
+      month: month,
+      totalEmployeesWithKPIGap: 0 // Initially 0, will be calculated based on detail records
+    };
+    
+    // Add to mock data
+    setMockKPIData(prev => [newKPIRecord, ...prev]);
+    
+    console.log(`Creating KPI for ${month}/${year}`);
+    toast.success(`KPI cho tháng ${month}/${year} đã được tạo thành công`);
+    
+    // Navigate to the newly created KPI detail page
+    navigate(`/kpi/detail/${year}/${month}`);
   };
 
   const handleViewDetail = (year: number, month: number) => {
     navigate(`/kpi/detail/${year}/${month}`);
   };
-
-  if (loading) {
-    return (
-      <AppLayout>
-        <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Quản lý KPI</h1>
-            <p className="text-gray-600">Đánh giá hiệu suất làm việc</p>
-          </div>
-          <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
-            <p className="text-gray-500">Đang tải dữ liệu...</p>
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
 
   return (
     <AppLayout>
@@ -103,18 +77,26 @@ const KPIPage = () => {
           <p className="text-gray-600">Đánh giá hiệu suất làm việc</p>
         </div>
 
-        {/* Filters - removed onCreateKPI prop */}
+        {/* Filters */}
         <KPIFilters
           selectedMonths={selectedMonths}
           selectedYears={selectedYears}
           onMonthsChange={setSelectedMonths}
           onYearsChange={setSelectedYears}
+          onCreateKPI={handleCreateKPI}
         />
 
         {/* KPI Table */}
         <KPITable
-          data={filteredKpiData}
+          data={mockKPIData}
           onViewDetail={handleViewDetail}
+        />
+
+        {/* Create KPI Dialog */}
+        <CreateKPIDialog
+          isOpen={showCreateDialog}
+          onClose={() => setShowCreateDialog(false)}
+          onCreate={handleCreateConfirm}
         />
       </div>
     </AppLayout>

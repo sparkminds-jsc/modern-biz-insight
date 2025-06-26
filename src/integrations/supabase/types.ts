@@ -248,33 +248,6 @@ export type Database = {
         }
         Relationships: []
       }
-      kpi_records: {
-        Row: {
-          created_at: string
-          id: string
-          month: number
-          total_employees_with_kpi_gap: number
-          updated_at: string
-          year: number
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          month: number
-          total_employees_with_kpi_gap?: number
-          updated_at?: string
-          year: number
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          month?: number
-          total_employees_with_kpi_gap?: number
-          updated_at?: string
-          year?: number
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           avatar_url: string | null
