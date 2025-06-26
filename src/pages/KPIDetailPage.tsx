@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
@@ -11,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { formatKPINumber } from '@/utils/numberFormat';
 
 interface KPIDetail {
   id: string;
@@ -314,19 +314,19 @@ const KPIDetailPage = () => {
         index + 1,
         detail.employeeCode,
         detail.hasKPIGap ? 'Có' : 'Không',
-        Math.round(detail.basicSalary),
-        detail.kpi,
-        Math.round(detail.totalSalary),
-        detail.salaryCoefficient,
-        detail.kpiCoefficient,
-        detail.totalMonthlyKPI,
-        detail.workProductivity.total,
-        detail.workQuality.total,
-        detail.attitude.total,
-        detail.progress.total,
-        detail.requirements.total,
-        detail.recruitment.total,
-        detail.revenue.clientsOver100M
+        formatKPINumber(detail.basicSalary),
+        formatKPINumber(detail.kpi),
+        formatKPINumber(detail.totalSalary),
+        formatKPINumber(detail.salaryCoefficient),
+        formatKPINumber(detail.kpiCoefficient),
+        formatKPINumber(detail.totalMonthlyKPI),
+        formatKPINumber(detail.workProductivity.total),
+        formatKPINumber(detail.workQuality.total),
+        formatKPINumber(detail.attitude.total),
+        formatKPINumber(detail.progress.total),
+        formatKPINumber(detail.requirements.total),
+        formatKPINumber(detail.recruitment.total),
+        formatKPINumber(detail.revenue.clientsOver100M)
       ].join(','))
     ];
 

@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { FormData, CalculatedValues } from './kpiFormTypes';
 import { mergeRatioOptions } from './kpiFormOptions';
+import { formatKPINumber } from '@/utils/numberFormat';
 
 interface KPIWorkQualityProps {
   register: UseFormRegister<FormData>;
@@ -21,7 +22,7 @@ export function KPIWorkQuality({ register, setValue, watchedValues, calculatedVa
         <div className="space-y-2">
           <Label>Tổng</Label>
           <Input
-            value={calculatedValues.workQualityTotal}
+            value={formatKPINumber(calculatedValues.workQualityTotal)}
             readOnly
             className="bg-gray-100"
           />

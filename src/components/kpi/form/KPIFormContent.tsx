@@ -66,10 +66,37 @@ export function KPIFormContent({
 
   useEffect(() => {
     if (kpiDetail) {
-      Object.keys(kpiDetail).forEach(key => {
-        if (key in watchedValues) {
-          setValue(key as keyof FormData, kpiDetail[key]);
-        }
+      // Handle form data mapping from existing KPI detail
+      const formData: Partial<FormData> = {
+        employee_code: kpiDetail.employee_code,
+        completedOnTime: kpiDetail.work_productivity?.completedOnTime?.toString() || '0',
+        overdueTask: kpiDetail.work_productivity?.overdueTask || 0,
+        taskTarget: kpiDetail.work_productivity?.taskTarget?.toString() || '0',
+        locTarget: kpiDetail.work_productivity?.locTarget || 0,
+        lotTarget: kpiDetail.work_productivity?.lotTarget || 0,
+        effortRatio: kpiDetail.work_productivity?.effortRatio?.toString() || '0',
+        gitActivity: kpiDetail.work_productivity?.gitActivity?.toString() || '0',
+        prodBugs: kpiDetail.work_quality?.prodBugs || 0,
+        testBugs: kpiDetail.work_quality?.testBugs || 0,
+        mergeRatio: kpiDetail.work_quality?.mergeRatio?.toString() || '0',
+        positiveAttitude: kpiDetail.attitude?.positiveAttitude?.toString() || '0',
+        techSharing: kpiDetail.attitude?.techSharing || 0,
+        techArticles: kpiDetail.attitude?.techArticles || 0,
+        mentoring: kpiDetail.attitude?.mentoring || 0,
+        teamManagement: kpiDetail.attitude?.teamManagement?.toString() || '0',
+        onTimeCompletion: kpiDetail.progress?.onTimeCompletion?.toString() || '0',
+        storyPointAccuracy: kpiDetail.progress?.storyPointAccuracy?.toString() || '0',
+        planChanges: kpiDetail.progress?.planChanges || 0,
+        changeRequests: kpiDetail.requirements?.changeRequests || 0,
+        misunderstandingErrors: kpiDetail.requirements?.misunderstandingErrors || 0,
+        cvCount: kpiDetail.recruitment?.cvCount?.toString() || '0',
+        passedCandidates: kpiDetail.recruitment?.passedCandidates || 0,
+        recruitmentCost: kpiDetail.recruitment?.recruitmentCost?.toString() || '0',
+        clientsOver100M: kpiDetail.revenue?.clientsOver100M || 0
+      };
+
+      Object.entries(formData).forEach(([key, value]) => {
+        setValue(key as keyof FormData, value);
       });
     }
   }, [kpiDetail, setValue]);
@@ -90,6 +117,13 @@ export function KPIFormContent({
     }
   };
 
+  const parseValue = (value: string) => {
+    if (value === 'na' || value === 'na_merge' || value === 'na_attitude' || value === 'na_completion' || value === 'na_story') {
+      return 0;
+    }
+    return parseFloat(value) || 0;
+  };
+
   const onSubmit = async (data: FormData) => {
     try {
       setLoading(true);
@@ -98,41 +132,41 @@ export function KPIFormContent({
         employee_code: data.employee_code,
         month,
         year,
-        hasKPIGap: calculatedValues.hasKPIGap,
-        basicSalary: calculatedValues.basicSalary,
+        has_kpi_gap: calculatedValues.hasKPIGap,
+        basic_salary: calculatedValues.basicSalary,
         kpi: calculatedValues.kpi,
-        totalSalary: calculatedValues.totalSalary,
-        salaryCoefficient: calculatedValues.salaryCoefficient,
-        kpiCoefficient: calculatedValues.kpiCoefficient,
-        totalMonthlyKPI: calculatedValues.totalMonthlyKPI,
-        workProductivity: {
+        total_salary: calculatedValues.totalSalary,
+        salary_coefficient: calculatedValues.salaryCoefficient,
+        kpi_coefficient: calculatedValues.kpiCoefficient,
+        total_monthly_kpi: calculatedValues.totalMonthlyKPI,
+        work_productivity: {
           total: calculatedValues.workProductivityTotal,
-          completedOnTime: parseFloat(data.completedOnTime),
+          completedOnTime: parseValue(data.completedOnTime),
           overdueTask: data.overdueTask,
-          taskTarget: parseFloat(data.taskTarget),
+          taskTarget: parseValue(data.taskTarget),
           locTarget: data.locTarget,
           lotTarget: data.lotTarget,
-          effortRatio: parseFloat(data.effortRatio),
-          gitActivity: parseFloat(data.gitActivity)
+          effortRatio: parseValue(data.effortRatio),
+          gitActivity: parseValue(data.gitActivity)
         },
-        workQuality: {
+        work_quality: {
           total: calculatedValues.workQualityTotal,
           prodBugs: data.prodBugs,
           testBugs: data.testBugs,
-          mergeRatio: parseFloat(data.mergeRatio)
+          mergeRatio: parseValue(data.mergeRatio)
         },
         attitude: {
           total: calculatedValues.attitudeTotal,
-          positiveAttitude: parseFloat(data.positiveAttitude),
+          positiveAttitude: parseValue(data.positiveAttitude),
           techSharing: data.techSharing,
           techArticles: data.techArticles,
           mentoring: data.mentoring,
-          teamManagement: parseFloat(data.teamManagement)
+          teamManagement: parseValue(data.teamManagement)
         },
         progress: {
           total: calculatedValues.progressTotal,
-          onTimeCompletion: parseFloat(data.onTimeCompletion),
-          storyPointAccuracy: parseFloat(data.storyPointAccuracy),
+          onTimeCompletion: parseValue(data.onTimeCompletion),
+          storyPointAccuracy: parseValue(data.storyPointAccuracy),
           planChanges: data.planChanges
         },
         requirements: {
@@ -142,14 +176,29 @@ export function KPIFormContent({
         },
         recruitment: {
           total: calculatedValues.recruitmentTotal,
-          cvCount: parseFloat(data.cvCount),
+          cvCount: parseValue(data.cvCount),
           passedCandidates: data.passedCandidates,
-          recruitmentCost: parseFloat(data.recruitmentCost)
+          recruitmentCost: parseValue(data.recruitmentCost)
         },
         revenue: {
           clientsOver100M: data.clientsOver100M
         }
       };
+
+      if (kpiDetail) {
+        const { error } = await supabase
+          .from('kpi_details')
+          .update(kpiDetailData)
+          .eq('id', kpiDetail.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('kpi_details')
+          .insert(kpiDetailData);
+
+        if (error) throw error;
+      }
 
       toast.success(kpiDetail ? 'Đã cập nhật KPI' : 'Đã thêm KPI mới');
       

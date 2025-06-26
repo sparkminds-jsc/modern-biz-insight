@@ -31,14 +31,14 @@ export const mergeRatioOptions = [
   { label: 'Đạt', value: '0' },
   { label: 'Không Đạt', value: '-0.005' },
   { label: 'Vượt Trội', value: '0.01' },
-  { label: 'N/A', value: '0' }
+  { label: 'N/A', value: 'na_merge' }
 ];
 
 export const positiveAttitudeOptions = [
   { label: 'Đạt', value: '0' },
   { label: 'Không Đạt', value: '-0.0005' },
   { label: 'Vượt Trội', value: '0.001' },
-  { label: 'N/A', value: '0' }
+  { label: 'N/A', value: 'na_attitude' }
 ];
 
 export const teamManagementOptions = [
@@ -50,14 +50,14 @@ export const onTimeCompletionOptions = [
   { label: 'Đạt', value: '0' },
   { label: 'Không Đạt', value: '-0.025' },
   { label: 'Vượt Trội', value: '0.05' },
-  { label: 'N/A', value: '0' }
+  { label: 'N/A', value: 'na_completion' }
 ];
 
 export const storyPointAccuracyOptions = [
   { label: 'Đạt', value: '0' },
   { label: 'Không Đạt', value: '-0.01' },
   { label: 'Vượt Trội', value: '0.02' },
-  { label: 'N/A', value: '0' }
+  { label: 'N/A', value: 'na_story' }
 ];
 
 export const cvCountOptions = [
