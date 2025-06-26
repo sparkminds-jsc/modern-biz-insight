@@ -32,14 +32,11 @@ interface KPIDetailData {
     effortRatio: number;
     gitActivity: number;
   };
-  // Chất lượng công việc
+  // Chất lượng công việc (đã gộp với tỷ lệ pull request)
   workQuality: {
     total: number;
     prodBugs: number;
     testBugs: number;
-  };
-  // Tỷ lệ pull request
-  pullRequest: {
     mergeRatio: number;
   };
   // Thái độ và đóng góp
@@ -139,14 +136,9 @@ export function KPIDetailTable({ data, onViewDetail, onEdit }: KPIDetailTablePro
               Năng suất công việc
             </TableHead>
             
-            {/* Chất lượng công việc */}
-            <TableHead className="text-center border-l border-gray-200" colSpan={3}>
+            {/* Chất lượng công việc (đã gộp với tỷ lệ pull request) */}
+            <TableHead className="text-center border-l border-gray-200" colSpan={4}>
               Chất lượng công việc
-            </TableHead>
-            
-            {/* Tỷ lệ pull request */}
-            <TableHead className="text-center border-l border-gray-200">
-              Tỷ lệ pull request
             </TableHead>
             
             {/* Thái độ và đóng góp */}
@@ -199,13 +191,11 @@ export function KPIDetailTable({ data, onViewDetail, onEdit }: KPIDetailTablePro
             <SortableHeader field="workProductivity.effortRatio" className="text-xs">Tỷ lệ effort ({'>'}80%)</SortableHeader>
             <SortableHeader field="workProductivity.gitActivity" className="text-xs">Git activity (5)</SortableHeader>
             
-            {/* Chất lượng công việc sub headers */}
+            {/* Chất lượng công việc sub headers (đã gộp với pull request) */}
             <SortableHeader field="workQuality.total" className="text-xs">Tổng</SortableHeader>
             <SortableHeader field="workQuality.prodBugs" className="text-xs">Bug môi trường thực tế</SortableHeader>
             <SortableHeader field="workQuality.testBugs" className="text-xs">Bug môi trường test</SortableHeader>
-            
-            {/* Pull request sub header */}
-            <SortableHeader field="pullRequest.mergeRatio" className="text-xs">Merge không chỉnh sửa ({'>'}30%)</SortableHeader>
+            <SortableHeader field="workQuality.mergeRatio" className="text-xs">Merge không chỉnh sửa ({'>'}30%)</SortableHeader>
             
             {/* Thái độ sub headers */}
             <SortableHeader field="attitude.total" className="text-xs">Tổng</SortableHeader>
@@ -242,7 +232,7 @@ export function KPIDetailTable({ data, onViewDetail, onEdit }: KPIDetailTablePro
         <TableBody>
           {data.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={37} className="text-center py-8 text-gray-500">
+              <TableCell colSpan={36} className="text-center py-8 text-gray-500">
                 Không có dữ liệu
               </TableCell>
             </TableRow>
@@ -269,13 +259,11 @@ export function KPIDetailTable({ data, onViewDetail, onEdit }: KPIDetailTablePro
                 <TableCell>{Math.round(item.workProductivity.effortRatio)}</TableCell>
                 <TableCell>{Math.round(item.workProductivity.gitActivity)}</TableCell>
                 
-                {/* Chất lượng công việc */}
+                {/* Chất lượng công việc (đã gộp với pull request) */}
                 <TableCell className="border-l border-gray-200">{Math.round(item.workQuality.total)}</TableCell>
                 <TableCell>{Math.round(item.workQuality.prodBugs)}</TableCell>
                 <TableCell>{Math.round(item.workQuality.testBugs)}</TableCell>
-                
-                {/* Pull request */}
-                <TableCell className="border-l border-gray-200">{Math.round(item.pullRequest.mergeRatio)}</TableCell>
+                <TableCell>{Math.round(item.workQuality.mergeRatio)}</TableCell>
                 
                 {/* Thái độ */}
                 <TableCell className="border-l border-gray-200">{Math.round(item.attitude.total)}</TableCell>

@@ -47,9 +47,7 @@ const KPIDetailPage = () => {
       workQuality: {
         total: 88,
         prodBugs: 1,
-        testBugs: 3
-      },
-      pullRequest: {
+        testBugs: 3,
         mergeRatio: 35
       },
       attitude: {
@@ -105,9 +103,7 @@ const KPIDetailPage = () => {
       workQuality: {
         total: 95,
         prodBugs: 0,
-        testBugs: 1
-      },
-      pullRequest: {
+        testBugs: 1,
         mergeRatio: 45
       },
       attitude: {

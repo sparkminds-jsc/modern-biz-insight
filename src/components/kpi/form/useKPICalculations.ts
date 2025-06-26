@@ -59,11 +59,11 @@ export function useKPICalculations(watchedValues: FormData, month: number, year:
       parseValue(watchedValues.effortRatio) +
       parseValue(watchedValues.gitActivity);
 
-    // Work Quality calculations
-    const workQualityTotal = -(watchedValues.prodBugs * 0.1) - (watchedValues.testBugs * 0.05);
-
     // Pull Request calculations
     const pullRequestMergeRatio = watchedValues.mergeRatio > 30 ? 0.1 : -0.1;
+
+    // Work Quality calculations (now includes pull request)
+    const workQualityTotal = -(watchedValues.prodBugs * 0.1) - (watchedValues.testBugs * 0.05) + pullRequestMergeRatio;
 
     // Attitude calculations
     const attitudeTotal = 

@@ -40,6 +40,15 @@ export function KPIWorkQuality({ register, calculatedValues }: KPIWorkQualityPro
             placeholder="0"
           />
         </div>
+
+        <div className="space-y-2">
+          <Label>Merge không chỉnh sửa ({'>'}30%)</Label>
+          <Input
+            type="number"
+            {...register('mergeRatio', { valueAsNumber: true })}
+            placeholder="0"
+          />
+        </div>
       </div>
     </div>
   );

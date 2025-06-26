@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -16,7 +15,6 @@ import { toast } from 'sonner';
 import { KPIBasicInfo } from './form/KPIBasicInfo';
 import { KPIWorkProductivity } from './form/KPIWorkProductivity';
 import { KPIWorkQuality } from './form/KPIWorkQuality';
-import { KPIPullRequest } from './form/KPIPullRequest';
 import { KPIAttitude } from './form/KPIAttitude';
 import { KPIProgress } from './form/KPIProgress';
 import { KPIRequirements } from './form/KPIRequirements';
@@ -142,9 +140,7 @@ export function KPIDetailEditForm({
         workQuality: {
           total: calculatedValues.workQualityTotal,
           prodBugs: data.prodBugs,
-          testBugs: data.testBugs
-        },
-        pullRequest: {
+          testBugs: data.testBugs,
           mergeRatio: data.mergeRatio
         },
         attitude: {
@@ -219,14 +215,11 @@ export function KPIDetailEditForm({
             calculatedValues={calculatedValues}
           />
 
-          {/* Work Quality Section */}
+          {/* Work Quality Section (now includes pull request) */}
           <KPIWorkQuality
             register={register}
             calculatedValues={calculatedValues}
           />
-
-          {/* Pull Request Section */}
-          <KPIPullRequest register={register} />
 
           {/* Attitude Section */}
           <KPIAttitude
