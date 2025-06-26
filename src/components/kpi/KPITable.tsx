@@ -14,7 +14,7 @@ interface KPIData {
   id: string;
   year: number;
   month: number;
-  totalEmployeesWithKPIGap: number;
+  total_employees_with_kpi_gap: number;
 }
 
 interface KPITableProps {
@@ -48,7 +48,7 @@ export function KPITable({ data, onViewDetail }: KPITableProps) {
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{item.year}</TableCell>
                 <TableCell>{item.month.toString().padStart(2, '0')}</TableCell>
-                <TableCell>{item.totalEmployeesWithKPIGap}</TableCell>
+                <TableCell>{item.total_employees_with_kpi_gap}</TableCell>
                 <TableCell>
                   <Button
                     size="sm"
