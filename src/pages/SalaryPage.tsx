@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
@@ -151,9 +150,23 @@ const SalaryPage = () => {
 
       if (error) throw error;
 
+      // Create KPI record when salary sheet is completed
+      const { error: kpiError } = await supabase
+        .from('kpi_records')
+        .insert({
+          month: salarySheet.month,
+          year: salarySheet.year,
+          total_employees_with_kpi_gap: 0
+        });
+
+      if (kpiError) {
+        console.error('Error creating KPI record:', kpiError);
+        // Don't throw error as the main operation (completing salary sheet) succeeded
+      }
+
       toast({
         title: 'Thành công',
-        description: 'Đã hoàn thành bảng lương',
+        description: 'Đã hoàn thành bảng lương và tạo KPI tương ứng',
       });
 
       fetchSalarySheets();
