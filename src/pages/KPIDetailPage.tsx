@@ -31,6 +31,62 @@ interface KPIDetail {
   revenue: any;
 }
 
+interface KPIDetailData {
+  id: string;
+  employeeCode: string;
+  hasKPIGap: boolean;
+  basicSalary: number;
+  kpi: number;
+  totalSalary: number;
+  salaryCoefficient: number;
+  kpiCoefficient: number;
+  totalMonthlyKPI: number;
+  workProductivity: {
+    total: number;
+    completedOnTime: number;
+    overdueTask: number;
+    taskTarget: number;
+    locTarget: number;
+    lotTarget: number;
+    effortRatio: number;
+    gitActivity: number;
+  };
+  workQuality: {
+    total: number;
+    prodBugs: number;
+    testBugs: number;
+    mergeRatio: number;
+  };
+  attitude: {
+    total: number;
+    positiveAttitude: number;
+    techSharing: number;
+    techArticles: number;
+    mentoring: number;
+    teamManagement: number;
+  };
+  progress: {
+    total: number;
+    onTimeCompletion: number;
+    storyPointAccuracy: number;
+    planChanges: number;
+  };
+  requirements: {
+    total: number;
+    changeRequests: number;
+    misunderstandingErrors: number;
+  };
+  recruitment: {
+    total: number;
+    cvCount: number;
+    passedCandidates: number;
+    recruitmentCost: number;
+  };
+  revenue: {
+    clientsOver100M: number;
+  };
+}
+
 const KPIDetailPage = () => {
   const { year, month } = useParams();
   const navigate = useNavigate();
@@ -49,12 +105,68 @@ const KPIDetailPage = () => {
 
   // Data states
   const [kpiDetails, setKpiDetails] = useState<KPIDetail[]>([]);
-  const [filteredData, setFilteredData] = useState<KPIDetail[]>([]);
+  const [filteredData, setFilteredData] = useState<KPIDetailData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchKPIDetails();
   }, [year, month]);
+
+  const transformKPIDetailData = (detail: KPIDetail): KPIDetailData => ({
+    id: detail.id,
+    employeeCode: detail.employee_code,
+    hasKPIGap: detail.has_kpi_gap,
+    basicSalary: detail.basic_salary,
+    kpi: detail.kpi,
+    totalSalary: detail.total_salary,
+    salaryCoefficient: detail.salary_coefficient,
+    kpiCoefficient: detail.kpi_coefficient,
+    totalMonthlyKPI: detail.total_monthly_kpi,
+    workProductivity: {
+      total: detail.work_productivity?.total || 0,
+      completedOnTime: detail.work_productivity?.completedOnTime || 0,
+      overdueTask: detail.work_productivity?.overdueTask || 0,
+      taskTarget: detail.work_productivity?.taskTarget || 0,
+      locTarget: detail.work_productivity?.locTarget || 0,
+      lotTarget: detail.work_productivity?.lotTarget || 0,
+      effortRatio: detail.work_productivity?.effortRatio || 0,
+      gitActivity: detail.work_productivity?.gitActivity || 0,
+    },
+    workQuality: {
+      total: detail.work_quality?.total || 0,
+      prodBugs: detail.work_quality?.prodBugs || 0,
+      testBugs: detail.work_quality?.testBugs || 0,
+      mergeRatio: detail.work_quality?.mergeRatio || 0,
+    },
+    attitude: {
+      total: detail.attitude?.total || 0,
+      positiveAttitude: detail.attitude?.positiveAttitude || 0,
+      techSharing: detail.attitude?.techSharing || 0,
+      techArticles: detail.attitude?.techArticles || 0,
+      mentoring: detail.attitude?.mentoring || 0,
+      teamManagement: detail.attitude?.teamManagement || 0,
+    },
+    progress: {
+      total: detail.progress?.total || 0,
+      onTimeCompletion: detail.progress?.onTimeCompletion || 0,
+      storyPointAccuracy: detail.progress?.storyPointAccuracy || 0,
+      planChanges: detail.progress?.planChanges || 0,
+    },
+    requirements: {
+      total: detail.requirements?.total || 0,
+      changeRequests: detail.requirements?.changeRequests || 0,
+      misunderstandingErrors: detail.requirements?.misunderstandingErrors || 0,
+    },
+    recruitment: {
+      total: detail.recruitment?.total || 0,
+      cvCount: detail.recruitment?.cvCount || 0,
+      passedCandidates: detail.recruitment?.passedCandidates || 0,
+      recruitmentCost: detail.recruitment?.recruitmentCost || 0,
+    },
+    revenue: {
+      clientsOver100M: detail.revenue?.clientsOver100M || 0,
+    },
+  });
 
   const fetchKPIDetails = async () => {
     if (!year || !month) return;
@@ -71,7 +183,8 @@ const KPIDetailPage = () => {
       if (error) throw error;
       
       setKpiDetails(data || []);
-      setFilteredData(data || []);
+      const transformedData = (data || []).map(transformKPIDetailData);
+      setFilteredData(transformedData);
     } catch (error) {
       console.error('Error fetching KPI details:', error);
       toast.error('Không thể tải dữ liệu KPI chi tiết');
@@ -94,7 +207,8 @@ const KPIDetailPage = () => {
       filtered = filtered.filter(item => item.has_kpi_gap === hasGap);
     }
     
-    setFilteredData(filtered);
+    const transformedData = filtered.map(transformKPIDetailData);
+    setFilteredData(transformedData);
   };
 
   const handleAddKPI = () => {
@@ -198,21 +312,21 @@ const KPIDetailPage = () => {
       headers.join(','),
       ...filteredData.map((detail, index) => [
         index + 1,
-        detail.employee_code,
-        detail.has_kpi_gap ? 'Có' : 'Không',
-        Math.round(detail.basic_salary),
+        detail.employeeCode,
+        detail.hasKPIGap ? 'Có' : 'Không',
+        Math.round(detail.basicSalary),
         detail.kpi,
-        Math.round(detail.total_salary),
-        detail.salary_coefficient,
-        detail.kpi_coefficient,
-        detail.total_monthly_kpi,
-        detail.work_productivity?.total || 0,
-        detail.work_quality?.total || 0,
-        detail.attitude?.total || 0,
-        detail.progress?.total || 0,
-        detail.requirements?.total || 0,
-        detail.recruitment?.total || 0,
-        detail.revenue?.clientsOver100M || 0
+        Math.round(detail.totalSalary),
+        detail.salaryCoefficient,
+        detail.kpiCoefficient,
+        detail.totalMonthlyKPI,
+        detail.workProductivity.total,
+        detail.workQuality.total,
+        detail.attitude.total,
+        detail.progress.total,
+        detail.requirements.total,
+        detail.recruitment.total,
+        detail.revenue.clientsOver100M
       ].join(','))
     ];
 
@@ -232,7 +346,7 @@ const KPIDetailPage = () => {
     toast.success('Đã tải xuống file Excel');
   };
 
-  const totalEmployeesWithKPIGap = filteredData.filter(item => item.has_kpi_gap).length;
+  const totalEmployeesWithKPIGap = filteredData.filter(item => item.hasKPIGap).length;
 
   useEffect(() => {
     handleSearch();
