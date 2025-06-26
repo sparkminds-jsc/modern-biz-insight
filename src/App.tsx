@@ -12,6 +12,7 @@ import SalaryDetailPage from './pages/SalaryDetailPage';
 import InvoicePage from './pages/InvoicePage';
 import ContractsPage from './pages/ContractsPage';
 import KPIPage from './pages/KPIPage';
+import KPIDetailPage from './pages/KPIDetailPage';
 import NotFound from './pages/NotFound';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import TeamReportDetailPage from './pages/TeamReportDetailPage';
@@ -32,6 +33,7 @@ function App() {
         <Route path="/invoice" element={<ProtectedRoute><InvoicePage /></ProtectedRoute>} />
         <Route path="/contracts" element={<ProtectedRoute><ContractsPage /></ProtectedRoute>} />
         <Route path="/kpi" element={<ProtectedRoute><KPIPage /></ProtectedRoute>} />
+        <Route path="/kpi/detail/:year/:month" element={<ProtectedRoute><KPIDetailPage /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
