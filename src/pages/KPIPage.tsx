@@ -18,7 +18,7 @@ const KPIPage = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   // Mock data - replace with real data later
-  const mockKPIData = [
+  const [mockKPIData, setMockKPIData] = useState([
     {
       id: '1',
       year: 2024,
@@ -37,14 +37,27 @@ const KPIPage = () => {
       month: 10,
       totalEmployeesWithKPIGap: 7
     }
-  ];
+  ]);
 
   const handleCreateKPI = () => {
     setShowCreateDialog(true);
   };
 
   const handleCreateConfirm = (month: number, year: number) => {
-    // In a real app, you would create a new KPI record in the database
+    // Generate new ID
+    const newId = (mockKPIData.length + 1).toString();
+    
+    // Create new KPI record
+    const newKPIRecord = {
+      id: newId,
+      year: year,
+      month: month,
+      totalEmployeesWithKPIGap: 0 // Initially 0, will be calculated based on detail records
+    };
+    
+    // Add to mock data
+    setMockKPIData(prev => [newKPIRecord, ...prev]);
+    
     console.log(`Creating KPI for ${month}/${year}`);
     toast.success(`KPI cho tháng ${month}/${year} đã được tạo thành công`);
     
