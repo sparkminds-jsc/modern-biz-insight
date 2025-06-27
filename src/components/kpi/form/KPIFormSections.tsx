@@ -17,10 +17,6 @@ interface KPIFormSectionsProps {
   watchedValues: FormData;
   calculatedValues: CalculatedValues;
   isEditMode: boolean;
-  month: number;
-  year: number;
-  onMonthChange: (month: number) => void;
-  onYearChange: (year: number) => void;
 }
 
 export function KPIFormSections({
@@ -29,11 +25,7 @@ export function KPIFormSections({
   setValue,
   watchedValues,
   calculatedValues,
-  isEditMode,
-  month,
-  year,
-  onMonthChange,
-  onYearChange
+  isEditMode
 }: KPIFormSectionsProps) {
   return (
     <>
@@ -44,10 +36,6 @@ export function KPIFormSections({
         onEmployeeCodeChange={(value) => setValue('employee_code', value)}
         calculatedValues={calculatedValues}
         isEditMode={isEditMode}
-        month={month}
-        year={year}
-        onMonthChange={onMonthChange}
-        onYearChange={onYearChange}
       />
 
       {/* Work Productivity Section */}
