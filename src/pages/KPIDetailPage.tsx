@@ -257,11 +257,17 @@ const KPIDetailPage = () => {
         .select('id, status')
         .eq('month', copyMonth)
         .eq('year', copyYear)
-        .single();
+        .maybeSingle();
 
       console.log('Salary sheet query result:', salarySheet, salarySheetError);
 
-      if (salarySheetError || !salarySheet) {
+      if (salarySheetError) {
+        console.error('Error fetching salary sheet:', salarySheetError);
+        toast.error('Không thể kiểm tra bảng lương');
+        return;
+      }
+
+      if (!salarySheet) {
         toast.error('Bảng lương của tháng/năm đã chọn không tồn tại');
         return;
       }
