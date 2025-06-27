@@ -1,13 +1,15 @@
 
 import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 
-export function RevenueChart() {
-  const [fromDate, setFromDate] = useState('2024-01');
-  const [toDate, setToDate] = useState('2024-06');
+interface RevenueChartProps {
+  fromDate: string;
+  toDate: string;
+}
+
+export function RevenueChart({ fromDate, toDate }: RevenueChartProps) {
   const [chartData, setChartData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -16,26 +18,24 @@ export function RevenueChart() {
     
     setLoading(true);
     try {
-      const fromYear = parseInt(fromDate.split('-')[0]);
-      const fromMonth = parseInt(fromDate.split('-')[1]);
-      const toYear = parseInt(toDate.split('-')[0]);
-      const toMonth = parseInt(toDate.split('-')[1]);
-
-      // Generate months array
-      const months = [];
-      let currentYear = fromYear;
-      let currentMonth = fromMonth;
+      const fromDateObj = new Date(fromDate);
+      const toDateObj = new Date(toDate);
       
-      while (currentYear < toYear || (currentYear === toYear && currentMonth <= toMonth)) {
-        months.push({ year: currentYear, month: currentMonth });
-        currentMonth++;
-        if (currentMonth > 12) {
-          currentMonth = 1;
-          currentYear++;
-        }
+      // Generate months array based on the date range
+      const months = [];
+      let currentDate = new Date(fromDateObj.getFullYear(), fromDateObj.getMonth(), 1);
+      const endDate = new Date(toDateObj.getFullYear(), toDateObj.getMonth(), 1);
+      
+      while (currentDate <= endDate) {
+        months.push({ 
+          year: currentDate.getFullYear(), 
+          month: currentDate.getMonth() + 1,
+          monthKey: `T${currentDate.getMonth() + 1}`
+        });
+        currentDate.setMonth(currentDate.getMonth() + 1);
       }
 
-      const data = await Promise.all(months.map(async ({ year, month }) => {
+      const data = await Promise.all(months.map(async ({ year, month, monthKey }) => {
         // Fetch employees count for this month
         const { data: employees, error: employeesError } = await supabase
           .from('employees')
@@ -44,10 +44,13 @@ export function RevenueChart() {
 
         if (employeesError) throw employeesError;
 
-        // Fetch revenue for this month
-        const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
-        const endDate = `${year}-${month.toString().padStart(2, '0')}-31`;
+        // Get first and last day of month
+        const firstDay = new Date(year, month - 1, 1);
+        const lastDay = new Date(year, month, 0);
+        const startDate = firstDay.toISOString().split('T')[0];
+        const endDate = lastDay.toISOString().split('T')[0];
         
+        // Fetch revenue for this month
         const { data: revenue, error: revenueError } = await supabase
           .from('revenue')
           .select('amount_vnd')
@@ -80,7 +83,7 @@ export function RevenueChart() {
         const totalSalary = salarySheets?.reduce((sum, sheet) => sum + (sheet.total_payment || 0), 0) || 0;
 
         return {
-          month: `T${month}`,
+          month: monthKey,
           employees: totalEmployees,
           revenue: Math.round(totalRevenue / 1000000), // Convert to millions
           costs: Math.round(totalExpenses / 1000000), // Convert to millions
@@ -111,28 +114,6 @@ export function RevenueChart() {
         <div>
           <h2 className="text-xl font-bold text-gray-900">Thống kê theo tháng</h2>
           <p className="text-gray-600">Biểu đồ cột thống kê các chỉ số</p>
-        </div>
-        
-        <div className="flex items-center space-x-4 mt-4 sm:mt-0">
-          <div className="flex items-center space-x-2">
-            <Calendar className="w-4 h-4 text-gray-500" />
-            <label className="text-sm font-medium text-gray-700">Từ:</label>
-            <input
-              type="month"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700">Đến:</label>
-            <input
-              type="month"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
         </div>
       </div>
 

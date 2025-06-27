@@ -4,15 +4,20 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 
-export function StatsCards() {
+interface StatsCardsProps {
+  fromDate: string;
+  toDate: string;
+  onFromDateChange: (date: string) => void;
+  onToDateChange: (date: string) => void;
+}
+
+export function StatsCards({ fromDate, toDate, onFromDateChange, onToDateChange }: StatsCardsProps) {
   const [stats, setStats] = useState({
     totalEmployees: 0,
     totalRevenue: 0,
     totalExpenses: 0,
     totalSalary: 0
   });
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
   const [loading, setLoading] = useState(false);
 
   const fetchStats = async () => {
@@ -79,16 +84,6 @@ export function StatsCards() {
   };
 
   useEffect(() => {
-    // Set default dates (current month)
-    const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    
-    setFromDate(firstDay.toISOString().split('T')[0]);
-    setToDate(lastDay.toISOString().split('T')[0]);
-  }, []);
-
-  useEffect(() => {
     if (fromDate && toDate) {
       fetchStats();
     }
@@ -139,7 +134,7 @@ export function StatsCards() {
             <input
               type="date"
               value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
+              onChange={(e) => onFromDateChange(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -148,7 +143,7 @@ export function StatsCards() {
             <input
               type="date"
               value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
+              onChange={(e) => onToDateChange(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
