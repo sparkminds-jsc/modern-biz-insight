@@ -186,18 +186,18 @@ const SalaryPage = () => {
         return;
       }
 
-      // Fetch employee emails
+      // Fetch employee emails - fix column name to employee_code
       const employeeCodes = salaryDetails.map(detail => detail.employee_code);
       const { data: employees, error: employeesError } = await supabase
         .from('employees')
-        .select('code, email, full_name')
-        .in('code', employeeCodes);
+        .select('employee_code, email, full_name')
+        .in('employee_code', employeeCodes);
 
       if (employeesError) throw employeesError;
 
       // Create email data array
       const emailData = salaryDetails.map(detail => {
-        const employee = employees?.find(emp => emp.code === detail.employee_code);
+        const employee = employees?.find(emp => emp.employee_code === detail.employee_code);
         return {
           email: employee?.email || '',
           code: detail.employee_code,
