@@ -213,24 +213,81 @@ export function KPIFormContent({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <KPIFormSections
-        employees={employees}
-        register={register}
-        setValue={setValue}
-        watchedValues={watchedValues}
-        calculatedValues={calculatedValues}
-        isEditMode={!!kpiDetail}
-      />
+    <form onSubmit={handleSubmit(onSubmit)} className="h-full flex flex-col">
+      {/* Basic Information - Fixed Section */}
+      <div className="flex-shrink-0 border-b border-gray-200 pb-4 mb-4">
+        <KPIBasicInfo
+          employees={employees}
+          employeeCode={watchedValues.employee_code}
+          onEmployeeCodeChange={(value) => setValue('employee_code', value)}
+          calculatedValues={calculatedValues}
+          isEditMode={!!kpiDetail}
+        />
+      </div>
 
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={onClose}>
-          Hủy
-        </Button>
-        <Button type="submit" disabled={loading}>
-          {loading ? 'Đang lưu...' : 'Lưu'}
-        </Button>
-      </DialogFooter>
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto pr-2 space-y-6">
+        {/* Work Productivity Section */}
+        <KPIWorkProductivity
+          register={register}
+          setValue={setValue}
+          watchedValues={watchedValues}
+          calculatedValues={calculatedValues}
+        />
+
+        {/* Work Quality Section */}
+        <KPIWorkQuality
+          register={register}
+          setValue={setValue}
+          watchedValues={watchedValues}
+          calculatedValues={calculatedValues}
+        />
+
+        {/* Attitude Section */}
+        <KPIAttitude
+          register={register}
+          setValue={setValue}
+          watchedValues={watchedValues}
+          calculatedValues={calculatedValues}
+        />
+
+        {/* Progress Section */}
+        <KPIProgress
+          register={register}
+          setValue={setValue}
+          watchedValues={watchedValues}
+          calculatedValues={calculatedValues}
+        />
+
+        {/* Requirements Section */}
+        <KPIRequirements
+          register={register}
+          calculatedValues={calculatedValues}
+        />
+
+        {/* Recruitment Section */}
+        <KPIRecruitment
+          register={register}
+          setValue={setValue}
+          watchedValues={watchedValues}
+          calculatedValues={calculatedValues}
+        />
+
+        {/* Revenue Section */}
+        <KPIRevenue register={register} />
+      </div>
+
+      {/* Footer - Fixed Section */}
+      <div className="flex-shrink-0 border-t border-gray-200 pt-4 mt-4">
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={onClose}>
+            Hủy
+          </Button>
+          <Button type="submit" disabled={loading}>
+            {loading ? 'Đang lưu...' : 'Lưu'}
+          </Button>
+        </DialogFooter>
+      </div>
     </form>
   );
 }

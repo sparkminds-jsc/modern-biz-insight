@@ -1,4 +1,3 @@
-
 import { TableCell, TableRow } from '@/components/ui/table';
 import { SalaryDetail } from '@/types/salary';
 import { SalaryTableActions } from './SalaryTableActions';
@@ -23,9 +22,10 @@ export function SalaryTableRow({ detail, index, onViewDetail, onEdit, onDelete }
     return Math.round(amount).toLocaleString('vi-VN');
   };
 
-  // Calculate corrected insurance values
-  const correctedBhdnBhtn = detail.gross_salary * 0.01;
-  const correctedBhnldBhtn = detail.gross_salary * 0.01;
+  // Calculate corrected insurance values based on salary type
+  const isSalaryWithInsurance = detail.gross_salary > 0; // Assume non-zero gross salary means "Lương có BH"
+  const correctedBhdnBhtn = isSalaryWithInsurance ? detail.gross_salary * 0.01 : 0;
+  const correctedBhnldBhtn = isSalaryWithInsurance ? detail.gross_salary * 0.01 : 0;
 
   return (
     <TableRow>
@@ -33,6 +33,9 @@ export function SalaryTableRow({ detail, index, onViewDetail, onEdit, onDelete }
       <TableCell>{detail.employee_code}</TableCell>
       <TableCell>{detail.employee_name}</TableCell>
       <TableCell>{detail.team}</TableCell>
+      <TableCell>
+        {detail.insurance_base_amount > 0 ? 'Lương có BH' : 'Lương thời vụ'}
+      </TableCell>
       <TableCell>{detail.month.toString().padStart(2, '0')}</TableCell>
       <TableCell>{detail.year}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.gross_salary)}</TableCell>

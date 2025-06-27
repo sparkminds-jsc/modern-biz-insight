@@ -11,6 +11,7 @@ import { ArrowLeft, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { formatKPINumber } from '@/utils/numberFormat';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
 
 interface KPIDetail {
   id: string;
@@ -102,6 +103,10 @@ const KPIDetailPage = () => {
 
   // Copy KPI states
   const [showCopyDialog, setShowCopyDialog] = useState(false);
+
+  // Delete confirmation states
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletingKPIDetail, setDeletingKPIDetail] = useState<KPIDetailData | null>(null);
 
   // Data states
   const [kpiDetails, setKpiDetails] = useState<KPIDetail[]>([]);
@@ -367,6 +372,36 @@ const KPIDetailPage = () => {
     toast.success('Đã tải xuống file Excel');
   };
 
+  const handleDelete = (id: string) => {
+    const kpiDetail = filteredData.find(item => item.id === id);
+    if (kpiDetail) {
+      setDeletingKPIDetail(kpiDetail);
+      setShowDeleteDialog(true);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingKPIDetail) return;
+
+    try {
+      const { error } = await supabase
+        .from('kpi_details')
+        .delete()
+        .eq('id', deletingKPIDetail.id);
+
+      if (error) throw error;
+
+      toast.success('Đã xóa KPI chi tiết');
+      await fetchKPIDetails();
+    } catch (error) {
+      console.error('Error deleting KPI detail:', error);
+      toast.error('Không thể xóa KPI chi tiết');
+    } finally {
+      setShowDeleteDialog(false);
+      setDeletingKPIDetail(null);
+    }
+  };
+
   const totalEmployeesWithKPIGap = filteredData.filter(item => item.hasKPIGap).length;
 
   useEffect(() => {
@@ -432,6 +467,7 @@ const KPIDetailPage = () => {
             data={filteredData}
             onViewDetail={handleViewDetail}
             onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         )}
 
@@ -451,6 +487,25 @@ const KPIDetailPage = () => {
           onClose={() => setShowCopyDialog(false)}
           onCopy={handleCopyConfirm}
         />
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Xác nhận xóa KPI</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bạn có chắc chắn muốn xóa KPI của nhân viên {deletingKPIDetail?.employeeCode} không? 
+                Hành động này không thể hoàn tác.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Hủy</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteConfirm} className="bg-red-600 hover:bg-red-700">
+                Xác nhận xóa
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </AppLayout>
   );
