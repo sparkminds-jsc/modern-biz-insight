@@ -249,6 +249,8 @@ const KPIDetailPage = () => {
 
   const handleCopyConfirm = async (copyMonth: number, copyYear: number) => {
     try {
+      console.log('Starting copy process for month:', copyMonth, 'year:', copyYear);
+      
       // First check if salary sheet exists and is completed
       const { data: salarySheet, error: salarySheetError } = await supabase
         .from('salary_sheets')
@@ -256,6 +258,8 @@ const KPIDetailPage = () => {
         .eq('month', copyMonth)
         .eq('year', copyYear)
         .single();
+
+      console.log('Salary sheet query result:', salarySheet, salarySheetError);
 
       if (salarySheetError || !salarySheet) {
         toast.error('Bảng lương của tháng/năm đã chọn không tồn tại');
@@ -270,8 +274,10 @@ const KPIDetailPage = () => {
       // Get all salary details for the selected month/year
       const { data: salaryDetails, error: salaryDetailsError } = await supabase
         .from('salary_details')
-        .select('employee_code, gross_salary, kpi_bonus, overtime_1_5, overtime_2, overtime_3')
+        .select('employee_code, gross_salary, kpi_bonus')
         .eq('salary_sheet_id', salarySheet.id);
+
+      console.log('Salary details query result:', salaryDetails, salaryDetailsError);
 
       if (salaryDetailsError) {
         console.error('Error fetching salary details:', salaryDetailsError);
@@ -283,10 +289,31 @@ const KPIDetailPage = () => {
       const salaryDataMap = new Map();
       (salaryDetails || []).forEach(detail => {
         salaryDataMap.set(detail.employee_code, {
-          basic_salary: detail.gross_salary,
-          kpi: detail.kpi_bonus + detail.overtime_1_5 + detail.overtime_2 + detail.overtime_3
+          basic_salary: detail.gross_salary || 0,
+          kpi: detail.kpi_bonus || 0
         });
       });
+
+      console.log('Salary data map:', salaryDataMap);
+
+      // Check if target month/year already has KPI details
+      const { data: existingKPIDetails, error: existingKPIError } = await supabase
+        .from('kpi_details')
+        .select('id')
+        .eq('month', copyMonth)
+        .eq('year', copyYear)
+        .limit(1);
+
+      if (existingKPIError) {
+        console.error('Error checking existing KPI details:', existingKPIError);
+        toast.error('Không thể kiểm tra dữ liệu KPI hiện tại');
+        return;
+      }
+
+      if (existingKPIDetails && existingKPIDetails.length > 0) {
+        toast.error(`KPI chi tiết cho tháng ${copyMonth}/${copyYear} đã tồn tại`);
+        return;
+      }
 
       // Copy all KPI details to the new month/year with updated salary data
       const copyData = kpiDetails.map(detail => {
@@ -317,21 +344,34 @@ const KPIDetailPage = () => {
         };
       });
 
-      const { error } = await supabase
+      console.log('Data to copy:', copyData);
+
+      const { data: insertResult, error: insertError } = await supabase
         .from('kpi_details')
         .insert(copyData);
 
-      if (error) throw error;
+      console.log('Insert result:', insertResult, insertError);
+
+      if (insertError) {
+        console.error('Error inserting KPI details:', insertError);
+        toast.error('Không thể copy KPI chi tiết');
+        return;
+      }
 
       // Update KPI record count
       const kpiGapCount = copyData.filter(item => item.has_kpi_gap).length;
-      await supabase
+      const { error: upsertError } = await supabase
         .from('kpi_records')
         .upsert({
           month: copyMonth,
           year: copyYear,
           total_employees_with_kpi_gap: kpiGapCount
         });
+
+      if (upsertError) {
+        console.error('Error updating KPI record count:', upsertError);
+        // Don't return here, the copy was successful even if the count update failed
+      }
 
       toast.success(`KPI đã được copy sang tháng ${copyMonth}/${copyYear} với dữ liệu lương cập nhật`);
       navigate('/kpi');
