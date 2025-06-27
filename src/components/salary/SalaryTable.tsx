@@ -1,5 +1,5 @@
 
-import { Eye, CheckCircle, Trash2 } from 'lucide-react';
+import { Eye, CheckCircle, Trash2, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -16,9 +16,10 @@ interface SalaryTableProps {
   onViewDetails: (salarySheet: SalarySheet) => void;
   onComplete: (salarySheet: SalarySheet) => void;
   onDelete: (salarySheet: SalarySheet) => void;
+  onSendMail: (salarySheet: SalarySheet) => void;
 }
 
-export function SalaryTable({ salarySheets, onViewDetails, onComplete, onDelete }: SalaryTableProps) {
+export function SalaryTable({ salarySheets, onViewDetails, onComplete, onDelete, onSendMail }: SalaryTableProps) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -40,7 +41,7 @@ export function SalaryTable({ salarySheets, onViewDetails, onComplete, onDelete 
             <TableHead className="text-right">Tổng BH công ty đóng</TableHead>
             <TableHead className="text-right">Tổng BH cá nhân đóng</TableHead>
             <TableHead className="text-right">Tổng toàn bộ chi trả</TableHead>
-            <TableHead className="w-48">Action</TableHead>
+            <TableHead className="w-64">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -81,7 +82,7 @@ export function SalaryTable({ salarySheets, onViewDetails, onComplete, onDelete 
                   {formatCurrency(sheet.total_payment)}
                 </TableCell>
                 <TableCell>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 flex-wrap">
                     <Button
                       variant="outline"
                       size="sm"
@@ -99,6 +100,15 @@ export function SalaryTable({ salarySheets, onViewDetails, onComplete, onDelete 
                     >
                       <CheckCircle className="w-4 h-4 mr-1" />
                       Hoàn thành
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onSendMail(sheet)}
+                      className="hover:bg-blue-50 hover:text-blue-600"
+                    >
+                      <Mail className="w-4 h-4 mr-1" />
+                      Gửi mail
                     </Button>
                     <Button
                       variant="outline"
