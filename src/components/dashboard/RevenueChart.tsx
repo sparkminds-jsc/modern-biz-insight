@@ -30,7 +30,7 @@ export function RevenueChart({ fromDate, toDate }: RevenueChartProps) {
         months.push({ 
           year: currentDate.getFullYear(), 
           month: currentDate.getMonth() + 1,
-          monthKey: `T${currentDate.getMonth() + 1}`
+          monthKey: `T${currentDate.getMonth() + 1}/${currentDate.getFullYear()}`
         });
         currentDate.setMonth(currentDate.getMonth() + 1);
       }
@@ -42,13 +42,18 @@ export function RevenueChart({ fromDate, toDate }: RevenueChartProps) {
           .select('id')
           .eq('status', 'Đang làm');
 
-        if (employeesError) throw employeesError;
+        if (employeesError) {
+          console.error('Error fetching employees:', employeesError);
+          throw employeesError;
+        }
 
         // Get first and last day of month
         const firstDay = new Date(year, month - 1, 1);
         const lastDay = new Date(year, month, 0);
         const startDate = firstDay.toISOString().split('T')[0];
         const endDate = lastDay.toISOString().split('T')[0];
+        
+        console.log(`Fetching data for ${monthKey}: ${startDate} to ${endDate}`);
         
         // Fetch revenue for this month
         const { data: revenue, error: revenueError } = await supabase
@@ -57,7 +62,10 @@ export function RevenueChart({ fromDate, toDate }: RevenueChartProps) {
           .gte('created_date', startDate)
           .lte('created_date', endDate);
 
-        if (revenueError) throw revenueError;
+        if (revenueError) {
+          console.error('Error fetching revenue:', revenueError);
+          throw revenueError;
+        }
 
         // Fetch expenses for this month
         const { data: expenses, error: expensesError } = await supabase
@@ -66,11 +74,20 @@ export function RevenueChart({ fromDate, toDate }: RevenueChartProps) {
           .gte('created_date', startDate)
           .lte('created_date', endDate);
 
-        if (expensesError) throw expensesError;
+        if (expensesError) {
+          console.error('Error fetching expenses:', expensesError);
+          throw expensesError;
+        }
 
         const totalEmployees = employees?.length || 0;
         const totalRevenue = revenue?.reduce((sum, item) => sum + (item.amount_vnd || 0), 0) || 0;
         const totalExpenses = expenses?.reduce((sum, item) => sum + (item.amount_vnd || 0), 0) || 0;
+
+        console.log(`Month ${monthKey}:`, {
+          employees: totalEmployees,
+          revenue: totalRevenue,
+          expenses: totalExpenses
+        });
 
         return {
           month: monthKey,
@@ -80,6 +97,7 @@ export function RevenueChart({ fromDate, toDate }: RevenueChartProps) {
         };
       }));
 
+      console.log('Final chart data:', data);
       setChartData(data);
     } catch (error) {
       console.error('Error fetching chart data:', error);
@@ -111,6 +129,10 @@ export function RevenueChart({ fromDate, toDate }: RevenueChartProps) {
           <div className="flex items-center justify-center h-full">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
+        ) : chartData.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-gray-500">Không có dữ liệu để hiển thị</p>
+          </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
@@ -121,8 +143,8 @@ export function RevenueChart({ fromDate, toDate }: RevenueChartProps) {
                 formatter={(value, name) => {
                   const formatMap: { [key: string]: string } = {
                     employees: 'Nhân viên',
-                    revenue: 'Doanh thu (M)',
-                    costs: 'Chi phí (M)'
+                    revenue: 'Doanh thu (triệu VND)',
+                    costs: 'Chi phí (triệu VND)'
                   };
                   return [value, formatMap[name] || name];
                 }}
@@ -142,11 +164,11 @@ export function RevenueChart({ fromDate, toDate }: RevenueChartProps) {
         </div>
         <div className="flex items-center">
           <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-          <span className="text-sm text-gray-600">Doanh thu (M)</span>
+          <span className="text-sm text-gray-600">Doanh thu (triệu VND)</span>
         </div>
         <div className="flex items-center">
           <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-          <span className="text-sm text-gray-600">Chi phí (M)</span>
+          <span className="text-sm text-gray-600">Chi phí (triệu VND)</span>
         </div>
       </div>
     </div>
