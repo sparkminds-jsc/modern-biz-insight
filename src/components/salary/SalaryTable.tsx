@@ -1,5 +1,6 @@
 
 import { Eye, CheckCircle, Trash2, Mail } from 'lucide-react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -10,6 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { SalarySheet } from '@/types/salary';
+import { ConfirmDialog } from './ConfirmDialog';
 
 interface SalaryTableProps {
   salarySheets: SalarySheet[];
@@ -20,11 +22,67 @@ interface SalaryTableProps {
 }
 
 export function SalaryTable({ salarySheets, onViewDetails, onComplete, onDelete, onSendMail }: SalaryTableProps) {
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    type: 'sendMail' | 'complete' | null;
+    salarySheet: SalarySheet | null;
+  }>({
+    isOpen: false,
+    type: null,
+    salarySheet: null,
+  });
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND'
     }).format(amount);
+  };
+
+  const handleSendMailClick = (salarySheet: SalarySheet) => {
+    setConfirmDialog({
+      isOpen: true,
+      type: 'sendMail',
+      salarySheet,
+    });
+  };
+
+  const handleCompleteClick = (salarySheet: SalarySheet) => {
+    setConfirmDialog({
+      isOpen: true,
+      type: 'complete',
+      salarySheet,
+    });
+  };
+
+  const handleConfirm = () => {
+    if (confirmDialog.salarySheet) {
+      if (confirmDialog.type === 'sendMail') {
+        onSendMail(confirmDialog.salarySheet);
+      } else if (confirmDialog.type === 'complete') {
+        onComplete(confirmDialog.salarySheet);
+      }
+    }
+    setConfirmDialog({ isOpen: false, type: null, salarySheet: null });
+  };
+
+  const handleCloseDialog = () => {
+    setConfirmDialog({ isOpen: false, type: null, salarySheet: null });
+  };
+
+  const getDialogContent = () => {
+    if (confirmDialog.type === 'sendMail') {
+      return {
+        title: 'Xác nhận gửi email',
+        description: `Bạn có chắc chắn muốn gửi email thông báo lương tháng ${confirmDialog.salarySheet?.month}/${confirmDialog.salarySheet?.year} cho tất cả nhân viên?`,
+      };
+    } else if (confirmDialog.type === 'complete') {
+      return {
+        title: 'Xác nhận hoàn thành',
+        description: `Bạn có chắc chắn muốn hoàn thành bảng lương tháng ${confirmDialog.salarySheet?.month}/${confirmDialog.salarySheet?.year}?`,
+      };
+    }
+    return { title: '', description: '' };
   };
 
   return (
@@ -94,9 +152,9 @@ export function SalaryTable({ salarySheets, onViewDetails, onComplete, onDelete,
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onComplete(sheet)}
-                      disabled={sheet.status === 'Hoàn thành'}
-                      className={sheet.status === 'Hoàn thành' ? 'opacity-50 cursor-not-allowed' : ''}
+                      onClick={() => handleCompleteClick(sheet)}
+                      disabled={sheet.status === 'Hoàn thành' || !sheet.email_sent}
+                      className={sheet.status === 'Hoàn thành' || !sheet.email_sent ? 'opacity-50 cursor-not-allowed' : ''}
                     >
                       <CheckCircle className="w-4 h-4 mr-1" />
                       Hoàn thành
@@ -104,11 +162,12 @@ export function SalaryTable({ salarySheets, onViewDetails, onComplete, onDelete,
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => onSendMail(sheet)}
-                      className="hover:bg-blue-50 hover:text-blue-600"
+                      onClick={() => handleSendMailClick(sheet)}
+                      disabled={sheet.email_sent || sheet.status === 'Hoàn thành'}
+                      className={`${sheet.email_sent || sheet.status === 'Hoàn thành' ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-50 hover:text-blue-600'}`}
                     >
                       <Mail className="w-4 h-4 mr-1" />
-                      Gửi mail
+                      {sheet.email_sent ? 'Đã gửi mail' : 'Gửi mail'}
                     </Button>
                     <Button
                       variant="outline"
@@ -127,6 +186,13 @@ export function SalaryTable({ salarySheets, onViewDetails, onComplete, onDelete,
           )}
         </TableBody>
       </Table>
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        onClose={handleCloseDialog}
+        onConfirm={handleConfirm}
+        {...getDialogContent()}
+      />
     </div>
   );
 }

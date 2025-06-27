@@ -1,9 +1,10 @@
 
 export interface SalarySheet {
   id: string;
-  year: number;
   month: number;
+  year: number;
   status: string;
+  email_sent?: boolean;
   total_net_salary: number;
   total_personal_income_tax: number;
   total_company_insurance: number;
@@ -41,10 +42,10 @@ export interface SalaryDetail {
   bhnld_bhyt: number;
   bhnld_bhtn: number;
   total_bhnld: number;
+  insurance_deduction: number;
   personal_deduction: number;
   dependent_count: number;
   dependent_deduction: number;
-  insurance_deduction: number;
   total_deduction: number;
   taxable_income: number;
   tax_5_percent: number;
@@ -68,20 +69,6 @@ export interface SalaryFilters {
 }
 
 export interface SalarySummary {
-  total_net_salary: number;
-  total_personal_income_tax: number;
-  total_company_insurance: number;
-  total_personal_insurance: number;
-  total_payment: number;
-}
-
-export interface SalaryDetailFilters {
-  employee_code: string;
-  employee_name: string;
-  team: string;
-}
-
-export interface SalaryDetailSummary {
   total_net_salary: number;
   total_personal_income_tax: number;
   total_company_insurance: number;

@@ -129,6 +129,17 @@ export const useSalaryOperations = () => {
       const responseData = await response.json();
       console.log('Webhook response data:', responseData);
 
+      // Update salary sheet to mark email as sent
+      const { error: updateError } = await supabase
+        .from('salary_sheets')
+        .update({ email_sent: true })
+        .eq('id', salarySheet.id);
+
+      if (updateError) {
+        console.error('Error updating email_sent status:', updateError);
+        // Don't throw error here as email was sent successfully
+      }
+
       toast({
         title: 'Thành công',
         description: `Đã gửi email thông báo lương tới ${validEmailData.length} nhân viên`,
