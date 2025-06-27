@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -28,11 +29,13 @@ export function KPIFormContent({
   onClose,
   onSave,
   kpiDetail,
-  month,
-  year
+  month: initialMonth,
+  year: initialYear
 }: KPIFormContentProps) {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(initialMonth);
+  const [selectedYear, setSelectedYear] = useState(initialYear);
 
   const { register, handleSubmit, watch, setValue, reset } = useForm<FormData>({
     defaultValues: {
@@ -65,7 +68,7 @@ export function KPIFormContent({
   });
 
   const watchedValues = watch();
-  const { calculatedValues } = useKPICalculations(watchedValues, month, year);
+  const { calculatedValues } = useKPICalculations(watchedValues, selectedMonth, selectedYear);
 
   useEffect(() => {
     fetchEmployees();
@@ -105,6 +108,10 @@ export function KPIFormContent({
       Object.entries(formData).forEach(([key, value]) => {
         setValue(key as keyof FormData, value);
       });
+
+      // Set the month and year from the existing KPI detail
+      setSelectedMonth(kpiDetail.month);
+      setSelectedYear(kpiDetail.year);
     }
   }, [kpiDetail, setValue]);
 
@@ -137,8 +144,8 @@ export function KPIFormContent({
       
       const kpiDetailData = {
         employee_code: data.employee_code,
-        month,
-        year,
+        month: selectedMonth,
+        year: selectedYear,
         has_kpi_gap: calculatedValues.hasKPIGap,
         basic_salary: calculatedValues.basicSalary,
         kpi: calculatedValues.kpi,
@@ -229,6 +236,10 @@ export function KPIFormContent({
           onEmployeeCodeChange={(value) => setValue('employee_code', value)}
           calculatedValues={calculatedValues}
           isEditMode={!!kpiDetail}
+          month={selectedMonth}
+          year={selectedYear}
+          onMonthChange={setSelectedMonth}
+          onYearChange={setSelectedYear}
         />
       </div>
 
