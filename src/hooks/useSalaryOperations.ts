@@ -36,6 +36,7 @@ export const useSalaryOperations = () => {
   const sendSalaryMail = async (salarySheet: SalarySheet) => {
     try {
       setLoading(true);
+      console.log('Starting to send salary emails for sheet:', salarySheet.id);
       
       // Fetch salary details for this sheet
       const { data: salaryDetails, error: detailsError } = await supabase
@@ -43,7 +44,10 @@ export const useSalaryOperations = () => {
         .select('*')
         .eq('salary_sheet_id', salarySheet.id);
 
-      if (detailsError) throw detailsError;
+      if (detailsError) {
+        console.error('Error fetching salary details:', detailsError);
+        throw detailsError;
+      }
 
       if (!salaryDetails || salaryDetails.length === 0) {
         toast({
@@ -54,14 +58,21 @@ export const useSalaryOperations = () => {
         return false;
       }
 
-      // Fetch employee emails - fix column name to employee_code
+      console.log('Found salary details:', salaryDetails.length);
+
+      // Fetch employee emails
       const employeeCodes = salaryDetails.map(detail => detail.employee_code);
       const { data: employees, error: employeesError } = await supabase
         .from('employees')
         .select('employee_code, email, full_name')
         .in('employee_code', employeeCodes);
 
-      if (employeesError) throw employeesError;
+      if (employeesError) {
+        console.error('Error fetching employees:', employeesError);
+        throw employeesError;
+      }
+
+      console.log('Found employees:', employees?.length);
 
       // Create email data array
       const emailData = salaryDetails.map(detail => {
@@ -85,7 +96,7 @@ export const useSalaryOperations = () => {
       });
 
       // Filter out employees without email
-      const validEmailData = emailData.filter(data => data.email);
+      const validEmailData = emailData.filter(data => data.email && data.email.trim() !== '');
 
       if (validEmailData.length === 0) {
         toast({
@@ -96,7 +107,7 @@ export const useSalaryOperations = () => {
         return false;
       }
 
-      console.log('Sending email data:', validEmailData);
+      console.log('Sending email data to webhook:', validEmailData);
 
       // Send to webhook
       const response = await fetch('https://n8n.sparkminds.net/webhook/send_salary_mail', {
@@ -107,9 +118,16 @@ export const useSalaryOperations = () => {
         body: JSON.stringify(validEmailData),
       });
 
+      console.log('Webhook response status:', response.status);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Webhook error response:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
+
+      const responseData = await response.json();
+      console.log('Webhook response data:', responseData);
 
       toast({
         title: 'Thành công',
