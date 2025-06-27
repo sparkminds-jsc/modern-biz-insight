@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -234,8 +233,8 @@ export function KPIFormContent({
       </div>
 
       {/* Scrollable Content */}
-      <ScrollArea className="flex-1 pr-2">
-        <div className="space-y-6">
+      <div className="flex-1 overflow-y-auto pr-2">
+        <div className="space-y-6 pb-4">
           {/* Work Productivity Section */}
           <KPIWorkProductivity
             register={register}
@@ -285,7 +284,7 @@ export function KPIFormContent({
           {/* Revenue Section */}
           <KPIRevenue register={register} />
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Footer - Fixed Section */}
       <div className="flex-shrink-0 border-t border-gray-200 pt-4 mt-4">
