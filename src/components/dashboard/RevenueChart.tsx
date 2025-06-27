@@ -1,20 +1,109 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Calendar } from 'lucide-react';
-
-const data = [
-  { month: 'T1', employees: 220, revenue: 750, costs: 280, salary: 165 },
-  { month: 'T2', employees: 225, revenue: 780, costs: 290, salary: 168 },
-  { month: 'T3', employees: 230, revenue: 800, costs: 300, salary: 172 },
-  { month: 'T4', employees: 235, revenue: 820, costs: 305, salary: 175 },
-  { month: 'T5', employees: 240, revenue: 840, costs: 310, salary: 178 },
-  { month: 'T6', employees: 248, revenue: 850, costs: 320, salary: 180 },
-];
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/components/ui/use-toast';
 
 export function RevenueChart() {
   const [fromDate, setFromDate] = useState('2024-01');
   const [toDate, setToDate] = useState('2024-06');
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchChartData = async () => {
+    if (!fromDate || !toDate) return;
+    
+    setLoading(true);
+    try {
+      const fromYear = parseInt(fromDate.split('-')[0]);
+      const fromMonth = parseInt(fromDate.split('-')[1]);
+      const toYear = parseInt(toDate.split('-')[0]);
+      const toMonth = parseInt(toDate.split('-')[1]);
+
+      // Generate months array
+      const months = [];
+      let currentYear = fromYear;
+      let currentMonth = fromMonth;
+      
+      while (currentYear < toYear || (currentYear === toYear && currentMonth <= toMonth)) {
+        months.push({ year: currentYear, month: currentMonth });
+        currentMonth++;
+        if (currentMonth > 12) {
+          currentMonth = 1;
+          currentYear++;
+        }
+      }
+
+      const data = await Promise.all(months.map(async ({ year, month }) => {
+        // Fetch employees count for this month
+        const { data: employees, error: employeesError } = await supabase
+          .from('employees')
+          .select('id')
+          .eq('status', 'Đang làm');
+
+        if (employeesError) throw employeesError;
+
+        // Fetch revenue for this month
+        const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
+        const endDate = `${year}-${month.toString().padStart(2, '0')}-31`;
+        
+        const { data: revenue, error: revenueError } = await supabase
+          .from('revenue')
+          .select('amount_vnd')
+          .gte('created_date', startDate)
+          .lte('created_date', endDate);
+
+        if (revenueError) throw revenueError;
+
+        // Fetch expenses for this month
+        const { data: expenses, error: expensesError } = await supabase
+          .from('expenses')
+          .select('amount_vnd')
+          .gte('created_date', startDate)
+          .lte('created_date', endDate);
+
+        if (expensesError) throw expensesError;
+
+        // Fetch salary for this month
+        const { data: salarySheets, error: salaryError } = await supabase
+          .from('salary_sheets')
+          .select('total_payment')
+          .eq('year', year)
+          .eq('month', month);
+
+        if (salaryError) throw salaryError;
+
+        const totalEmployees = employees?.length || 0;
+        const totalRevenue = revenue?.reduce((sum, item) => sum + (item.amount_vnd || 0), 0) || 0;
+        const totalExpenses = expenses?.reduce((sum, item) => sum + (item.amount_vnd || 0), 0) || 0;
+        const totalSalary = salarySheets?.reduce((sum, sheet) => sum + (sheet.total_payment || 0), 0) || 0;
+
+        return {
+          month: `T${month}`,
+          employees: totalEmployees,
+          revenue: Math.round(totalRevenue / 1000000), // Convert to millions
+          costs: Math.round(totalExpenses / 1000000), // Convert to millions
+          salary: Math.round(totalSalary / 1000000) // Convert to millions
+        };
+      }));
+
+      setChartData(data);
+    } catch (error) {
+      console.error('Error fetching chart data:', error);
+      toast({
+        title: 'Lỗi',
+        description: 'Không thể tải dữ liệu biểu đồ',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchChartData();
+  }, [fromDate, toDate]);
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -48,28 +137,34 @@ export function RevenueChart() {
       </div>
 
       <div className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip 
-              formatter={(value, name) => {
-                const formatMap: { [key: string]: string } = {
-                  employees: 'Nhân viên',
-                  revenue: 'Doanh thu (M)',
-                  costs: 'Chi phí (M)',
-                  salary: 'Lương (M)'
-                };
-                return [value, formatMap[name] || name];
-              }}
-            />
-            <Bar dataKey="employees" fill="#3B82F6" name="employees" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="revenue" fill="#10B981" name="revenue" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="costs" fill="#EF4444" name="costs" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="salary" fill="#8B5CF6" name="salary" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip 
+                formatter={(value, name) => {
+                  const formatMap: { [key: string]: string } = {
+                    employees: 'Nhân viên',
+                    revenue: 'Doanh thu (M)',
+                    costs: 'Chi phí (M)',
+                    salary: 'Lương (M)'
+                  };
+                  return [value, formatMap[name] || name];
+                }}
+              />
+              <Bar dataKey="employees" fill="#3B82F6" name="employees" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="revenue" fill="#10B981" name="revenue" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="costs" fill="#EF4444" name="costs" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="salary" fill="#8B5CF6" name="salary" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-4 mt-6">
