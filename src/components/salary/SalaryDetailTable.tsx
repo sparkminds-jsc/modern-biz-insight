@@ -49,15 +49,15 @@ export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit, onDelet
               <TableHead>Tăng ca 3</TableHead>
               <TableHead>Tổng thu nhập</TableHead>
               <TableHead>Mức đóng BH</TableHead>
-              <TableHead>BHDN - BHXH</TableHead>
-              <TableHead>BHDN - TNLĐ</TableHead>
-              <TableHead>BHDN - BHYT</TableHead>
-              <TableHead>BHDN - BHTN</TableHead>
+              <TableHead>BHDN (BHXH-17%)</TableHead>
+              <TableHead>BHDN (TNLĐ-0.5%)</TableHead>
+              <TableHead>BHDN (BHYT-3%)</TableHead>
+              <TableHead>BHDN (BHTN-1%)</TableHead>
               <TableHead>Tổng BHDN</TableHead>
               <TableHead>Tổng DN chi trả</TableHead>
-              <TableHead>BHNLD - BHXH</TableHead>
-              <TableHead>BHNLD - BHYT</TableHead>
-              <TableHead>BHNLD - BHTN</TableHead>
+              <TableHead>BHNLD (BHXH-8%)</TableHead>
+              <TableHead>BHNLD (BHYT-1.5%)</TableHead>
+              <TableHead>BHNLD (BHTN-1%)</TableHead>
               <TableHead>Tổng BHNLD</TableHead>
               <TableHead>Giảm trừ gia cảnh</TableHead>
               <TableHead>Số người phụ thuộc</TableHead>

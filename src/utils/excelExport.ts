@@ -21,7 +21,7 @@ export const exportSalaryToExcel = (salaryDetails: SalaryDetail[], month: number
     'Tổng thu nhập',
     'Mức đóng BH',
     'BHDN (BHXH-17%)',
-    'BHDN (TNLD-0.5%)',
+    'BHDN (TNLĐ-0.5%)',
     'BHDN (BHYT-3%)',
     'BHDN (BHTN-1%)',
     'Tổng BHDN',
@@ -51,51 +51,58 @@ export const exportSalaryToExcel = (salaryDetails: SalaryDetail[], month: number
 
   const csvRows = [
     headers.join(','),
-    ...salaryDetails.map((detail, index) => [
-      index + 1,
-      detail.employee_code,
-      `"${detail.employee_name}"`,
-      `"${detail.team}"`,
-      detail.month.toString().padStart(2, '0'),
-      detail.year,
-      Math.round(detail.gross_salary),
-      Math.round(detail.working_days),
-      Math.round(detail.daily_rate),
-      Math.round(detail.daily_salary),
-      Math.round(detail.kpi_bonus),
-      Math.round(detail.overtime_1_5),
-      Math.round(detail.overtime_2),
-      Math.round(detail.overtime_3),
-      Math.round(detail.total_income),
-      Math.round(detail.insurance_base_amount),
-      Math.round(detail.bhdn_bhxh),
-      Math.round(detail.bhdn_tnld),
-      Math.round(detail.bhdn_bhyt),
-      Math.round(detail.gross_salary * 0.01), // Corrected BHDN BHTN
-      Math.round(detail.total_bhdn),
-      Math.round(detail.total_company_payment),
-      Math.round(detail.bhnld_bhxh),
-      Math.round(detail.bhnld_bhyt),
-      Math.round(detail.gross_salary * 0.01), // Corrected BHNLD BHTN
-      Math.round(detail.total_bhnld),
-      Math.round(detail.personal_deduction),
-      detail.dependent_count,
-      Math.round(detail.dependent_deduction),
-      Math.round(detail.insurance_deduction),
-      Math.round(detail.total_deduction),
-      Math.round(detail.taxable_income),
-      Math.round(detail.tax_5_percent),
-      Math.round(detail.tax_10_percent),
-      Math.round(detail.tax_15_percent),
-      Math.round(detail.tax_20_percent),
-      Math.round(detail.tax_25_percent),
-      Math.round(detail.tax_30_percent),
-      Math.round(detail.tax_35_percent),
-      Math.round(detail.total_personal_income_tax),
-      Math.round(detail.net_salary),
-      Math.round(detail.advance_payment),
-      Math.round(detail.actual_payment)
-    ].join(','))
+    ...salaryDetails.map((detail, index) => {
+      // Determine if salary has insurance
+      const isSalaryWithInsurance = detail.insurance_base_amount > 0;
+      const correctedBhdnBhtn = isSalaryWithInsurance ? detail.gross_salary * 0.01 : 0;
+      const correctedBhnldBhtn = isSalaryWithInsurance ? detail.gross_salary * 0.01 : 0;
+
+      return [
+        index + 1,
+        detail.employee_code,
+        `"${detail.employee_name}"`,
+        `"${detail.team}"`,
+        detail.month.toString().padStart(2, '0'),
+        detail.year,
+        Math.round(detail.gross_salary),
+        Math.round(detail.working_days),
+        Math.round(detail.daily_rate),
+        Math.round(detail.daily_salary),
+        Math.round(detail.kpi_bonus),
+        Math.round(detail.overtime_1_5),
+        Math.round(detail.overtime_2),
+        Math.round(detail.overtime_3),
+        Math.round(detail.total_income),
+        Math.round(detail.insurance_base_amount),
+        Math.round(detail.bhdn_bhxh),
+        Math.round(detail.bhdn_tnld),
+        Math.round(detail.bhdn_bhyt),
+        Math.round(correctedBhdnBhtn),
+        Math.round(detail.total_bhdn),
+        Math.round(detail.total_company_payment),
+        Math.round(detail.bhnld_bhxh),
+        Math.round(detail.bhnld_bhyt),
+        Math.round(correctedBhnldBhtn),
+        Math.round(detail.total_bhnld),
+        Math.round(detail.personal_deduction),
+        detail.dependent_count,
+        Math.round(detail.dependent_deduction),
+        Math.round(detail.insurance_deduction),
+        Math.round(detail.total_deduction),
+        Math.round(detail.taxable_income),
+        Math.round(detail.tax_5_percent),
+        Math.round(detail.tax_10_percent),
+        Math.round(detail.tax_15_percent),
+        Math.round(detail.tax_20_percent),
+        Math.round(detail.tax_25_percent),
+        Math.round(detail.tax_30_percent),
+        Math.round(detail.tax_35_percent),
+        Math.round(detail.total_personal_income_tax),
+        Math.round(detail.net_salary),
+        Math.round(detail.advance_payment),
+        Math.round(detail.actual_payment)
+      ].join(',');
+    })
   ];
 
   const csvContent = csvRows.join('\n');
