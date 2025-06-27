@@ -79,6 +79,15 @@ export function KPIBasicInfo({
       </div>
 
       <div className="space-y-2">
+        <Label>Tổng KPI trong tháng</Label>
+        <Input
+          value={formatCurrency(calculatedValues.totalMonthlyKPI)}
+          readOnly
+          className="bg-gray-100"
+        />
+      </div>
+
+      <div className="space-y-2">
         <Label>Tổng Lương</Label>
         <Input
           value={formatCurrency(calculatedValues.totalSalary)}
@@ -100,15 +109,6 @@ export function KPIBasicInfo({
         <Label>Hệ số KPI</Label>
         <Input
           value={calculatedValues.kpiCoefficient}
-          readOnly
-          className="bg-gray-100"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label>Tổng KPI trong tháng</Label>
-        <Input
-          value={formatCurrency(calculatedValues.totalMonthlyKPI)}
           readOnly
           className="bg-gray-100"
         />
