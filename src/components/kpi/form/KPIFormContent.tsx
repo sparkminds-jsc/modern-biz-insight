@@ -220,7 +220,7 @@ export function KPIFormContent({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="h-full flex flex-col">
+    <form onSubmit={handleSubmit(onSubmit)} className="h-full flex flex-col py-4">
       {/* Basic Information - Fixed Section */}
       <div className="flex-shrink-0 border-b border-gray-200 pb-4 mb-4">
         <KPIBasicInfo
@@ -288,14 +288,14 @@ export function KPIFormContent({
 
       {/* Footer - Fixed Section */}
       <div className="flex-shrink-0 border-t border-gray-200 pt-4 mt-4">
-        <DialogFooter>
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
           <Button type="button" variant="outline" onClick={onClose}>
             Hủy
           </Button>
           <Button type="submit" disabled={loading}>
             {loading ? 'Đang lưu...' : 'Lưu'}
           </Button>
-        </DialogFooter>
+        </div>
       </div>
     </form>
   );
