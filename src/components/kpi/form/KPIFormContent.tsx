@@ -1,7 +1,9 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Employee, FormData } from './kpiFormTypes';
@@ -232,56 +234,58 @@ export function KPIFormContent({
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto pr-2 space-y-6">
-        {/* Work Productivity Section */}
-        <KPIWorkProductivity
-          register={register}
-          setValue={setValue}
-          watchedValues={watchedValues}
-          calculatedValues={calculatedValues}
-        />
+      <ScrollArea className="flex-1 pr-2">
+        <div className="space-y-6">
+          {/* Work Productivity Section */}
+          <KPIWorkProductivity
+            register={register}
+            setValue={setValue}
+            watchedValues={watchedValues}
+            calculatedValues={calculatedValues}
+          />
 
-        {/* Work Quality Section */}
-        <KPIWorkQuality
-          register={register}
-          setValue={setValue}
-          watchedValues={watchedValues}
-          calculatedValues={calculatedValues}
-        />
+          {/* Work Quality Section */}
+          <KPIWorkQuality
+            register={register}
+            setValue={setValue}
+            watchedValues={watchedValues}
+            calculatedValues={calculatedValues}
+          />
 
-        {/* Attitude Section */}
-        <KPIAttitude
-          register={register}
-          setValue={setValue}
-          watchedValues={watchedValues}
-          calculatedValues={calculatedValues}
-        />
+          {/* Attitude Section */}
+          <KPIAttitude
+            register={register}
+            setValue={setValue}
+            watchedValues={watchedValues}
+            calculatedValues={calculatedValues}
+          />
 
-        {/* Progress Section */}
-        <KPIProgress
-          register={register}
-          setValue={setValue}
-          watchedValues={watchedValues}
-          calculatedValues={calculatedValues}
-        />
+          {/* Progress Section */}
+          <KPIProgress
+            register={register}
+            setValue={setValue}
+            watchedValues={watchedValues}
+            calculatedValues={calculatedValues}
+          />
 
-        {/* Requirements Section */}
-        <KPIRequirements
-          register={register}
-          calculatedValues={calculatedValues}
-        />
+          {/* Requirements Section */}
+          <KPIRequirements
+            register={register}
+            calculatedValues={calculatedValues}
+          />
 
-        {/* Recruitment Section */}
-        <KPIRecruitment
-          register={register}
-          setValue={setValue}
-          watchedValues={watchedValues}
-          calculatedValues={calculatedValues}
-        />
+          {/* Recruitment Section */}
+          <KPIRecruitment
+            register={register}
+            setValue={setValue}
+            watchedValues={watchedValues}
+            calculatedValues={calculatedValues}
+          />
 
-        {/* Revenue Section */}
-        <KPIRevenue register={register} />
-      </div>
+          {/* Revenue Section */}
+          <KPIRevenue register={register} />
+        </div>
+      </ScrollArea>
 
       {/* Footer - Fixed Section */}
       <div className="flex-shrink-0 border-t border-gray-200 pt-4 mt-4">
