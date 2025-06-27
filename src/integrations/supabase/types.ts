@@ -615,6 +615,7 @@ export type Database = {
       salary_sheets: {
         Row: {
           created_at: string
+          email_sent: boolean
           id: string
           month: number
           status: string
@@ -628,6 +629,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          email_sent?: boolean
           id?: string
           month: number
           status?: string
@@ -641,6 +643,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          email_sent?: boolean
           id?: string
           month?: number
           status?: string

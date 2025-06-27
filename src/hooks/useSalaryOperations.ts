@@ -132,7 +132,7 @@ export const useSalaryOperations = () => {
       // Update salary sheet to mark email as sent
       const { error: updateError } = await supabase
         .from('salary_sheets')
-        .update({ email_sent: true })
+        .update({ email_sent: true } as any)
         .eq('id', salarySheet.id);
 
       if (updateError) {

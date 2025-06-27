@@ -75,3 +75,17 @@ export interface SalarySummary {
   total_personal_insurance: number;
   total_payment: number;
 }
+
+export interface SalaryDetailFilters {
+  employee_code: string;
+  employee_name: string;
+  team: string;
+}
+
+export interface SalaryDetailSummary {
+  total_net_salary: number;
+  total_personal_income_tax: number;
+  total_company_insurance: number;
+  total_personal_insurance: number;
+  total_payment: number;
+}
