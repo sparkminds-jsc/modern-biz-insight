@@ -1,5 +1,5 @@
 
-import { Users, DollarSign, TrendingDown, Wallet, Calendar } from 'lucide-react';
+import { Users, DollarSign, TrendingDown, Calendar } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
@@ -15,8 +15,7 @@ export function StatsCards({ fromDate, toDate, onFromDateChange, onToDateChange 
   const [stats, setStats] = useState({
     totalEmployees: 0,
     totalRevenue: 0,
-    totalExpenses: 0,
-    totalSalary: 0
+    totalExpenses: 0
   });
   const [loading, setLoading] = useState(false);
 
@@ -51,25 +50,14 @@ export function StatsCards({ fromDate, toDate, onFromDateChange, onToDateChange 
 
       if (expensesError) throw expensesError;
 
-      // Fetch total salary payments within date range
-      const { data: salarySheets, error: salaryError } = await supabase
-        .from('salary_sheets')
-        .select('total_payment, month, year')
-        .gte('created_at', fromDate)
-        .lte('created_at', toDate);
-
-      if (salaryError) throw salaryError;
-
       const totalEmployees = employees?.length || 0;
       const totalRevenue = revenue?.reduce((sum, item) => sum + (item.amount_vnd || 0), 0) || 0;
       const totalExpenses = expenses?.reduce((sum, item) => sum + (item.amount_vnd || 0), 0) || 0;
-      const totalSalary = salarySheets?.reduce((sum, sheet) => sum + (sheet.total_payment || 0), 0) || 0;
 
       setStats({
         totalEmployees,
         totalRevenue,
-        totalExpenses,
-        totalSalary
+        totalExpenses
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -114,13 +102,7 @@ export function StatsCards({ fromDate, toDate, onFromDateChange, onToDateChange 
       value: formatCurrency(stats.totalExpenses),
       icon: TrendingDown,
       color: 'from-red-500 to-red-600'
-    },
-    {
-      title: 'Tổng lương',
-      value: formatCurrency(stats.totalSalary),
-      icon: Wallet,
-      color: 'from-purple-500 to-purple-600'
-    },
+    }
   ];
 
   return (
@@ -151,7 +133,7 @@ export function StatsCards({ fromDate, toDate, onFromDateChange, onToDateChange 
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {statCards.map((stat) => {
           const Icon = stat.icon;
           return (

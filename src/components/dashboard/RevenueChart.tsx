@@ -68,26 +68,15 @@ export function RevenueChart({ fromDate, toDate }: RevenueChartProps) {
 
         if (expensesError) throw expensesError;
 
-        // Fetch salary for this month
-        const { data: salarySheets, error: salaryError } = await supabase
-          .from('salary_sheets')
-          .select('total_payment')
-          .eq('year', year)
-          .eq('month', month);
-
-        if (salaryError) throw salaryError;
-
         const totalEmployees = employees?.length || 0;
         const totalRevenue = revenue?.reduce((sum, item) => sum + (item.amount_vnd || 0), 0) || 0;
         const totalExpenses = expenses?.reduce((sum, item) => sum + (item.amount_vnd || 0), 0) || 0;
-        const totalSalary = salarySheets?.reduce((sum, sheet) => sum + (sheet.total_payment || 0), 0) || 0;
 
         return {
           month: monthKey,
           employees: totalEmployees,
           revenue: Math.round(totalRevenue / 1000000), // Convert to millions
-          costs: Math.round(totalExpenses / 1000000), // Convert to millions
-          salary: Math.round(totalSalary / 1000000) // Convert to millions
+          costs: Math.round(totalExpenses / 1000000) // Convert to millions
         };
       }));
 
@@ -133,8 +122,7 @@ export function RevenueChart({ fromDate, toDate }: RevenueChartProps) {
                   const formatMap: { [key: string]: string } = {
                     employees: 'Nhân viên',
                     revenue: 'Doanh thu (M)',
-                    costs: 'Chi phí (M)',
-                    salary: 'Lương (M)'
+                    costs: 'Chi phí (M)'
                   };
                   return [value, formatMap[name] || name];
                 }}
@@ -142,7 +130,6 @@ export function RevenueChart({ fromDate, toDate }: RevenueChartProps) {
               <Bar dataKey="employees" fill="#3B82F6" name="employees" radius={[4, 4, 0, 0]} />
               <Bar dataKey="revenue" fill="#10B981" name="revenue" radius={[4, 4, 0, 0]} />
               <Bar dataKey="costs" fill="#EF4444" name="costs" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="salary" fill="#8B5CF6" name="salary" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         )}
@@ -160,10 +147,6 @@ export function RevenueChart({ fromDate, toDate }: RevenueChartProps) {
         <div className="flex items-center">
           <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
           <span className="text-sm text-gray-600">Chi phí (M)</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
-          <span className="text-sm text-gray-600">Tổng lương (M)</span>
         </div>
       </div>
     </div>

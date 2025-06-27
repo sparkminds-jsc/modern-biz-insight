@@ -34,6 +34,15 @@ export function EmployeeTable() {
       const currentMonth = currentDate.getMonth() + 1;
       const currentYear = currentDate.getFullYear();
 
+      // Fetch employee events for current month
+      const { data: employeeEvents, error: eventsError } = await supabase
+        .from('employee_events')
+        .select('*')
+        .eq('month', currentMonth)
+        .eq('year', currentYear);
+
+      if (eventsError) throw eventsError;
+
       const processedEmployees = (data || []).map((employee) => {
         let hasBirthdayThisMonth = false;
         let hasContractEndThisMonth = false;
@@ -50,12 +59,15 @@ export function EmployeeTable() {
             contractEndDate.getFullYear() === currentYear;
         }
 
+        // Find event status for this employee
+        const eventStatus = employeeEvents?.find(event => event.employee_id === employee.id);
+
         return {
           ...employee,
           hasBirthdayThisMonth,
           hasContractEndThisMonth,
-          birthdayHandled: false,
-          contractHandled: false
+          birthdayHandled: eventStatus?.birthday_handled || false,
+          contractHandled: eventStatus?.contract_handled || false
         };
       }).filter(employee => employee.hasBirthdayThisMonth || employee.hasContractEndThisMonth);
 
@@ -76,28 +88,82 @@ export function EmployeeTable() {
     fetchEmployees();
   }, []);
 
-  const handleBirthdayGift = (employeeId: string) => {
-    setEmployees(prev => 
-      prev.map(emp => 
-        emp.id === employeeId ? { ...emp, birthdayHandled: true } : emp
-      )
-    );
-    toast({
-      title: 'Thành công',
-      description: 'Đã đánh dấu đã tặng quà sinh nhật',
-    });
+  const handleBirthdayGift = async (employeeId: string) => {
+    try {
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+
+      const { error } = await supabase
+        .from('employee_events')
+        .upsert({
+          employee_id: employeeId,
+          month: currentMonth,
+          year: currentYear,
+          birthday_handled: true
+        }, {
+          onConflict: 'employee_id,month,year'
+        });
+
+      if (error) throw error;
+
+      setEmployees(prev => 
+        prev.map(emp => 
+          emp.id === employeeId ? { ...emp, birthdayHandled: true } : emp
+        )
+      );
+      
+      toast({
+        title: 'Thành công',
+        description: 'Đã đánh dấu đã tặng quà sinh nhật',
+      });
+    } catch (error) {
+      console.error('Error updating birthday status:', error);
+      toast({
+        title: 'Lỗi',
+        description: 'Không thể cập nhật trạng thái sinh nhật',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleContractSigned = (employeeId: string) => {
-    setEmployees(prev => 
-      prev.map(emp => 
-        emp.id === employeeId ? { ...emp, contractHandled: true } : emp
-      )
-    );
-    toast({
-      title: 'Thành công',
-      description: 'Đã đánh dấu đã ký hợp đồng',
-    });
+  const handleContractSigned = async (employeeId: string) => {
+    try {
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+
+      const { error } = await supabase
+        .from('employee_events')
+        .upsert({
+          employee_id: employeeId,
+          month: currentMonth,
+          year: currentYear,
+          contract_handled: true
+        }, {
+          onConflict: 'employee_id,month,year'
+        });
+
+      if (error) throw error;
+
+      setEmployees(prev => 
+        prev.map(emp => 
+          emp.id === employeeId ? { ...emp, contractHandled: true } : emp
+        )
+      );
+      
+      toast({
+        title: 'Thành công',
+        description: 'Đã đánh dấu đã ký hợp đồng',
+      });
+    } catch (error) {
+      console.error('Error updating contract status:', error);
+      toast({
+        title: 'Lỗi',
+        description: 'Không thể cập nhật trạng thái hợp đồng',
+        variant: 'destructive',
+      });
+    }
   };
 
   if (loading) {

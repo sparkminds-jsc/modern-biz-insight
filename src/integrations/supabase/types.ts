@@ -51,6 +51,47 @@ export type Database = {
         }
         Relationships: []
       }
+      employee_events: {
+        Row: {
+          birthday_handled: boolean | null
+          contract_handled: boolean | null
+          created_at: string | null
+          employee_id: string
+          id: string
+          month: number
+          updated_at: string | null
+          year: number
+        }
+        Insert: {
+          birthday_handled?: boolean | null
+          contract_handled?: boolean | null
+          created_at?: string | null
+          employee_id: string
+          id?: string
+          month: number
+          updated_at?: string | null
+          year: number
+        }
+        Update: {
+          birthday_handled?: boolean | null
+          contract_handled?: boolean | null
+          created_at?: string | null
+          employee_id?: string
+          id?: string
+          month?: number
+          updated_at?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_events_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           birth_date: string | null
