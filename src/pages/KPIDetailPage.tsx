@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
@@ -248,26 +249,73 @@ const KPIDetailPage = () => {
 
   const handleCopyConfirm = async (copyMonth: number, copyYear: number) => {
     try {
-      // Copy all KPI details to the new month/year
-      const copyData = kpiDetails.map(detail => ({
-        employee_code: detail.employee_code,
-        month: copyMonth,
-        year: copyYear,
-        has_kpi_gap: detail.has_kpi_gap,
-        basic_salary: detail.basic_salary,
-        kpi: detail.kpi,
-        total_salary: detail.total_salary,
-        salary_coefficient: detail.salary_coefficient,
-        kpi_coefficient: detail.kpi_coefficient,
-        total_monthly_kpi: detail.total_monthly_kpi,
-        work_productivity: detail.work_productivity,
-        work_quality: detail.work_quality,
-        attitude: detail.attitude,
-        progress: detail.progress,
-        requirements: detail.requirements,
-        recruitment: detail.recruitment,
-        revenue: detail.revenue
-      }));
+      // First check if salary sheet exists and is completed
+      const { data: salarySheet, error: salarySheetError } = await supabase
+        .from('salary_sheets')
+        .select('id, status')
+        .eq('month', copyMonth)
+        .eq('year', copyYear)
+        .single();
+
+      if (salarySheetError || !salarySheet) {
+        toast.error('Bảng lương của tháng/năm đã chọn không tồn tại');
+        return;
+      }
+
+      if (salarySheet.status !== 'Hoàn thành') {
+        toast.error('Bảng lương chưa hoàn thành');
+        return;
+      }
+
+      // Get all salary details for the selected month/year
+      const { data: salaryDetails, error: salaryDetailsError } = await supabase
+        .from('salary_details')
+        .select('employee_code, gross_salary, kpi_bonus, overtime_1_5, overtime_2, overtime_3')
+        .eq('salary_sheet_id', salarySheet.id);
+
+      if (salaryDetailsError) {
+        console.error('Error fetching salary details:', salaryDetailsError);
+        toast.error('Không thể tải dữ liệu bảng lương');
+        return;
+      }
+
+      // Create a map of salary data by employee code
+      const salaryDataMap = new Map();
+      (salaryDetails || []).forEach(detail => {
+        salaryDataMap.set(detail.employee_code, {
+          basic_salary: detail.gross_salary,
+          kpi: detail.kpi_bonus + detail.overtime_1_5 + detail.overtime_2 + detail.overtime_3
+        });
+      });
+
+      // Copy all KPI details to the new month/year with updated salary data
+      const copyData = kpiDetails.map(detail => {
+        const salaryData = salaryDataMap.get(detail.employee_code);
+        const basicSalary = salaryData?.basic_salary || 0;
+        const kpi = salaryData?.kpi || 0;
+        const totalSalary = basicSalary + kpi;
+        const salaryCoefficient = basicSalary > 0 ? parseFloat((kpi / basicSalary).toFixed(3)) : 0;
+
+        return {
+          employee_code: detail.employee_code,
+          month: copyMonth,
+          year: copyYear,
+          has_kpi_gap: detail.has_kpi_gap,
+          basic_salary: basicSalary,
+          kpi: kpi,
+          total_salary: totalSalary,
+          salary_coefficient: salaryCoefficient,
+          kpi_coefficient: detail.kpi_coefficient,
+          total_monthly_kpi: detail.total_monthly_kpi,
+          work_productivity: detail.work_productivity,
+          work_quality: detail.work_quality,
+          attitude: detail.attitude,
+          progress: detail.progress,
+          requirements: detail.requirements,
+          recruitment: detail.recruitment,
+          revenue: detail.revenue
+        };
+      });
 
       const { error } = await supabase
         .from('kpi_details')
@@ -285,7 +333,7 @@ const KPIDetailPage = () => {
           total_employees_with_kpi_gap: kpiGapCount
         });
 
-      toast.success(`KPI đã được copy sang tháng ${copyMonth}/${copyYear}`);
+      toast.success(`KPI đã được copy sang tháng ${copyMonth}/${copyYear} với dữ liệu lương cập nhật`);
       navigate('/kpi');
     } catch (error) {
       console.error('Error copying KPI:', error);
