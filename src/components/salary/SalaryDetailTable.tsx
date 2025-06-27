@@ -1,3 +1,4 @@
+
 import {
   Table,
   TableBody,
@@ -7,7 +8,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { SalaryDetail } from "@/types/salary";
-import { SortableTableHeader } from "./SortableTableHeader";
 import { SalaryTableRow } from "./SalaryTableRow";
 
 interface SalaryDetailTableProps {
@@ -32,50 +32,50 @@ export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit, onDelet
         <Table>
           <TableHeader>
             <TableRow>
-              <SortableTableHeader>STT</SortableTableHeader>
-              <SortableTableHeader>Mã NV</SortableTableHeader>
-              <SortableTableHeader>Tên NV</SortableTableHeader>
-              <SortableTableHeader>Team</SortableTableHeader>
-              <SortableTableHeader>Loại lương</SortableTableHeader>
-              <SortableTableHeader>Tháng</SortableTableHeader>
-              <SortableTableHeader>Năm</SortableTableHeader>
-              <SortableTableHeader>Lương Gross</SortableTableHeader>
-              <SortableTableHeader>Ngày công</SortableTableHeader>
-              <SortableTableHeader>Mức lương/Ngày</SortableTableHeader>
-              <SortableTableHeader>Tiền lương theo ngày công</SortableTableHeader>
-              <SortableTableHeader>Thưởng KPI</SortableTableHeader>
-              <SortableTableHeader>Tăng ca 1.5</SortableTableHeader>
-              <SortableTableHeader>Tăng ca 2</SortableTableHeader>
-              <SortableTableHeader>Tăng ca 3</SortableTableHeader>
-              <SortableTableHeader>Tổng thu nhập</SortableTableHeader>
-              <SortableTableHeader>Mức đóng BH</SortableTableHeader>
-              <SortableTableHeader>BHDN - BHXH</SortableTableHeader>
-              <SortableTableHeader>BHDN - TNLĐ</SortableTableHeader>
-              <SortableTableHeader>BHDN - BHYT</SortableTableHeader>
-              <SortableTableHeader>BHDN - BHTN</SortableTableHeader>
-              <SortableTableHeader>Tổng BHDN</SortableTableHeader>
-              <SortableTableHeader>Tổng DN chi trả</SortableTableHeader>
-              <SortableTableHeader>BHNLD - BHXH</SortableTableHeader>
-              <SortableTableHeader>BHNLD - BHYT</SortableTableHeader>
-              <SortableTableHeader>BHNLD - BHTN</SortableTableHeader>
-              <SortableTableHeader>Tổng BHNLD</SortableTableHeader>
-              <SortableTableHeader>Giảm trừ gia cảnh</SortableTableHeader>
-              <SortableTableHeader>Số người phụ thuộc</SortableTableHeader>
-              <SortableTableHeader>Giảm trừ người phụ thuộc</SortableTableHeader>
-              <SortableTableHeader>Giảm trừ BH</SortableTableHeader>
-              <SortableTableHeader>Tổng giảm trừ</SortableTableHeader>
-              <SortableTableHeader>Thu nhập chịu thuế</SortableTableHeader>
-              <SortableTableHeader>Thuế 5%</SortableTableHeader>
-              <SortableTableHeader>Thuế 10%</SortableTableHeader>
-              <SortableTableHeader>Thuế 15%</SortableTableHeader>
-              <SortableTableHeader>Thuế 20%</SortableTableHeader>
-              <SortableTableHeader>Thuế 25%</SortableTableHeader>
-              <SortableTableHeader>Thuế 30%</SortableTableHeader>
-              <SortableTableHeader>Thuế 35%</SortableTableHeader>
-              <SortableTableHeader>Tổng thuế TNCN</SortableTableHeader>
-              <SortableTableHeader>Lương Net</SortableTableHeader>
-              <SortableTableHeader>Tạm Ứng</SortableTableHeader>
-              <SortableTableHeader>Thực nhận</SortableTableHeader>
+              <TableHead>STT</TableHead>
+              <TableHead>Mã NV</TableHead>
+              <TableHead>Tên NV</TableHead>
+              <TableHead>Team</TableHead>
+              <TableHead>Loại lương</TableHead>
+              <TableHead>Tháng</TableHead>
+              <TableHead>Năm</TableHead>
+              <TableHead>Lương Gross</TableHead>
+              <TableHead>Ngày công</TableHead>
+              <TableHead>Mức lương/Ngày</TableHead>
+              <TableHead>Tiền lương theo ngày công</TableHead>
+              <TableHead>Thưởng KPI</TableHead>
+              <TableHead>Tăng ca 1.5</TableHead>
+              <TableHead>Tăng ca 2</TableHead>
+              <TableHead>Tăng ca 3</TableHead>
+              <TableHead>Tổng thu nhập</TableHead>
+              <TableHead>Mức đóng BH</TableHead>
+              <TableHead>BHDN - BHXH</TableHead>
+              <TableHead>BHDN - TNLĐ</TableHead>
+              <TableHead>BHDN - BHYT</TableHead>
+              <TableHead>BHDN - BHTN</TableHead>
+              <TableHead>Tổng BHDN</TableHead>
+              <TableHead>Tổng DN chi trả</TableHead>
+              <TableHead>BHNLD - BHXH</TableHead>
+              <TableHead>BHNLD - BHYT</TableHead>
+              <TableHead>BHNLD - BHTN</TableHead>
+              <TableHead>Tổng BHNLD</TableHead>
+              <TableHead>Giảm trừ gia cảnh</TableHead>
+              <TableHead>Số người phụ thuộc</TableHead>
+              <TableHead>Giảm trừ người phụ thuộc</TableHead>
+              <TableHead>Giảm trừ BH</TableHead>
+              <TableHead>Tổng giảm trừ</TableHead>
+              <TableHead>Thu nhập chịu thuế</TableHead>
+              <TableHead>Thuế 5%</TableHead>
+              <TableHead>Thuế 10%</TableHead>
+              <TableHead>Thuế 15%</TableHead>
+              <TableHead>Thuế 20%</TableHead>
+              <TableHead>Thuế 25%</TableHead>
+              <TableHead>Thuế 30%</TableHead>
+              <TableHead>Thuế 35%</TableHead>
+              <TableHead>Tổng thuế TNCN</TableHead>
+              <TableHead>Lương Net</TableHead>
+              <TableHead>Tạm Ứng</TableHead>
+              <TableHead>Thực nhận</TableHead>
               <TableHead className="w-[100px]">Thao tác</TableHead>
             </TableRow>
           </TableHeader>

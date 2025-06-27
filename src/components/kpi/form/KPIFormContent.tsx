@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Employee, FormData } from './kpiFormTypes';
 import { useKPICalculations } from './useKPICalculations';
-import { KPIFormSections } from './KPIFormSections';
+import { KPIBasicInfo } from './KPIBasicInfo';
+import { KPIWorkProductivity } from './KPIWorkProductivity';
+import { KPIWorkQuality } from './KPIWorkQuality';
+import { KPIAttitude } from './KPIAttitude';
+import { KPIProgress } from './KPIProgress';
+import { KPIRequirements } from './KPIRequirements';
+import { KPIRecruitment } from './KPIRecruitment';
+import { KPIRevenue } from './KPIRevenue';
 
 interface KPIFormContentProps {
   onClose: () => void;
