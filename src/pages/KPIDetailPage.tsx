@@ -108,6 +108,9 @@ const KPIDetailPage = () => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletingKPIDetail, setDeletingKPIDetail] = useState<KPIDetailData | null>(null);
 
+  // Salary sheet incomplete notification state
+  const [showSalaryIncompleteDialog, setShowSalaryIncompleteDialog] = useState(false);
+
   // Data states
   const [kpiDetails, setKpiDetails] = useState<KPIDetail[]>([]);
   const [filteredData, setFilteredData] = useState<KPIDetailData[]>([]);
@@ -272,7 +275,7 @@ const KPIDetailPage = () => {
       }
 
       if (salarySheet.status !== 'Hoàn thành') {
-        toast.error('Bảng lương chưa hoàn thành');
+        setShowSalaryIncompleteDialog(true);
         return;
       }
 
@@ -580,6 +583,24 @@ const KPIDetailPage = () => {
           onClose={() => setShowCopyDialog(false)}
           onCopy={handleCopyConfirm}
         />
+
+        {/* Salary Sheet Incomplete Dialog */}
+        <AlertDialog open={showSalaryIncompleteDialog} onOpenChange={setShowSalaryIncompleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Bảng lương chưa hoàn thành</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bảng lương của tháng/năm đã chọn chưa được hoàn thành. 
+                Vui lòng hoàn thành bảng lương trước khi copy KPI.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => setShowSalaryIncompleteDialog(false)}>
+                Đã hiểu
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         {/* Delete Confirmation Dialog */}
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
