@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
@@ -48,7 +47,11 @@ const SalaryPage = () => {
   };
 
   const handleSendMail = async (salarySheet: SalarySheet) => {
-    await sendSalaryMail(salarySheet);
+    const success = await sendSalaryMail(salarySheet);
+    if (success) {
+      // Refresh data to update button states immediately
+      fetchSalarySheets();
+    }
   };
 
   const handleDeleteSalarySheet = async (salarySheet: SalarySheet) => {
