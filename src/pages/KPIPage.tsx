@@ -76,7 +76,7 @@ const KPIPage = () => {
         return;
       }
 
-      // Create new KPI record
+      // Create new KPI record with status
       const { error } = await supabase
         .from('kpi_records')
         .insert({

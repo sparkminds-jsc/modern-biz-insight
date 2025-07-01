@@ -363,6 +363,7 @@ export type Database = {
           created_at: string
           id: string
           month: number
+          status: string
           total_employees_with_kpi_gap: number
           updated_at: string
           year: number
@@ -371,6 +372,7 @@ export type Database = {
           created_at?: string
           id?: string
           month: number
+          status?: string
           total_employees_with_kpi_gap?: number
           updated_at?: string
           year: number
@@ -379,6 +381,7 @@ export type Database = {
           created_at?: string
           id?: string
           month?: number
+          status?: string
           total_employees_with_kpi_gap?: number
           updated_at?: string
           year?: number
