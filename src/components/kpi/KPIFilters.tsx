@@ -1,15 +1,9 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
 
 interface KPIFiltersProps {
   selectedMonths: number[];
@@ -19,22 +13,22 @@ interface KPIFiltersProps {
   onCreateKPI: () => void;
 }
 
-const months = [
-  { value: 1, label: '01' },
-  { value: 2, label: '02' },
-  { value: 3, label: '03' },
-  { value: 4, label: '04' },
-  { value: 5, label: '05' },
-  { value: 6, label: '06' },
-  { value: 7, label: '07' },
-  { value: 8, label: '08' },
-  { value: 9, label: '09' },
-  { value: 10, label: '10' },
-  { value: 11, label: '11' },
-  { value: 12, label: '12' },
+const MONTHS = [
+  { value: 1, label: 'Tháng 1' },
+  { value: 2, label: 'Tháng 2' },
+  { value: 3, label: 'Tháng 3' },
+  { value: 4, label: 'Tháng 4' },
+  { value: 5, label: 'Tháng 5' },
+  { value: 6, label: 'Tháng 6' },
+  { value: 7, label: 'Tháng 7' },
+  { value: 8, label: 'Tháng 8' },
+  { value: 9, label: 'Tháng 9' },
+  { value: 10, label: 'Tháng 10' },
+  { value: 11, label: 'Tháng 11' },
+  { value: 12, label: 'Tháng 12' },
 ];
 
-const years = [2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031];
+const YEARS = [2023, 2024, 2025, 2026];
 
 export function KPIFilters({
   selectedMonths,
@@ -43,92 +37,157 @@ export function KPIFilters({
   onYearsChange,
   onCreateKPI
 }: KPIFiltersProps) {
-  const handleMonthSelect = (monthValue: string) => {
-    const month = parseInt(monthValue);
-    if (!selectedMonths.includes(month)) {
+  const [showMonthFilter, setShowMonthFilter] = useState(false);
+  const [showYearFilter, setShowYearFilter] = useState(false);
+
+  const toggleMonth = (month: number) => {
+    if (selectedMonths.includes(month)) {
+      onMonthsChange(selectedMonths.filter(m => m !== month));
+    } else {
       onMonthsChange([...selectedMonths, month]);
     }
   };
 
-  const handleYearSelect = (yearValue: string) => {
-    const year = parseInt(yearValue);
-    if (!selectedYears.includes(year)) {
+  const toggleYear = (year: number) => {
+    if (selectedYears.includes(year)) {
+      onYearsChange(selectedYears.filter(y => y !== year));
+    } else {
       onYearsChange([...selectedYears, year]);
     }
   };
 
-  const removeMonth = (month: number) => {
-    onMonthsChange(selectedMonths.filter(m => m !== month));
+  const clearMonths = () => {
+    onMonthsChange([]);
   };
 
-  const removeYear = (year: number) => {
-    onYearsChange(selectedYears.filter(y => y !== year));
+  const clearYears = () => {
+    onYearsChange([]);
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Month Filter */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Tháng</label>
-          <Select onValueChange={handleMonthSelect}>
-            <SelectTrigger>
-              <SelectValue placeholder="Chọn tháng" />
-            </SelectTrigger>
-            <SelectContent>
-              {months.map((month) => (
-                <SelectItem key={month.value} value={month.value.toString()}>
-                  {month.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <div className="flex flex-wrap gap-1">
-            {selectedMonths.map((month) => (
-              <Badge key={month} variant="secondary" className="flex items-center gap-1">
-                {months.find(m => m.value === month)?.label}
-                <button onClick={() => removeMonth(month)}>
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
-          </div>
-        </div>
+    <Card>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 flex-1">
+            {/* Month Filter */}
+            <div className="relative">
+              <Button
+                variant="outline"
+                onClick={() => setShowMonthFilter(!showMonthFilter)}
+                className="min-w-[120px] justify-start"
+              >
+                Tháng ({selectedMonths.length})
+              </Button>
+              
+              {showMonthFilter && (
+                <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-10 p-4">
+                  <div className="grid grid-cols-3 gap-2">
+                    {MONTHS.map(month => (
+                      <Button
+                        key={month.value}
+                        variant={selectedMonths.includes(month.value) ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => toggleMonth(month.value)}
+                        className="text-xs"
+                      >
+                        {month.label}
+                      </Button>
+                    ))}
+                  </div>
+                  <div className="flex justify-end mt-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowMonthFilter(false)}
+                    >
+                      Đóng
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
 
-        {/* Year Filter */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Năm</label>
-          <Select onValueChange={handleYearSelect}>
-            <SelectTrigger>
-              <SelectValue placeholder="Chọn năm" />
-            </SelectTrigger>
-            <SelectContent>
-              {years.map((year) => (
-                <SelectItem key={year} value={year.toString()}>
+            {/* Year Filter */}
+            <div className="relative">
+              <Button
+                variant="outline"
+                onClick={() => setShowYearFilter(!showYearFilter)}
+                className="min-w-[120px] justify-start"
+              >
+                Năm ({selectedYears.length})
+              </Button>
+              
+              {showYearFilter && (
+                <div className="absolute top-full left-0 mt-2 w-60 bg-white border rounded-lg shadow-lg z-10 p-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    {YEARS.map(year => (
+                      <Button
+                        key={year}
+                        variant={selectedYears.includes(year) ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => toggleYear(year)}
+                      >
+                        {year}
+                      </Button>
+                    ))}
+                  </div>
+                  <div className="flex justify-end mt-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowYearFilter(false)}
+                    >
+                      Đóng
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Selected Filters Display */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {selectedMonths.map(month => (
+                <Badge key={`month-${month}`} variant="secondary" className="flex items-center gap-1">
+                  Tháng {month}
+                  <X
+                    className="h-3 w-3 cursor-pointer"
+                    onClick={() => toggleMonth(month)}
+                  />
+                </Badge>
+              ))}
+              {selectedYears.map(year => (
+                <Badge key={`year-${year}`} variant="secondary" className="flex items-center gap-1">
                   {year}
-                </SelectItem>
+                  <X
+                    className="h-3 w-3 cursor-pointer"
+                    onClick={() => toggleYear(year)}
+                  />
+                </Badge>
               ))}
-            </SelectContent>
-          </Select>
-          <div className="flex flex-wrap gap-1">
-            {selectedYears.map((year) => (
-              <Badge key={year} variant="secondary" className="flex items-center gap-1">
-                {year}
-                <button onClick={() => removeYear(year)}>
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
+              
+              {(selectedMonths.length > 0 || selectedYears.length > 0) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    clearMonths();
+                    clearYears();
+                  }}
+                  className="text-xs"
+                >
+                  Xóa tất cả
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Create Button */}
-        <div className="flex items-end">
-          <Button onClick={onCreateKPI} className="w-full">
+          {/* Create KPI Button - aligned with filters */}
+          <Button onClick={onCreateKPI} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
             Tạo KPI
           </Button>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
