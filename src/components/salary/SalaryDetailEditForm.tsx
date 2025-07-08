@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -192,7 +193,8 @@ export function SalaryDetailEditForm({
     const bhdn_bhxh = isSalaryWithInsurance ? values.insurance_base_amount * 0.17 : 0;
     const bhdn_tnld = isSalaryWithInsurance ? values.insurance_base_amount * 0.005 : 0;
     const bhdn_bhyt = isSalaryWithInsurance ? values.insurance_base_amount * 0.03 : 0;
-    const bhdn_bhtn = isSalaryWithInsurance ? values.insurance_base_amount * 0.01 : 0;
+    // Update BHTN calculation to use gross_salary * 0.01
+    const bhdn_bhtn = isSalaryWithInsurance ? values.gross_salary * 0.01 : 0;
     const total_bhdn = bhdn_bhxh + bhdn_tnld + bhdn_bhyt + bhdn_bhtn;
     
     // Tổng DN chi trả
@@ -201,7 +203,8 @@ export function SalaryDetailEditForm({
     // BHNLD calculations (based on insurance_base_amount and only if "Lương có BH")
     const bhnld_bhxh = isSalaryWithInsurance ? values.insurance_base_amount * 0.08 : 0;
     const bhnld_bhyt = isSalaryWithInsurance ? values.insurance_base_amount * 0.015 : 0;
-    const bhnld_bhtn = isSalaryWithInsurance ? values.insurance_base_amount * 0.01 : 0;
+    // Update BHNLD BHTN calculation to use gross_salary * 0.01
+    const bhnld_bhtn = isSalaryWithInsurance ? values.gross_salary * 0.01 : 0;
     const total_bhnld = bhnld_bhxh + bhnld_bhyt + bhnld_bhtn;
     
     // Giảm trừ calculations

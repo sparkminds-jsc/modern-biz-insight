@@ -26,10 +26,6 @@ export function SalaryTableRow({ detail, index, onViewDetail, onEdit, onDelete }
   // Determine salary type based on insurance_base_amount
   const isSalaryWithInsurance = detail.insurance_base_amount > 0;
   const salaryType = isSalaryWithInsurance ? 'Lương có BH' : 'Lương thời vụ';
-  
-  // Calculate BHTN values - set to 0 for temporary salary (Lương thời vụ)
-  const correctedBhdnBhtn = isSalaryWithInsurance ? detail.gross_salary * 0.01 : 0;
-  const correctedBhnldBhtn = isSalaryWithInsurance ? detail.gross_salary * 0.01 : 0;
 
   return (
     <TableRow>
@@ -53,12 +49,12 @@ export function SalaryTableRow({ detail, index, onViewDetail, onEdit, onDelete }
       <TableCell className="text-right">{formatCurrency(detail.bhdn_bhxh)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.bhdn_tnld)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.bhdn_bhyt)}</TableCell>
-      <TableCell className="text-right">{formatCurrency(correctedBhdnBhtn)}</TableCell>
+      <TableCell className="text-right">{formatCurrency(detail.bhdn_bhtn)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.total_bhdn)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.total_company_payment)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.bhnld_bhxh)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.bhnld_bhyt)}</TableCell>
-      <TableCell className="text-right">{formatCurrency(correctedBhnldBhtn)}</TableCell>
+      <TableCell className="text-right">{formatCurrency(detail.bhnld_bhtn)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.total_bhnld)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.personal_deduction)}</TableCell>
       <TableCell className="text-right">{formatNumber(detail.dependent_count)}</TableCell>
