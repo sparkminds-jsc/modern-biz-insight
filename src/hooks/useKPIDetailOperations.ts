@@ -1,10 +1,22 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { KPIDetail, KPIDetailData } from '@/types/kpiDetail';
 import { formatKPINumber } from '@/utils/numberFormat';
+import {
+  getPerformanceLabel,
+  getTaskTargetLabel,
+  getEffortRatioLabel,
+  getGitActivityLabel,
+  getMergeRatioLabel,
+  getPositiveAttitudeLabel,
+  getTeamManagementLabel,
+  getOnTimeCompletionLabel,
+  getStoryPointAccuracyLabel,
+  getCvCountLabel,
+  getRecruitmentCostLabel
+} from '@/utils/kpiValueToLabel';
 
 export const useKPIDetailOperations = (
   kpiDetails: KPIDetail[],
@@ -200,7 +212,7 @@ export const useKPIDetailOperations = (
   };
 
   const handleDownloadExcel = (filteredData: KPIDetailData[]) => {
-    // Create CSV content for KPI details with all detailed columns
+    // Create CSV content for KPI details with all detailed columns using labels
     const headers = [
       'STT',
       'Mã NV',
@@ -262,41 +274,41 @@ export const useKPIDetailOperations = (
         formatKPINumber(detail.salaryCoefficient),
         formatKPINumber(detail.kpiCoefficient),
         formatKPINumber(detail.totalMonthlyKPI),
-        // Năng suất làm việc
+        // Năng suất làm việc - using labels for export
         formatKPINumber(detail.workProductivity.total),
-        formatKPINumber(detail.workProductivity.completedOnTime),
+        getPerformanceLabel(detail.workProductivity.completedOnTime),
         formatKPINumber(detail.workProductivity.overdueTask),
-        formatKPINumber(detail.workProductivity.taskTarget),
+        getTaskTargetLabel(detail.workProductivity.taskTarget),
         formatKPINumber(detail.workProductivity.locTarget),
         formatKPINumber(detail.workProductivity.lotTarget),
-        formatKPINumber(detail.workProductivity.effortRatio),
-        formatKPINumber(detail.workProductivity.gitActivity),
-        // Chất lượng công việc
+        getEffortRatioLabel(detail.workProductivity.effortRatio),
+        getGitActivityLabel(detail.workProductivity.gitActivity),
+        // Chất lượng công việc - using labels for export
         formatKPINumber(detail.workQuality.total),
         formatKPINumber(detail.workQuality.prodBugs),
         formatKPINumber(detail.workQuality.testBugs),
-        formatKPINumber(detail.workQuality.mergeRatio),
-        // Thái độ làm việc
+        getMergeRatioLabel(detail.workQuality.mergeRatio),
+        // Thái độ làm việc - using labels for export
         formatKPINumber(detail.attitude.total),
-        formatKPINumber(detail.attitude.positiveAttitude),
+        getPositiveAttitudeLabel(detail.attitude.positiveAttitude),
         formatKPINumber(detail.attitude.techSharing),
         formatKPINumber(detail.attitude.techArticles),
         formatKPINumber(detail.attitude.mentoring),
-        formatKPINumber(detail.attitude.teamManagement),
-        // Tiến độ công việc
+        getTeamManagementLabel(detail.attitude.teamManagement),
+        // Tiến độ công việc - using labels for export
         formatKPINumber(detail.progress.total),
-        formatKPINumber(detail.progress.onTimeCompletion),
-        formatKPINumber(detail.progress.storyPointAccuracy),
+        getOnTimeCompletionLabel(detail.progress.onTimeCompletion),
+        getStoryPointAccuracyLabel(detail.progress.storyPointAccuracy),
         formatKPINumber(detail.progress.planChanges),
         // Yêu cầu công việc
         formatKPINumber(detail.requirements.total),
         formatKPINumber(detail.requirements.changeRequests),
         formatKPINumber(detail.requirements.misunderstandingErrors),
-        // Tuyển dụng
+        // Tuyển dụng - using labels for export
         formatKPINumber(detail.recruitment.total),
-        formatKPINumber(detail.recruitment.cvCount),
+        getCvCountLabel(detail.recruitment.cvCount),
         formatKPINumber(detail.recruitment.passedCandidates),
-        formatKPINumber(detail.recruitment.recruitmentCost),
+        getRecruitmentCostLabel(detail.recruitment.recruitmentCost),
         // Doanh thu
         formatKPINumber(detail.revenue.clientsOver100M)
       ].join(','))

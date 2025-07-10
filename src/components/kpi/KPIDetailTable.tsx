@@ -11,6 +11,19 @@ import {
 } from '@/components/ui/table';
 import { ChevronUp, ChevronDown, Eye, Edit, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import {
+  getPerformanceLabel,
+  getTaskTargetLabel,
+  getEffortRatioLabel,
+  getGitActivityLabel,
+  getMergeRatioLabel,
+  getPositiveAttitudeLabel,
+  getTeamManagementLabel,
+  getOnTimeCompletionLabel,
+  getStoryPointAccuracyLabel,
+  getCvCountLabel,
+  getRecruitmentCostLabel
+} from '@/utils/kpiValueToLabel';
 
 interface KPIDetailData {
   id: string;
@@ -199,32 +212,32 @@ export function KPIDetailTable({ data, onViewDetail, onEdit, onDelete }: KPIDeta
                 
                 {/* Năng suất làm việc - chi tiết */}
                 <TableCell className="text-right bg-blue-50">{formatKPINumber(detail.workProductivity.total)}</TableCell>
-                <TableCell className="text-right bg-blue-50">{formatKPINumber(detail.workProductivity.completedOnTime)}</TableCell>
+                <TableCell className="bg-blue-50">{getPerformanceLabel(detail.workProductivity.completedOnTime)}</TableCell>
                 <TableCell className="text-right bg-blue-50">{formatKPINumber(detail.workProductivity.overdueTask)}</TableCell>
-                <TableCell className="text-right bg-blue-50">{formatKPINumber(detail.workProductivity.taskTarget)}</TableCell>
+                <TableCell className="bg-blue-50">{getTaskTargetLabel(detail.workProductivity.taskTarget)}</TableCell>
                 <TableCell className="text-right bg-blue-50">{formatKPINumber(detail.workProductivity.locTarget)}</TableCell>
                 <TableCell className="text-right bg-blue-50">{formatKPINumber(detail.workProductivity.lotTarget)}</TableCell>
-                <TableCell className="text-right bg-blue-50">{formatKPINumber(detail.workProductivity.effortRatio)}</TableCell>
-                <TableCell className="text-right bg-blue-50">{formatKPINumber(detail.workProductivity.gitActivity)}</TableCell>
+                <TableCell className="bg-blue-50">{getEffortRatioLabel(detail.workProductivity.effortRatio)}</TableCell>
+                <TableCell className="bg-blue-50">{getGitActivityLabel(detail.workProductivity.gitActivity)}</TableCell>
                 
                 {/* Chất lượng công việc - chi tiết */}
                 <TableCell className="text-right bg-green-50">{formatKPINumber(detail.workQuality.total)}</TableCell>
                 <TableCell className="text-right bg-green-50">{formatKPINumber(detail.workQuality.prodBugs)}</TableCell>
                 <TableCell className="text-right bg-green-50">{formatKPINumber(detail.workQuality.testBugs)}</TableCell>
-                <TableCell className="text-right bg-green-50">{formatKPINumber(detail.workQuality.mergeRatio)}</TableCell>
+                <TableCell className="bg-green-50">{getMergeRatioLabel(detail.workQuality.mergeRatio)}</TableCell>
                 
                 {/* Thái độ làm việc - chi tiết */}
                 <TableCell className="text-right bg-yellow-50">{formatKPINumber(detail.attitude.total)}</TableCell>
-                <TableCell className="text-right bg-yellow-50">{formatKPINumber(detail.attitude.positiveAttitude)}</TableCell>
+                <TableCell className="bg-yellow-50">{getPositiveAttitudeLabel(detail.attitude.positiveAttitude)}</TableCell>
                 <TableCell className="text-right bg-yellow-50">{formatKPINumber(detail.attitude.techSharing)}</TableCell>
                 <TableCell className="text-right bg-yellow-50">{formatKPINumber(detail.attitude.techArticles)}</TableCell>
                 <TableCell className="text-right bg-yellow-50">{formatKPINumber(detail.attitude.mentoring)}</TableCell>
-                <TableCell className="text-right bg-yellow-50">{formatKPINumber(detail.attitude.teamManagement)}</TableCell>
+                <TableCell className="bg-yellow-50">{getTeamManagementLabel(detail.attitude.teamManagement)}</TableCell>
                 
                 {/* Tiến độ công việc - chi tiết */}
                 <TableCell className="text-right bg-purple-50">{formatKPINumber(detail.progress.total)}</TableCell>
-                <TableCell className="text-right bg-purple-50">{formatKPINumber(detail.progress.onTimeCompletion)}</TableCell>
-                <TableCell className="text-right bg-purple-50">{formatKPINumber(detail.progress.storyPointAccuracy)}</TableCell>
+                <TableCell className="bg-purple-50">{getOnTimeCompletionLabel(detail.progress.onTimeCompletion)}</TableCell>
+                <TableCell className="bg-purple-50">{getStoryPointAccuracyLabel(detail.progress.storyPointAccuracy)}</TableCell>
                 <TableCell className="text-right bg-purple-50">{formatKPINumber(detail.progress.planChanges)}</TableCell>
                 
                 {/* Yêu cầu công việc - chi tiết */}
@@ -234,9 +247,9 @@ export function KPIDetailTable({ data, onViewDetail, onEdit, onDelete }: KPIDeta
                 
                 {/* Tuyển dụng - chi tiết */}
                 <TableCell className="text-right bg-indigo-50">{formatKPINumber(detail.recruitment.total)}</TableCell>
-                <TableCell className="text-right bg-indigo-50">{formatKPINumber(detail.recruitment.cvCount)}</TableCell>
+                <TableCell className="bg-indigo-50">{getCvCountLabel(detail.recruitment.cvCount)}</TableCell>
                 <TableCell className="text-right bg-indigo-50">{formatKPINumber(detail.recruitment.passedCandidates)}</TableCell>
-                <TableCell className="text-right bg-indigo-50">{formatKPINumber(detail.recruitment.recruitmentCost)}</TableCell>
+                <TableCell className="bg-indigo-50">{getRecruitmentCostLabel(detail.recruitment.recruitmentCost)}</TableCell>
                 
                 {/* Doanh thu */}
                 <TableCell className="text-right bg-orange-50">{formatKPINumber(detail.revenue.clientsOver100M)}</TableCell>
