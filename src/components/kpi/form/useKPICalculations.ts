@@ -127,15 +127,15 @@ export function useKPICalculations(watchedValues: FormData, month: number, year:
       kpi,
       totalSalary,
       salaryCoefficient,
-      kpiCoefficient: parseFloat(kpiCoefficient.toFixed(3)),
+      kpiCoefficient: parseFloat(kpiCoefficient.toFixed(6)), // Changed to 6 decimal places
       totalMonthlyKPI: parseFloat(totalMonthlyKPI.toFixed(2)),
       hasKPIGap,
-      workProductivityTotal: parseFloat(workProductivityTotal.toFixed(2)),
-      workQualityTotal: parseFloat(workQualityTotal.toFixed(2)),
-      attitudeTotal: parseFloat(attitudeTotal.toFixed(2)),
-      progressTotal: parseFloat(progressTotal.toFixed(2)),
-      requirementsTotal: parseFloat(requirementsTotal.toFixed(2)),
-      recruitmentTotal: parseFloat(recruitmentTotal.toFixed(2))
+      workProductivityTotal: parseFloat(workProductivityTotal.toFixed(6)), // Changed to 6 decimal places
+      workQualityTotal: parseFloat(workQualityTotal.toFixed(6)), // Changed to 6 decimal places
+      attitudeTotal: parseFloat(attitudeTotal.toFixed(6)), // Changed to 6 decimal places
+      progressTotal: parseFloat(progressTotal.toFixed(6)), // Changed to 6 decimal places
+      requirementsTotal: parseFloat(requirementsTotal.toFixed(6)), // Changed to 6 decimal places
+      recruitmentTotal: parseFloat(recruitmentTotal.toFixed(6)) // Changed to 6 decimal places
     };
   }, [watchedValues, salaryData]);
 
