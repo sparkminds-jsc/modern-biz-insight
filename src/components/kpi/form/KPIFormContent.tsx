@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
@@ -36,7 +37,7 @@ export function KPIFormContent({
 
   const { register, handleSubmit, watch, setValue, reset } = useForm<FormData>({
     defaultValues: {
-      employee_code: '',
+      employee_code: kpiDetail?.employee_code || '',
       completedOnTime: '0',
       overdueTask: 0,
       taskTarget: '0',
@@ -135,8 +136,11 @@ export function KPIFormContent({
     try {
       setLoading(true);
       
+      // Ensure employee_code is preserved when editing
+      const employeeCode = kpiDetail ? kpiDetail.employee_code : data.employee_code;
+      
       const kpiDetailData = {
-        employee_code: data.employee_code,
+        employee_code: employeeCode,
         month,
         year,
         has_kpi_gap: calculatedValues.hasKPIGap,
