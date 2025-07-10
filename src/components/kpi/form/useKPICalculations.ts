@@ -9,22 +9,35 @@ export function useKPICalculations(watchedValues: FormData, month: number, year:
 
   useEffect(() => {
     const fetchSalaryData = async () => {
-      if (!watchedValues.employee_code) return;
+      if (!watchedValues.employee_code) {
+        setSalaryData(null);
+        return;
+      }
 
       try {
+        console.log('Fetching salary data for:', {
+          employee_code: watchedValues.employee_code,
+          month,
+          year
+        });
+
         const { data, error } = await supabase
           .from('salary_details')
           .select('gross_salary, kpi_bonus, overtime_1_5, overtime_2, overtime_3')
           .eq('employee_code', watchedValues.employee_code)
           .eq('month', month)
           .eq('year', year)
-          .single();
+          .maybeSingle(); // Use maybeSingle instead of single to handle no results
 
         if (error) {
           console.error('Error fetching salary data:', error);
           setSalaryData(null);
-        } else {
+        } else if (data) {
+          console.log('Found salary data:', data);
           setSalaryData(data);
+        } else {
+          console.log('No salary data found for employee:', watchedValues.employee_code, 'month:', month, 'year:', year);
+          setSalaryData(null);
         }
       } catch (error) {
         console.error('Error fetching salary data:', error);
@@ -47,6 +60,8 @@ export function useKPICalculations(watchedValues: FormData, month: number, year:
     const kpi = salaryData 
       ? (salaryData.kpi_bonus + salaryData.overtime_1_5 + salaryData.overtime_2 + salaryData.overtime_3)
       : 0;
+
+    console.log('Calculated values:', { basicSalary, kpi, salaryData });
 
     const totalSalary = basicSalary + kpi;
     const salaryCoefficient = basicSalary > 0 ? parseFloat((kpi / basicSalary).toFixed(3)) : 0;
