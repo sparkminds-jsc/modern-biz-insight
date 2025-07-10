@@ -24,7 +24,7 @@ export function KPIRequirements({ register, calculatedValues }: KPIRequirementsP
         </div>
 
         <div className="space-y-2">
-          <Label>Yêu cầu thay đổi</Label>
+          <Label>Yêu cầu thay đổi - (-0.001*số lần)</Label>
           <Input
             type="number"
             {...register('changeRequests', { valueAsNumber: true })}
@@ -33,7 +33,7 @@ export function KPIRequirements({ register, calculatedValues }: KPIRequirementsP
         </div>
 
         <div className="space-y-2">
-          <Label>Lỗi hiểu sai yêu cầu</Label>
+          <Label>Lỗi hiểu sai yêu cầu - (-0.001*số lỗi)</Label>
           <Input
             type="number"
             {...register('misunderstandingErrors', { valueAsNumber: true })}

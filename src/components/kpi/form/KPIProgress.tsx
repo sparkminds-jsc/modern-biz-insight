@@ -29,7 +29,7 @@ export function KPIProgress({ register, setValue, watchedValues, calculatedValue
         </div>
 
         <div className="space-y-2">
-          <Label>Hoàn thành đúng tiến độ</Label>
+          <Label>Hoàn thành đúng tiến độ - (0.025)</Label>
           <Select
             value={watchedValues.onTimeCompletion}
             onValueChange={(value) => setValue('onTimeCompletion', value)}
@@ -48,7 +48,7 @@ export function KPIProgress({ register, setValue, watchedValues, calculatedValue
         </div>
 
         <div className="space-y-2">
-          <Label>Story point đúng plan</Label>
+          <Label>Story point đúng plan - (0.01)</Label>
           <Select
             value={watchedValues.storyPointAccuracy}
             onValueChange={(value) => setValue('storyPointAccuracy', value)}
@@ -67,7 +67,7 @@ export function KPIProgress({ register, setValue, watchedValues, calculatedValue
         </div>
 
         <div className="space-y-2">
-          <Label>Thay đổi kế hoạch</Label>
+          <Label>Thay đổi kế hoạch - (-0.01*số lần)</Label>
           <Input
             type="number"
             {...register('planChanges', { valueAsNumber: true })}

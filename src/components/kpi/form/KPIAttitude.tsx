@@ -29,7 +29,7 @@ export function KPIAttitude({ register, setValue, watchedValues, calculatedValue
         </div>
 
         <div className="space-y-2">
-          <Label>Thái độ tích cực</Label>
+          <Label>Thái độ tích cực - (0.0005)</Label>
           <Select
             value={watchedValues.positiveAttitude}
             onValueChange={(value) => setValue('positiveAttitude', value)}
@@ -48,7 +48,7 @@ export function KPIAttitude({ register, setValue, watchedValues, calculatedValue
         </div>
 
         <div className="space-y-2">
-          <Label>Tech sharing</Label>
+          <Label>Tech sharing - (+0.001*số lần)</Label>
           <Input
             type="number"
             {...register('techSharing', { valueAsNumber: true })}
@@ -57,7 +57,7 @@ export function KPIAttitude({ register, setValue, watchedValues, calculatedValue
         </div>
 
         <div className="space-y-2">
-          <Label>Bài viết kỹ thuật</Label>
+          <Label>Bài viết kỹ thuật - (+0.001*số bài)</Label>
           <Input
             type="number"
             {...register('techArticles', { valueAsNumber: true })}
@@ -66,7 +66,7 @@ export function KPIAttitude({ register, setValue, watchedValues, calculatedValue
         </div>
 
         <div className="space-y-2">
-          <Label>Số nhân sự (fresher/thực tập sinh) phụ trách đào tạo</Label>
+          <Label>Số nhân sự (fresher/thực tập sinh) phụ trách đào tạo - (100,000đ/bạn)</Label>
           <Input
             type="number"
             {...register('mentoring', { valueAsNumber: true })}
@@ -75,7 +75,7 @@ export function KPIAttitude({ register, setValue, watchedValues, calculatedValue
         </div>
 
         <div className="space-y-2">
-          <Label>Tham gia quản lý team và đảm bảo công việc hiệu quả của team member</Label>
+          <Label>Tham gia quản lý team và đảm bảo công việc hiệu quả của team member - (+2,000,000đ)</Label>
           <Select
             value={watchedValues.teamManagement}
             onValueChange={(value) => setValue('teamManagement', value)}

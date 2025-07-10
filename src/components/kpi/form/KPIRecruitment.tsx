@@ -28,7 +28,7 @@ export function KPIRecruitment({ register, setValue, watchedValues, calculatedVa
         </div>
 
         <div className="space-y-2">
-          <Label>CV tuyển dụng</Label>
+          <Label>CV tuyển dụng - (0-0.2-0.5-1)</Label>
           <Select
             value={watchedValues.cvCount}
             onValueChange={(value) => setValue('cvCount', value)}
@@ -47,7 +47,7 @@ export function KPIRecruitment({ register, setValue, watchedValues, calculatedVa
         </div>
 
         <div className="space-y-2">
-          <Label>Ứng viên vượt qua (*)</Label>
+          <Label>Ứng viên vượt qua (*) - (0-1m-2m-3m)</Label>
           <Input
             type="number"
             {...register('passedCandidates', { valueAsNumber: true })}
@@ -56,7 +56,7 @@ export function KPIRecruitment({ register, setValue, watchedValues, calculatedVa
         </div>
 
         <div className="space-y-2">
-          <Label>Chi phí/ứng viên</Label>
+          <Label>Chi phí/ứng viên - (0-0.5m-1m-1.5m-2m)</Label>
           <Select
             value={watchedValues.recruitmentCost}
             onValueChange={(value) => setValue('recruitmentCost', value)}

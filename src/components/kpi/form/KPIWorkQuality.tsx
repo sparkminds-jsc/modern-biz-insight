@@ -29,7 +29,7 @@ export function KPIWorkQuality({ register, setValue, watchedValues, calculatedVa
         </div>
 
         <div className="space-y-2">
-          <Label>Số bug được tạo ra sau khi deploy lên môi trường thực tế</Label>
+          <Label>Số bug được tạo ra sau khi deploy lên môi trường thực tế - (-0.0005*số bug)</Label>
           <Input
             type="number"
             {...register('prodBugs', { valueAsNumber: true })}
@@ -38,7 +38,7 @@ export function KPIWorkQuality({ register, setValue, watchedValues, calculatedVa
         </div>
 
         <div className="space-y-2">
-          <Label>Số bug được tạo ra sau khi deploy lên môi trường KH thực nghiệm</Label>
+          <Label>Số bug được tạo ra sau khi deploy lên môi trường KH thực nghiệm - (-0.00001*số bug)</Label>
           <Input
             type="number"
             {...register('testBugs', { valueAsNumber: true })}
@@ -47,7 +47,7 @@ export function KPIWorkQuality({ register, setValue, watchedValues, calculatedVa
         </div>
 
         <div className="space-y-2">
-          <Label>Đạt tỷ lệ pull request được merge không cần chỉnh sửa ({'>'}30%)</Label>
+          <Label>Đạt tỷ lệ pull request được merge không cần chỉnh sửa (>30%) - (0.005)</Label>
           <Select
             value={watchedValues.mergeRatio}
             onValueChange={(value) => setValue('mergeRatio', value)}
