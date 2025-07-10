@@ -14,7 +14,7 @@ export function KPIRevenue({ register }: KPIRevenueProps) {
       <h3 className="text-lg font-semibold">Doanh số</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>KH >100tr/tháng - (4m/KH)</Label>
+          <Label>KH {'>'}100tr/tháng - (4m/KH)</Label>
           <Input
             type="number"
             {...register('clientsOver100M', { valueAsNumber: true })}

@@ -47,7 +47,7 @@ export function KPIWorkQuality({ register, setValue, watchedValues, calculatedVa
         </div>
 
         <div className="space-y-2">
-          <Label>Đạt tỷ lệ pull request được merge không cần chỉnh sửa (>30%) - (0.005)</Label>
+          <Label>Đạt tỷ lệ pull request được merge không cần chỉnh sửa ({'>'}30%) - (0.005)</Label>
           <Select
             value={watchedValues.mergeRatio}
             onValueChange={(value) => setValue('mergeRatio', value)}
