@@ -200,7 +200,7 @@ export const useKPIDetailOperations = (
   };
 
   const handleDownloadExcel = (filteredData: KPIDetailData[]) => {
-    // Create CSV content for KPI details
+    // Create CSV content for KPI details with all detailed columns
     const headers = [
       'STT',
       'Mã NV',
@@ -211,13 +211,43 @@ export const useKPIDetailOperations = (
       'Hệ số lương',
       'Hệ số KPI',
       'Tổng KPI tháng',
-      'Năng suất làm việc',
-      'Chất lượng công việc',
-      'Thái độ làm việc',
-      'Tiến độ công việc',
-      'Yêu cầu công việc',
-      'Tuyển dụng',
-      'Doanh thu'
+      // Năng suất làm việc
+      'NSLV Tổng',
+      'Hoàn thành đúng deadline',
+      'Task trễ deadline',
+      'Đạt chỉ tiêu task',
+      'LOC vượt chỉ tiêu',
+      'LOT vượt chỉ tiêu',
+      'Tỷ lệ effort',
+      'Git activity',
+      // Chất lượng công việc
+      'CLCV Tổng',
+      'Bug production',
+      'Bug testing',
+      'Tỷ lệ merge',
+      // Thái độ làm việc
+      'Thái độ Tổng',
+      'Thái độ tích cực',
+      'Tech sharing',
+      'Bài viết kỹ thuật',
+      'Số NV đào tạo',
+      'Quản lý team',
+      // Tiến độ công việc
+      'Tiến độ Tổng',
+      'Hoàn thành đúng tiến độ',
+      'Story point đúng plan',
+      'Thay đổi kế hoạch',
+      // Yêu cầu công việc
+      'Yêu cầu Tổng',
+      'Yêu cầu thay đổi',
+      'Lỗi hiểu sai YC',
+      // Tuyển dụng
+      'Tuyển dụng Tổng',
+      'CV tuyển dụng',
+      'Ứng viên vượt qua',
+      'Chi phí/ứng viên',
+      // Doanh thu
+      'KH >100tr/tháng'
     ];
 
     const csvRows = [
@@ -232,12 +262,42 @@ export const useKPIDetailOperations = (
         formatKPINumber(detail.salaryCoefficient),
         formatKPINumber(detail.kpiCoefficient),
         formatKPINumber(detail.totalMonthlyKPI),
+        // Năng suất làm việc
         formatKPINumber(detail.workProductivity.total),
+        formatKPINumber(detail.workProductivity.completedOnTime),
+        formatKPINumber(detail.workProductivity.overdueTask),
+        formatKPINumber(detail.workProductivity.taskTarget),
+        formatKPINumber(detail.workProductivity.locTarget),
+        formatKPINumber(detail.workProductivity.lotTarget),
+        formatKPINumber(detail.workProductivity.effortRatio),
+        formatKPINumber(detail.workProductivity.gitActivity),
+        // Chất lượng công việc
         formatKPINumber(detail.workQuality.total),
+        formatKPINumber(detail.workQuality.prodBugs),
+        formatKPINumber(detail.workQuality.testBugs),
+        formatKPINumber(detail.workQuality.mergeRatio),
+        // Thái độ làm việc
         formatKPINumber(detail.attitude.total),
+        formatKPINumber(detail.attitude.positiveAttitude),
+        formatKPINumber(detail.attitude.techSharing),
+        formatKPINumber(detail.attitude.techArticles),
+        formatKPINumber(detail.attitude.mentoring),
+        formatKPINumber(detail.attitude.teamManagement),
+        // Tiến độ công việc
         formatKPINumber(detail.progress.total),
+        formatKPINumber(detail.progress.onTimeCompletion),
+        formatKPINumber(detail.progress.storyPointAccuracy),
+        formatKPINumber(detail.progress.planChanges),
+        // Yêu cầu công việc
         formatKPINumber(detail.requirements.total),
+        formatKPINumber(detail.requirements.changeRequests),
+        formatKPINumber(detail.requirements.misunderstandingErrors),
+        // Tuyển dụng
         formatKPINumber(detail.recruitment.total),
+        formatKPINumber(detail.recruitment.cvCount),
+        formatKPINumber(detail.recruitment.passedCandidates),
+        formatKPINumber(detail.recruitment.recruitmentCost),
+        // Doanh thu
         formatKPINumber(detail.revenue.clientsOver100M)
       ].join(','))
     ];
