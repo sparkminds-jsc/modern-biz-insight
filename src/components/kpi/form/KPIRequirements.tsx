@@ -3,6 +3,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { UseFormRegister } from 'react-hook-form';
 import { FormData, CalculatedValues } from './kpiFormTypes';
+import { formatNumber } from '@/utils/numberFormat';
 
 interface KPIRequirementsProps {
   register: UseFormRegister<FormData>;
@@ -17,7 +18,7 @@ export function KPIRequirements({ register, calculatedValues }: KPIRequirementsP
         <div className="space-y-2">
           <Label>Tổng</Label>
           <Input
-            value={calculatedValues.requirementsTotal}
+            value={formatNumber(calculatedValues.requirementsTotal, 6)}
             readOnly
             className="bg-gray-100"
           />

@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { FormData, CalculatedValues } from './kpiFormTypes';
 import { cvCountOptions, recruitmentCostOptions } from './kpiFormOptions';
+import { formatNumber } from '@/utils/numberFormat';
 
 interface KPIRecruitmentProps {
   register: UseFormRegister<FormData>;
@@ -21,7 +22,7 @@ export function KPIRecruitment({ register, setValue, watchedValues, calculatedVa
         <div className="space-y-2">
           <Label>Tổng</Label>
           <Input
-            value={calculatedValues.recruitmentTotal}
+            value={formatNumber(calculatedValues.recruitmentTotal, 6)}
             readOnly
             className="bg-gray-100"
           />

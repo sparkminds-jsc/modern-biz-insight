@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { FormData, CalculatedValues } from './kpiFormTypes';
 import { onTimeCompletionOptions, storyPointAccuracyOptions } from './kpiFormOptions';
-import { formatKPINumber } from '@/utils/numberFormat';
+import { formatNumber } from '@/utils/numberFormat';
 
 interface KPIProgressProps {
   register: UseFormRegister<FormData>;
@@ -22,7 +22,7 @@ export function KPIProgress({ register, setValue, watchedValues, calculatedValue
         <div className="space-y-2">
           <Label>Tổng</Label>
           <Input
-            value={formatKPINumber(calculatedValues.progressTotal)}
+            value={formatNumber(calculatedValues.progressTotal, 6)}
             readOnly
             className="bg-gray-100"
           />

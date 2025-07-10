@@ -11,7 +11,7 @@ import {
 import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
 import { FormData, CalculatedValues } from './kpiFormTypes';
 import { performanceOptions, taskTargetOptions, effortRatioOptions, gitActivityOptions } from './kpiFormOptions';
-import { formatKPINumber } from '@/utils/numberFormat';
+import { formatNumber } from '@/utils/numberFormat';
 
 interface KPIWorkProductivityProps {
   register: UseFormRegister<FormData>;
@@ -33,7 +33,7 @@ export function KPIWorkProductivity({
         <div className="space-y-2">
           <Label>Tổng</Label>
           <Input
-            value={formatKPINumber(calculatedValues.workProductivityTotal)}
+            value={formatNumber(calculatedValues.workProductivityTotal, 6)}
             readOnly
             className="bg-gray-100"
           />
