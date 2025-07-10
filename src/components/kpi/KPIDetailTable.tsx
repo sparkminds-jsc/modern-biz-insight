@@ -134,48 +134,48 @@ export function KPIDetailTable({ data, onViewDetail, onEdit, onDelete }: KPIDeta
               <TableHead>Tổng KPI tháng</TableHead>
               
               {/* Năng suất làm việc - chi tiết */}
-              <TableHead className="bg-blue-50">NSLV Tổng</TableHead>
-              <TableHead className="bg-blue-50">Hoàn thành đúng deadline</TableHead>
-              <TableHead className="bg-blue-50">Task trễ deadline</TableHead>
-              <TableHead className="bg-blue-50">Đạt chỉ tiêu task</TableHead>
-              <TableHead className="bg-blue-50">LOC vượt chỉ tiêu</TableHead>
-              <TableHead className="bg-blue-50">LOT vượt chỉ tiêu</TableHead>
-              <TableHead className="bg-blue-50">Tỷ lệ effort</TableHead>
-              <TableHead className="bg-blue-50">Git activity</TableHead>
+              <TableHead className="bg-blue-50">(NSLV) - Tổng</TableHead>
+              <TableHead className="bg-blue-50">(NSLV) - Hoàn thành đúng deadline</TableHead>
+              <TableHead className="bg-blue-50">(NSLV) - Task trễ deadline</TableHead>
+              <TableHead className="bg-blue-50">(NSLV) - Đạt chỉ tiêu task</TableHead>
+              <TableHead className="bg-blue-50">(NSLV) - LOC vượt chỉ tiêu</TableHead>
+              <TableHead className="bg-blue-50">(NSLV) - LOT vượt chỉ tiêu</TableHead>
+              <TableHead className="bg-blue-50">(NSLV) - Tỷ lệ effort</TableHead>
+              <TableHead className="bg-blue-50">(NSLV) - Git activity</TableHead>
               
               {/* Chất lượng công việc - chi tiết */}
-              <TableHead className="bg-green-50">CLCV Tổng</TableHead>
-              <TableHead className="bg-green-50">Bug production</TableHead>
-              <TableHead className="bg-green-50">Bug testing</TableHead>
-              <TableHead className="bg-green-50">Tỷ lệ merge</TableHead>
+              <TableHead className="bg-green-50">(CLCV) - Tổng</TableHead>
+              <TableHead className="bg-green-50">(CLCV) - Bug production</TableHead>
+              <TableHead className="bg-green-50">(CLCV) - Bug testing</TableHead>
+              <TableHead className="bg-green-50">(CLCV) - Tỷ lệ merge</TableHead>
               
               {/* Thái độ làm việc - chi tiết */}
-              <TableHead className="bg-yellow-50">Thái độ Tổng</TableHead>
-              <TableHead className="bg-yellow-50">Thái độ tích cực</TableHead>
-              <TableHead className="bg-yellow-50">Tech sharing</TableHead>
-              <TableHead className="bg-yellow-50">Bài viết kỹ thuật</TableHead>
-              <TableHead className="bg-yellow-50">Số NV đào tạo</TableHead>
-              <TableHead className="bg-yellow-50">Quản lý team</TableHead>
+              <TableHead className="bg-yellow-50">(TDLV) - Tổng</TableHead>
+              <TableHead className="bg-yellow-50">(TDLV) - Thái độ tích cực</TableHead>
+              <TableHead className="bg-yellow-50">(TDLV) - Tech sharing</TableHead>
+              <TableHead className="bg-yellow-50">(TDLV) - Bài viết kỹ thuật</TableHead>
+              <TableHead className="bg-yellow-50">(TDLV) - Số NV đào tạo</TableHead>
+              <TableHead className="bg-yellow-50">(TDLV) - Quản lý team</TableHead>
               
               {/* Tiến độ công việc - chi tiết */}
-              <TableHead className="bg-purple-50">Tiến độ Tổng</TableHead>
-              <TableHead className="bg-purple-50">Hoàn thành đúng tiến độ</TableHead>
-              <TableHead className="bg-purple-50">Story point đúng plan</TableHead>
-              <TableHead className="bg-purple-50">Thay đổi kế hoạch</TableHead>
+              <TableHead className="bg-purple-50">(TDCV) - Tổng</TableHead>
+              <TableHead className="bg-purple-50">(TDCV) - Hoàn thành đúng tiến độ</TableHead>
+              <TableHead className="bg-purple-50">(TDCV) - Story point đúng plan</TableHead>
+              <TableHead className="bg-purple-50">(TDCV) - Thay đổi kế hoạch</TableHead>
               
               {/* Yêu cầu công việc - chi tiết */}
-              <TableHead className="bg-red-50">Yêu cầu Tổng</TableHead>
-              <TableHead className="bg-red-50">Yêu cầu thay đổi</TableHead>
-              <TableHead className="bg-red-50">Lỗi hiểu sai YC</TableHead>
+              <TableHead className="bg-red-50">(YCCV) - Tổng</TableHead>
+              <TableHead className="bg-red-50">(YCCV) - Yêu cầu thay đổi</TableHead>
+              <TableHead className="bg-red-50">(YCCV) - Lỗi hiểu sai YC</TableHead>
               
               {/* Tuyển dụng - chi tiết */}
-              <TableHead className="bg-indigo-50">Tuyển dụng Tổng</TableHead>
-              <TableHead className="bg-indigo-50">CV tuyển dụng</TableHead>
-              <TableHead className="bg-indigo-50">Ứng viên vượt qua</TableHead>
-              <TableHead className="bg-indigo-50">Chi phí/ứng viên</TableHead>
+              <TableHead className="bg-indigo-50">(TD) - Tổng</TableHead>
+              <TableHead className="bg-indigo-50">(TD) - CV tuyển dụng</TableHead>
+              <TableHead className="bg-indigo-50">(TD) - Ứng viên vượt qua</TableHead>
+              <TableHead className="bg-indigo-50">(TD) - Chi phí/ứng viên</TableHead>
               
               {/* Doanh thu */}
-              <TableHead className="bg-orange-50">KH >100tr/tháng</TableHead>
+              <TableHead className="bg-orange-50">KH &gt;100tr/tháng</TableHead>
               
               <TableHead>Thao tác</TableHead>
             </TableRow>
