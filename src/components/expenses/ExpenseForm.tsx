@@ -68,6 +68,23 @@ export function ExpenseForm({ open, onClose, expense, onSuccess }: ExpenseFormPr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation for required fields
+    if (!content.trim()) {
+      toast.error('Vui lòng nhập nội dung chi phí');
+      return;
+    }
+    
+    if (!expenseType) {
+      toast.error('Vui lòng chọn loại chi phí');
+      return;
+    }
+    
+    if (!walletType) {
+      toast.error('Vui lòng chọn ví');
+      return;
+    }
+
     setLoading(true);
 
     try {
