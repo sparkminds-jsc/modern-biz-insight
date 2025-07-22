@@ -211,10 +211,9 @@ export function SalaryDetailEditForm({
     const insurance_deduction = total_bhnld;
     const total_deduction = 11000000 + dependent_deduction + insurance_deduction; // 11tr là giảm trừ bản thân
     
-    // Thu nhập chịu thuế
-    const taxable_income = Math.max(0, total_income - total_deduction);
-    
-    // Tax calculations
+    // Thu nhập chịu thuế - Đặc biệt cho Lương thời vụ
+    let taxable_income;
+    let total_personal_income_tax;
     let tax_5_percent = 0;
     let tax_10_percent = 0;
     let tax_15_percent = 0;
@@ -223,42 +222,51 @@ export function SalaryDetailEditForm({
     let tax_30_percent = 0;
     let tax_35_percent = 0;
     
-    if (taxable_income > 0) {
-      // 5% bracket (0-5M)
-      tax_5_percent = Math.min(taxable_income, 5000000) * 0.05;
+    if (values.salary_type === 'Lương thời vụ') {
+      // Với Lương thời vụ: Thu nhập chịu thuế = 0, Thuế TNCN = 10% * Tổng thu nhập
+      taxable_income = 0;
+      total_personal_income_tax = total_income * 0.10;
+    } else {
+      // Logic thuế bình thường cho Lương có BH
+      taxable_income = Math.max(0, total_income - total_deduction);
       
-      // 10% bracket (5M-10M)
-      if (taxable_income > 5000000) {
-        tax_10_percent = Math.min(taxable_income - 5000000, 5000000) * 0.10;
+      if (taxable_income > 0) {
+        // 5% bracket (0-5M)
+        tax_5_percent = Math.min(taxable_income, 5000000) * 0.05;
+        
+        // 10% bracket (5M-10M)
+        if (taxable_income > 5000000) {
+          tax_10_percent = Math.min(taxable_income - 5000000, 5000000) * 0.10;
+        }
+        
+        // 15% bracket (10M-18M)
+        if (taxable_income > 10000000) {
+          tax_15_percent = Math.min(taxable_income - 10000000, 8000000) * 0.15;
+        }
+        
+        // 20% bracket (18M-32M)
+        if (taxable_income > 18000000) {
+          tax_20_percent = Math.min(taxable_income - 18000000, 14000000) * 0.20;
+        }
+        
+        // 25% bracket (32M-52M)
+        if (taxable_income > 32000000) {
+          tax_25_percent = Math.min(taxable_income - 32000000, 20000000) * 0.25;
+        }
+        
+        // 30% bracket (52M-80M)
+        if (taxable_income > 52000000) {
+          tax_30_percent = Math.min(taxable_income - 52000000, 28000000) * 0.30;
+        }
+        
+        // 35% bracket (>80M)
+        if (taxable_income > 80000000) {
+          tax_35_percent = (taxable_income - 80000000) * 0.35;
+        }
       }
       
-      // 15% bracket (10M-18M)
-      if (taxable_income > 10000000) {
-        tax_15_percent = Math.min(taxable_income - 10000000, 8000000) * 0.15;
-      }
-      
-      // 20% bracket (18M-32M)
-      if (taxable_income > 18000000) {
-        tax_20_percent = Math.min(taxable_income - 18000000, 14000000) * 0.20;
-      }
-      
-      // 25% bracket (32M-52M)
-      if (taxable_income > 32000000) {
-        tax_25_percent = Math.min(taxable_income - 32000000, 20000000) * 0.25;
-      }
-      
-      // 30% bracket (52M-80M)
-      if (taxable_income > 52000000) {
-        tax_30_percent = Math.min(taxable_income - 52000000, 28000000) * 0.30;
-      }
-      
-      // 35% bracket (>80M)
-      if (taxable_income > 80000000) {
-        tax_35_percent = (taxable_income - 80000000) * 0.35;
-      }
+      total_personal_income_tax = tax_5_percent + tax_10_percent + tax_15_percent + tax_20_percent + tax_25_percent + tax_30_percent + tax_35_percent;
     }
-    
-    const total_personal_income_tax = tax_5_percent + tax_10_percent + tax_15_percent + tax_20_percent + tax_25_percent + tax_30_percent + tax_35_percent;
     
     // Lương Net
     const net_salary = total_income - total_bhnld - total_personal_income_tax;
