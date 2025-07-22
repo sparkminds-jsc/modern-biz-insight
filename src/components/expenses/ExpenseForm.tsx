@@ -33,12 +33,29 @@ export function ExpenseForm({ open, onClose, expense, onSuccess }: ExpenseFormPr
   const [notes, setNotes] = useState('');
 
   const expenseTypes = [
-    'Chi phí vận hành',
-    'Chi phí marketing',
-    'Chi phí nhân sự',
-    'Chi phí thiết bị',
-    'Chi phí khác',
-    'Bán Ngoại Tệ'
+    'Lương',
+    'Bảo Hiểm', 
+    'Thuế TNCN',
+    'Chia cổ tức',
+    'Chi phí Luật',
+    'Ứng Lương',
+    'Chi phí Tool',
+    'Mua thiết bị',
+    'Sửa chữa thiết bị',
+    'Thuê văn phòng',
+    'Tuyển dụng',
+    'Chi phí ngân hàng',
+    'Đồng Phục',
+    'Quà Tết',
+    'Team Building',
+    'Ăn uống',
+    'Điện',
+    'Giữ xe',
+    'Quà SN',
+    'Quà tặng KH',
+    'Trang trí',
+    'Nước uống',
+    'Rút tiền mặt'
   ];
 
   const walletTypes = ['Ngân Hàng', 'Binance', 'Upwork', 'Tiền Mặt'];
