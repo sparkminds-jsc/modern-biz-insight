@@ -2,10 +2,12 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CalendarIcon, Search, Plus } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { CalendarIcon, Search, Plus, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -14,8 +16,9 @@ interface ExpenseFiltersProps {
   onFilter: (filters: {
     startDate?: Date;
     endDate?: Date;
-    expenseType?: string;
+    expenseTypes?: string[];
     walletType?: string;
+    content?: string;
   }) => void;
   onAddExpense: () => void;
 }
@@ -23,8 +26,10 @@ interface ExpenseFiltersProps {
 export function ExpenseFilters({ onFilter, onAddExpense }: ExpenseFiltersProps) {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
-  const [expenseType, setExpenseType] = useState<string>('all');
+  const [selectedExpenseTypes, setSelectedExpenseTypes] = useState<string[]>([]);
   const [walletType, setWalletType] = useState<string>('all');
+  const [content, setContent] = useState<string>('');
+  const [showExpenseTypes, setShowExpenseTypes] = useState(false);
 
   const expenseTypes = [
     'Lương', 'Bảo Hiểm', 'Thuế TNCN', 'Chia cổ tức', 'Chi phí Luật', 'Ứng Lương', 
@@ -35,18 +40,27 @@ export function ExpenseFilters({ onFilter, onAddExpense }: ExpenseFiltersProps) 
 
   const walletTypes = ['Ngân Hàng', 'Binance', 'Upwork', 'Tiền Mặt'];
 
+  const handleExpenseTypeToggle = (type: string) => {
+    setSelectedExpenseTypes(prev => 
+      prev.includes(type) 
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    );
+  };
+
   const handleSearch = () => {
     onFilter({
       startDate,
       endDate,
-      expenseType: expenseType === 'all' ? undefined : expenseType,
-      walletType: walletType === 'all' ? undefined : walletType
+      expenseTypes: selectedExpenseTypes.length > 0 ? selectedExpenseTypes : undefined,
+      walletType: walletType === 'all' ? undefined : walletType,
+      content: content.trim() || undefined
     });
   };
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 items-end">
         {/* Ngày bắt đầu */}
         <div className="space-y-2">
           <Label>Ngày bắt đầu</Label>
@@ -101,20 +115,61 @@ export function ExpenseFilters({ onFilter, onAddExpense }: ExpenseFiltersProps) 
           </Popover>
         </div>
 
+        {/* Nội dung chi phí */}
+        <div className="space-y-2">
+          <Label>Nội dung chi phí</Label>
+          <Input
+            placeholder="Tìm kiếm nội dung..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+        </div>
+
         {/* Loại Chi Phí */}
         <div className="space-y-2">
           <Label>Loại Chi Phí</Label>
-          <Select value={expenseType} onValueChange={setExpenseType}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Tất cả</SelectItem>
-              {expenseTypes.map((type) => (
-                <SelectItem key={type} value={type}>{type}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover open={showExpenseTypes} onOpenChange={setShowExpenseTypes}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full justify-between text-left font-normal"
+              >
+                {selectedExpenseTypes.length === 0 
+                  ? "Chọn loại chi phí"
+                  : `${selectedExpenseTypes.length} loại được chọn`
+                }
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-4" align="start">
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {expenseTypes.map((type) => (
+                  <div key={type} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={type}
+                      checked={selectedExpenseTypes.includes(type)}
+                      onCheckedChange={() => handleExpenseTypeToggle(type)}
+                    />
+                    <Label htmlFor={type} className="text-sm font-normal cursor-pointer flex-1">
+                      {type}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              {selectedExpenseTypes.length > 0 && (
+                <div className="mt-4 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedExpenseTypes([])}
+                    className="w-full"
+                  >
+                    Xóa tất cả
+                  </Button>
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Từ Ví */}

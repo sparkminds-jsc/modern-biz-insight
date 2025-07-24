@@ -6,6 +6,7 @@ import { ExpenseSummary } from '../components/expenses/ExpenseSummary';
 import { ExpenseTable } from '../components/expenses/ExpenseTable';
 import { ExpenseForm } from '../components/expenses/ExpenseForm';
 import { ExpenseDetailDialog } from '../components/expenses/ExpenseDetailDialog';
+import { ExpenseChart } from '../components/expenses/ExpenseChart';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -19,6 +20,7 @@ const ExpensesPage = () => {
   const [showDetail, setShowDetail] = useState(false);
   const [showFinalizeDialog, setShowFinalizeDialog] = useState(false);
   const [expenseToFinalize, setExpenseToFinalize] = useState<any>(null);
+  const [currentFilters, setCurrentFilters] = useState<any>({});
 
   const fetchExpenses = async () => {
     try {
@@ -43,6 +45,7 @@ const ExpensesPage = () => {
   }, []);
 
   const handleFilter = (filters: any) => {
+    setCurrentFilters(filters);
     let filtered = [...expenses];
 
     if (filters.startDate) {
@@ -57,15 +60,21 @@ const ExpensesPage = () => {
       );
     }
 
-    if (filters.expenseType) {
+    if (filters.expenseTypes && filters.expenseTypes.length > 0) {
       filtered = filtered.filter(expense => 
-        expense.expense_type === filters.expenseType
+        filters.expenseTypes.includes(expense.expense_type)
       );
     }
 
     if (filters.walletType) {
       filtered = filtered.filter(expense => 
         expense.wallet_type === filters.walletType
+      );
+    }
+
+    if (filters.content) {
+      filtered = filtered.filter(expense => 
+        expense.content.toLowerCase().includes(filters.content.toLowerCase())
       );
     }
 
@@ -154,6 +163,14 @@ const ExpensesPage = () => {
           onViewDetail={handleViewDetail}
           onEdit={handleEditExpense}
           onFinalize={handleFinalizeExpense}
+        />
+
+        {/* Chart */}
+        <ExpenseChart 
+          startDate={currentFilters.startDate}
+          endDate={currentFilters.endDate}
+          expenseTypes={currentFilters.expenseTypes}
+          content={currentFilters.content}
         />
 
         {/* Form Dialog */}
