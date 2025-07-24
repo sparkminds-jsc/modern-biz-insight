@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
+import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 import { format, startOfMonth, addMonths, isSameMonth, isSameYear } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -12,6 +12,7 @@ interface RevenueChartProps {
 interface ChartData {
   monthYear: string;
   totalRevenue: number;
+  averageRevenue: number;
 }
 
 export function RevenueChart({ startDate, endDate }: RevenueChartProps) {
@@ -57,19 +58,27 @@ export function RevenueChart({ startDate, endDate }: RevenueChartProps) {
         }) || [];
 
         const totalRevenue = monthRevenues.reduce((sum, revenue) => {
-          return sum + 
-            (revenue.amount_vnd || 0) + 
-            ((revenue.amount_usd || 0) * 25000) + 
-            ((revenue.amount_usdt || 0) * 25000);
+          return sum + (revenue.amount_vnd || 0);
         }, 0);
 
         return {
           monthYear: format(month, 'MM/yyyy', { locale: vi }),
-          totalRevenue: Math.round(totalRevenue)
+          totalRevenue: Math.round(totalRevenue),
+          averageRevenue: 0 // Will be calculated after
         };
       });
 
-      setChartData(chartData);
+      // Calculate average revenue
+      const totalAllRevenue = chartData.reduce((sum, item) => sum + item.totalRevenue, 0);
+      const averageRevenue = chartData.length > 0 ? totalAllRevenue / chartData.length : 0;
+      
+      // Add average to each data point
+      const chartDataWithAverage = chartData.map(item => ({
+        ...item,
+        averageRevenue: Math.round(averageRevenue)
+      }));
+
+      setChartData(chartDataWithAverage);
     } catch (error) {
       console.error('Error fetching chart data:', error);
     } finally {
@@ -124,7 +133,7 @@ export function RevenueChart({ startDate, endDate }: RevenueChartProps) {
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Biểu đồ doanh thu theo tháng</h3>
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
             <XAxis 
               dataKey="monthYear" 
@@ -137,7 +146,10 @@ export function RevenueChart({ startDate, endDate }: RevenueChartProps) {
               tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
             />
             <Tooltip 
-              formatter={(value: number) => [formatCurrency(value), 'Tổng doanh thu']}
+              formatter={(value: number, name: string) => [
+                formatCurrency(value), 
+                name === 'totalRevenue' ? 'Tổng doanh thu' : 'Doanh thu trung bình'
+              ]}
               labelStyle={{ color: '#374151' }}
               contentStyle={{ 
                 backgroundColor: 'white', 
@@ -158,7 +170,14 @@ export function RevenueChart({ startDate, endDate }: RevenueChartProps) {
                 style={{ fontSize: '12px', fill: '#374151' }}
               />
             </Bar>
-          </BarChart>
+            <Line 
+              type="monotone" 
+              dataKey="averageRevenue" 
+              stroke="#22c55e" 
+              strokeWidth={2}
+              dot={{ r: 4, fill: '#22c55e' }}
+            />
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
     </div>
