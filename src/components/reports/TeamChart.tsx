@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface TeamChartProps {
@@ -161,9 +161,15 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
               <Legend />
               
               {/* Bars */}
-              <Bar dataKey="finalBill" fill="#8884d8" name="Final Bill" />
-              <Bar dataKey="finalPay" fill="#82ca9d" name="Final Pay" />
-              <Bar dataKey="finalEarn" fill="#ffc658" name="Final Earn" />
+              <Bar dataKey="finalBill" fill="#8884d8" name="Final Bill">
+                <LabelList dataKey="finalBill" position="top" formatter={formatCurrency} fontSize={12} />
+              </Bar>
+              <Bar dataKey="finalPay" fill="#82ca9d" name="Final Pay">
+                <LabelList dataKey="finalPay" position="top" formatter={formatCurrency} fontSize={12} />
+              </Bar>
+              <Bar dataKey="finalEarn" fill="#ffc658" name="Final Earn">
+                <LabelList dataKey="finalEarn" position="top" formatter={formatCurrency} fontSize={12} />
+              </Bar>
               
               {/* Lines for averages */}
               <Line 
