@@ -143,10 +143,7 @@ export function ExpenseFilters({ onFilter, onAddExpense }: ExpenseFiltersProps) 
 
         {/* Loại Chi Phí */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label>Loại Chi Phí</Label>
-            <AddExpenseTypeDialog onExpenseTypeAdded={fetchExpenseTypes} />
-          </div>
+          <Label>Loại Chi Phí</Label>
           <Popover open={showExpenseTypes} onOpenChange={setShowExpenseTypes}>
             <PopoverTrigger asChild>
               <Button
@@ -189,6 +186,9 @@ export function ExpenseFilters({ onFilter, onAddExpense }: ExpenseFiltersProps) 
               )}
             </PopoverContent>
           </Popover>
+          <div className="mt-2">
+            <AddExpenseTypeDialog onExpenseTypeAdded={fetchExpenseTypes} />
+          </div>
         </div>
 
         {/* Từ Ví */}

@@ -31,32 +31,26 @@ export function ExpenseForm({ open, onClose, expense, onSuccess }: ExpenseFormPr
   const [amountUsdt, setAmountUsdt] = useState('');
   const [walletType, setWalletType] = useState('');
   const [notes, setNotes] = useState('');
+  const [expenseTypes, setExpenseTypes] = useState<string[]>([]);
 
-  const expenseTypes = [
-    'Lương',
-    'Bảo Hiểm', 
-    'Thuế TNCN',
-    'Chia cổ tức',
-    'Chi phí Luật',
-    'Ứng Lương',
-    'Chi phí Tool',
-    'Mua thiết bị',
-    'Sửa chữa thiết bị',
-    'Thuê văn phòng',
-    'Tuyển dụng',
-    'Chi phí ngân hàng',
-    'Đồng Phục',
-    'Quà Tết',
-    'Team Building',
-    'Ăn uống',
-    'Điện',
-    'Giữ xe',
-    'Quà SN',
-    'Quà tặng KH',
-    'Trang trí',
-    'Nước uống',
-    'Rút tiền mặt'
-  ];
+  useEffect(() => {
+    fetchExpenseTypes();
+  }, []);
+
+  const fetchExpenseTypes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('expense_types')
+        .select('name')
+        .order('name');
+
+      if (error) throw error;
+      setExpenseTypes(data?.map(item => item.name) || []);
+    } catch (error) {
+      console.error('Error fetching expense types:', error);
+      toast.error('Có lỗi xảy ra khi tải danh sách loại chi phí');
+    }
+  };
 
   const walletTypes = ['Ngân Hàng', 'Binance', 'Upwork', 'Tiền Mặt'];
 
