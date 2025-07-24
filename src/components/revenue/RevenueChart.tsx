@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 import { supabase } from '@/integrations/supabase/client';
 import { format, startOfMonth, addMonths, isSameMonth, isSameYear } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -81,6 +81,11 @@ export function RevenueChart({ startDate, endDate }: RevenueChartProps) {
     return `${Math.round(value).toLocaleString('vi-VN')} VND`;
   };
 
+  const formatShortCurrency = (value: number) => {
+    const millions = value / 1000000;
+    return `${Math.round(millions)}M`;
+  };
+
   if (!startDate || !endDate) {
     return (
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -145,7 +150,14 @@ export function RevenueChart({ startDate, endDate }: RevenueChartProps) {
               dataKey="totalRevenue" 
               fill="hsl(var(--primary))"
               radius={[4, 4, 0, 0]}
-            />
+            >
+              <LabelList 
+                dataKey="totalRevenue" 
+                position="top" 
+                formatter={formatShortCurrency}
+                style={{ fontSize: '12px', fill: '#374151' }}
+              />
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
