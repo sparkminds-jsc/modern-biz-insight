@@ -76,7 +76,7 @@ export function ExpenseFilters({ onFilter, onAddExpense }: ExpenseFiltersProps) 
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 items-end">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4 items-end">
         {/* Ngày bắt đầu */}
         <div className="space-y-2">
           <Label>Ngày bắt đầu</Label>
@@ -186,9 +186,6 @@ export function ExpenseFilters({ onFilter, onAddExpense }: ExpenseFiltersProps) 
               )}
             </PopoverContent>
           </Popover>
-          <div className="mt-2">
-            <AddExpenseTypeDialog onExpenseTypeAdded={fetchExpenseTypes} />
-          </div>
         </div>
 
         {/* Từ Ví */}
@@ -218,6 +215,12 @@ export function ExpenseFilters({ onFilter, onAddExpense }: ExpenseFiltersProps) 
           <Plus className="mr-2 h-4 w-4" />
           Thêm chi phí
         </Button>
+
+        {/* Add Expense Type Button */}
+        <div className="space-y-2">
+          <Label className="invisible">-</Label>
+          <AddExpenseTypeDialog onExpenseTypeAdded={fetchExpenseTypes} />
+        </div>
       </div>
     </div>
   );
