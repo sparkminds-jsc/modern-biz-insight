@@ -7,6 +7,7 @@ import { RevenueExpenseChart } from '../components/reports/RevenueExpenseChart';
 import { TeamFilters } from '../components/reports/TeamFilters';
 import { TeamSummary } from '../components/reports/TeamSummary';
 import { TeamTable } from '../components/reports/TeamTable';
+import TeamChart from '../components/reports/TeamChart';
 import { TeamReportEditDialog } from '../components/reports/TeamReportEditDialog';
 import { CreateTeamReportDialog } from '../components/reports/CreateTeamReportDialog';
 import { CreateTeamDialog } from '../components/reports/CreateTeamDialog';
@@ -37,6 +38,8 @@ const ReportsPage = () => {
   } = useReportsData();
 
   const [currentFilters, setCurrentFilters] = useState<any>({});
+  const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
+  const [selectedYears, setSelectedYears] = useState<number[]>([]);
 
   const { handleFilter, handleTeamFilter } = useReportsFilters(
     revenues,
@@ -50,6 +53,11 @@ const ReportsPage = () => {
   const handleReportsFilter = (filters: any) => {
     setCurrentFilters(filters);
     handleFilter(filters);
+  };
+
+  const handleTeamFilterChange = (months: number[], years: number[]) => {
+    setSelectedMonths(months);
+    setSelectedYears(years);
   };
 
   const {
@@ -137,6 +145,7 @@ const ReportsPage = () => {
             {/* Team Filters */}
             <TeamFilters 
               onFilter={handleTeamFilter}
+              onFilterChange={handleTeamFilterChange}
               onCreateReport={handleCreateTeamReport}
               onCreateTeam={handleCreateTeam}
               teams={teams}
@@ -151,6 +160,13 @@ const ReportsPage = () => {
               onViewDetail={handleViewTeamDetail}
               onEdit={handleEditTeamReport}
               onDelete={handleDeleteTeamReport}
+            />
+
+            {/* Team Chart */}
+            <TeamChart
+              teamReports={filteredTeamReports}
+              selectedMonths={selectedMonths}
+              selectedYears={selectedYears}
             />
           </TabsContent>
         </Tabs>

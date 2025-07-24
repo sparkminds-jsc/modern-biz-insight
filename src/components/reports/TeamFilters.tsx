@@ -13,12 +13,13 @@ interface TeamFiltersProps {
     years: number[];
     team?: string;
   }) => void;
+  onFilterChange?: (selectedMonths: number[], selectedYears: number[]) => void;
   onCreateReport: () => void;
   onCreateTeam: () => void;
   teams: string[];
 }
 
-export function TeamFilters({ onFilter, onCreateReport, onCreateTeam, teams }: TeamFiltersProps) {
+export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreateTeam, teams }: TeamFiltersProps) {
   const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
   const [selectedYears, setSelectedYears] = useState<number[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>('all');
@@ -45,6 +46,7 @@ export function TeamFilters({ onFilter, onCreateReport, onCreateTeam, teams }: T
       ? selectedMonths.filter(m => m !== month)
       : [...selectedMonths, month];
     setSelectedMonths(newSelectedMonths);
+    onFilterChange?.(newSelectedMonths, selectedYears);
   };
 
   const handleYearToggle = (year: number) => {
@@ -52,6 +54,7 @@ export function TeamFilters({ onFilter, onCreateReport, onCreateTeam, teams }: T
       ? selectedYears.filter(y => y !== year)
       : [...selectedYears, year];
     setSelectedYears(newSelectedYears);
+    onFilterChange?.(selectedMonths, newSelectedYears);
   };
 
   const handleSearch = () => {
