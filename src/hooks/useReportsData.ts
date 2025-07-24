@@ -47,10 +47,10 @@ export const useReportsData = () => {
             .eq('year', report.year);
 
           if (details && details.length > 0) {
-            const final_bill = details.reduce((sum, item) => sum + (item.converted_vnd || 0), 0);
+            const final_bill = details.reduce((sum, item) => sum + (item.converted_vnd || 0) + (item.package_vnd || 0), 0);
             const final_pay = details.reduce((sum, item) => sum + (item.total_payment || 0), 0);
-            const final_save = details.reduce((sum, item) => sum + (item.converted_vnd || 0) + (item.package_vnd || 0) - (item.total_payment || 0), 0);
-            const final_earn = details.reduce((sum, item) => sum + (item.converted_vnd || 0) + (item.package_vnd || 0), 0);
+            const final_save = final_bill * 0.3; // 30% of Bill
+            const final_earn = final_bill - final_pay - final_save; // Bill - Pay - Save
             const storage_usd = details.reduce((sum, item) => sum + (item.storage_usd || 0), 0);
             const storage_usdt = details.reduce((sum, item) => sum + (item.storage_usdt || 0), 0);
 
