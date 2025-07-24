@@ -3,6 +3,7 @@ import { AppLayout } from '../components/layout/AppLayout';
 import { ReportsFilters } from '../components/reports/ReportsFilters';
 import { ReportsSummary } from '../components/reports/ReportsSummary';
 import { ReportsTable } from '../components/reports/ReportsTable';
+import { RevenueExpenseChart } from '../components/reports/RevenueExpenseChart';
 import { TeamFilters } from '../components/reports/TeamFilters';
 import { TeamSummary } from '../components/reports/TeamSummary';
 import { TeamTable } from '../components/reports/TeamTable';
@@ -12,6 +13,7 @@ import { CreateTeamDialog } from '../components/reports/CreateTeamDialog';
 import { RevenueDetailDialog } from '../components/revenue/RevenueDetailDialog';
 import { ExpenseDetailDialog } from '../components/expenses/ExpenseDetailDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState } from 'react';
 import { useReportsData } from '../hooks/useReportsData';
 import { useReportsFilters } from '../hooks/useReportsFilters';
 import { useTeamReportOperations } from '../hooks/useTeamReportOperations';
@@ -34,6 +36,8 @@ const ReportsPage = () => {
     setFilteredTeamReports
   } = useReportsData();
 
+  const [currentFilters, setCurrentFilters] = useState<any>({});
+
   const { handleFilter, handleTeamFilter } = useReportsFilters(
     revenues,
     expenses,
@@ -42,6 +46,11 @@ const ReportsPage = () => {
     setFilteredExpenses,
     setFilteredTeamReports
   );
+
+  const handleReportsFilter = (filters: any) => {
+    setCurrentFilters(filters);
+    handleFilter(filters);
+  };
 
   const {
     selectedTeamReport,
@@ -100,7 +109,7 @@ const ReportsPage = () => {
           
           <TabsContent value="revenue-expense" className="space-y-6">
             {/* Filters */}
-            <ReportsFilters onFilter={handleFilter} />
+            <ReportsFilters onFilter={handleReportsFilter} />
 
             {/* Summary */}
             <ReportsSummary 
@@ -113,6 +122,14 @@ const ReportsPage = () => {
               data={combinedData}
               onViewRevenue={handleViewRevenue}
               onViewExpense={handleViewExpense}
+            />
+
+            {/* Chart */}
+            <RevenueExpenseChart
+              revenueData={filteredRevenues}
+              expenseData={filteredExpenses}
+              startDate={currentFilters.startDate}
+              endDate={currentFilters.endDate}
             />
           </TabsContent>
           

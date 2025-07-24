@@ -38,6 +38,25 @@ export const useReportsFilters = (
       );
     }
 
+    if (filters.content) {
+      const contentLower = filters.content.toLowerCase();
+      filteredRevenue = filteredRevenue.filter(item =>
+        item.content?.toLowerCase().includes(contentLower)
+      );
+      filteredExpense = filteredExpense.filter(item =>
+        item.content?.toLowerCase().includes(contentLower)
+      );
+    }
+
+    if (filters.selectedTypes && filters.selectedTypes.length > 0) {
+      filteredRevenue = filteredRevenue.filter(item =>
+        filters.selectedTypes.includes(item.revenue_type)
+      );
+      filteredExpense = filteredExpense.filter(item =>
+        filters.selectedTypes.includes(item.expense_type)
+      );
+    }
+
     setFilteredRevenues(filteredRevenue);
     setFilteredExpenses(filteredExpense);
   };
