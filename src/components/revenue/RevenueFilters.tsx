@@ -17,6 +17,7 @@ interface RevenueFiltersProps {
     endDate?: Date;
     revenueType?: string;
     needsDebtCollection?: string;
+    content?: string;
   }) => void;
   onAddRevenue: () => void;
 }
@@ -26,19 +27,21 @@ export function RevenueFilters({ onFilter, onAddRevenue }: RevenueFiltersProps) 
   const [endDate, setEndDate] = useState<Date>();
   const [revenueType, setRevenueType] = useState<string>('all');
   const [needsDebtCollection, setNeedsDebtCollection] = useState<string>('all');
+  const [content, setContent] = useState<string>('');
 
   const handleSearch = () => {
     onFilter({
       startDate,
       endDate,
       revenueType: revenueType === 'all' ? undefined : revenueType,
-      needsDebtCollection: needsDebtCollection === 'all' ? undefined : needsDebtCollection
+      needsDebtCollection: needsDebtCollection === 'all' ? undefined : needsDebtCollection,
+      content: content.trim() || undefined
     });
   };
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 items-end">
         {/* Ngày bắt đầu */}
         <div className="space-y-2">
           <Label>Ngày bắt đầu</Label>
@@ -123,6 +126,16 @@ export function RevenueFilters({ onFilter, onAddRevenue }: RevenueFiltersProps) 
               <SelectItem value="false">Không</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        {/* Nội dung doanh thu */}
+        <div className="space-y-2">
+          <Label>Nội dung doanh thu</Label>
+          <Input
+            placeholder="Tìm kiếm nội dung..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
         </div>
 
         {/* Search Button */}

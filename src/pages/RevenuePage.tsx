@@ -6,6 +6,7 @@ import { RevenueSummary } from '../components/revenue/RevenueSummary';
 import { RevenueTable } from '../components/revenue/RevenueTable';
 import { RevenueForm } from '../components/revenue/RevenueForm';
 import { RevenueDetailDialog } from '../components/revenue/RevenueDetailDialog';
+import { RevenueChart } from '../components/revenue/RevenueChart';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -19,6 +20,7 @@ const RevenuePage = () => {
   const [showFinalizeDialog, setShowFinalizeDialog] = useState(false);
   const [selectedRevenue, setSelectedRevenue] = useState<any>(null);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
+  const [filterDates, setFilterDates] = useState<{ startDate?: Date; endDate?: Date }>({});
   const { toast } = useToast();
 
   useEffect(() => {
@@ -49,6 +51,12 @@ const RevenuePage = () => {
   const handleFilter = (filters: any) => {
     let filtered = [...revenues];
 
+    // Store filter dates for chart
+    setFilterDates({
+      startDate: filters.startDate,
+      endDate: filters.endDate
+    });
+
     if (filters.startDate) {
       filtered = filtered.filter(revenue => 
         new Date(revenue.created_date) >= filters.startDate
@@ -71,6 +79,12 @@ const RevenuePage = () => {
       const needsDebt = filters.needsDebtCollection === 'true';
       filtered = filtered.filter(revenue => 
         revenue.needs_debt_collection === needsDebt
+      );
+    }
+
+    if (filters.content) {
+      filtered = filtered.filter(revenue => 
+        revenue.content.toLowerCase().includes(filters.content.toLowerCase())
       );
     }
 
@@ -192,6 +206,12 @@ const RevenuePage = () => {
           onViewDetail={handleViewDetail}
           onEdit={handleEditRevenue}
           onFinalize={handleFinalizeRevenue}
+        />
+
+        {/* Chart */}
+        <RevenueChart 
+          startDate={filterDates.startDate}
+          endDate={filterDates.endDate}
         />
 
         {/* Forms and Dialogs */}
