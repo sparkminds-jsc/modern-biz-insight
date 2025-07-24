@@ -151,22 +151,6 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
         <CardTitle>Biểu Đồ Báo Cáo Team</CardTitle>
       </CardHeader>
       <CardContent>
-        {/* Summary totals above chart */}
-        <div className="grid grid-cols-3 gap-4 mb-6 pb-4 border-b">
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">Tổng Final Bill</p>
-            <p className="text-lg font-semibold text-blue-600">{formatCurrency(totalFinalBill)}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">Tổng Final Pay</p>
-            <p className="text-lg font-semibold text-green-600">{formatCurrency(totalFinalPay)}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">Tổng Final Earn</p>
-            <p className="text-lg font-semibold text-yellow-600">{formatCurrency(totalFinalEarn)}</p>
-          </div>
-        </div>
-        
         <div className="h-96 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
