@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,9 @@ import { CalendarIcon, Search, Plus, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { AddExpenseTypeDialog } from './AddExpenseTypeDialog';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface ExpenseFiltersProps {
   onFilter: (filters: {
@@ -30,13 +33,26 @@ export function ExpenseFilters({ onFilter, onAddExpense }: ExpenseFiltersProps) 
   const [walletType, setWalletType] = useState<string>('all');
   const [content, setContent] = useState<string>('');
   const [showExpenseTypes, setShowExpenseTypes] = useState(false);
+  const [expenseTypes, setExpenseTypes] = useState<string[]>([]);
 
-  const expenseTypes = [
-    'Lương', 'Bảo Hiểm', 'Thuế TNCN', 'Chia cổ tức', 'Chi phí Luật', 'Ứng Lương', 
-    'Chi phí Tool', 'Mua thiết bị', 'Sửa chữa thiết bị', 'Thuê văn phòng', 'Tuyển dụng', 
-    'Chi phí ngân hàng', 'Đồng Phục', 'Quà Tết', 'Team Building', 'Ăn uống', 'Điện', 
-    'Giữ xe', 'Quà SN', 'Quà tặng KH', 'Trang trí', 'Nước uống', 'Rút tiền mặt'
-  ];
+  useEffect(() => {
+    fetchExpenseTypes();
+  }, []);
+
+  const fetchExpenseTypes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('expense_types')
+        .select('name')
+        .order('name');
+
+      if (error) throw error;
+      setExpenseTypes(data?.map(item => item.name) || []);
+    } catch (error) {
+      console.error('Error fetching expense types:', error);
+      toast.error('Có lỗi xảy ra khi tải danh sách loại chi phí');
+    }
+  };
 
   const walletTypes = ['Ngân Hàng', 'Binance', 'Upwork', 'Tiền Mặt'];
 
@@ -127,7 +143,10 @@ export function ExpenseFilters({ onFilter, onAddExpense }: ExpenseFiltersProps) 
 
         {/* Loại Chi Phí */}
         <div className="space-y-2">
-          <Label>Loại Chi Phí</Label>
+          <div className="flex items-center justify-between">
+            <Label>Loại Chi Phí</Label>
+            <AddExpenseTypeDialog onExpenseTypeAdded={fetchExpenseTypes} />
+          </div>
           <Popover open={showExpenseTypes} onOpenChange={setShowExpenseTypes}>
             <PopoverTrigger asChild>
               <Button
