@@ -20,12 +20,25 @@ interface ChartDataPoint {
 
 const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, selectedYears }) => {
   const chartData = useMemo(() => {
-    if (!selectedMonths.length || !selectedYears.length) return [];
+    // If no filters are selected, show all available data
+    let monthsToUse = selectedMonths;
+    let yearsToUse = selectedYears;
+    
+    if (!selectedMonths.length || !selectedYears.length) {
+      // Extract unique months and years from teamReports
+      const availableMonths = [...new Set(teamReports.map(report => report.month))].sort();
+      const availableYears = [...new Set(teamReports.map(report => report.year))].sort();
+      
+      monthsToUse = availableMonths;
+      yearsToUse = availableYears;
+    }
+    
+    if (!monthsToUse.length || !yearsToUse.length) return [];
 
     // Generate all month/year combinations
     const monthYearCombinations: { month: number; year: number }[] = [];
-    selectedYears.forEach(year => {
-      selectedMonths.forEach(month => {
+    yearsToUse.forEach(year => {
+      monthsToUse.forEach(month => {
         monthYearCombinations.push({ month, year });
       });
     });
@@ -120,7 +133,7 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-center py-8">
-            Vui lòng chọn tháng và năm để xem biểu đồ
+            Không có dữ liệu báo cáo team để hiển thị biểu đồ
           </p>
         </CardContent>
       </Card>
