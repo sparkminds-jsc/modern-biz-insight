@@ -70,9 +70,7 @@ export function ExpenseChart({ startDate, endDate, expenseTypes, content }: Expe
         }) || [];
 
         const totalExpense = monthExpenses.reduce((sum, expense) => {
-          return sum + (expense.amount_vnd || 0) + 
-                 ((expense.amount_usd || 0) * 25000) + 
-                 ((expense.amount_usdt || 0) * 25000);
+          return sum + (expense.amount_vnd || 0);
         }, 0);
 
         return {
