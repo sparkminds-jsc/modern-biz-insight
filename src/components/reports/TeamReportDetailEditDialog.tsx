@@ -331,8 +331,6 @@ export function TeamReportDetailEditDialog({
                 step="0.01"
                 value={formData.company_payment}
                 onChange={(e) => handleInputChange('company_payment', e.target.value)}
-                readOnly={formData.has_salary}
-                className={formData.has_salary ? 'bg-gray-100' : ''}
               />
             </div>
             <div className="space-y-2">
@@ -343,8 +341,6 @@ export function TeamReportDetailEditDialog({
                 step="0.01"
                 value={formData.salary_13}
                 onChange={(e) => handleInputChange('salary_13', e.target.value)}
-                readOnly={formData.has_salary}
-                className={formData.has_salary ? 'bg-gray-100' : ''}
               />
             </div>
           </div>
