@@ -6,6 +6,92 @@ interface ExportTeamDetailCSVParams {
   reportDetails: any[];
 }
 
+interface ExportTeamReportsCSVParams {
+  teamData: any[];
+  filters: {
+    months: number[];
+    years: number[];
+    team?: string;
+  };
+}
+
+export const exportTeamReportsToCSV = ({ teamData, filters }: ExportTeamReportsCSVParams) => {
+  // Calculate totals from team data
+  const totalBill = teamData.reduce((sum, item) => sum + (item.final_bill || 0), 0);
+  const totalPay = teamData.reduce((sum, item) => sum + (item.final_pay || 0), 0);
+  const totalSave = teamData.reduce((sum, item) => sum + (item.final_save || 0), 0);
+  const totalEarn = teamData.reduce((sum, item) => sum + (item.final_earn || 0), 0);
+  const totalUSD = teamData.reduce((sum, item) => sum + (item.storage_usd || 0), 0);
+  const totalUSDT = teamData.reduce((sum, item) => sum + (item.storage_usdt || 0), 0);
+
+  // Create CSV content
+  const csvRows = [
+    // Title
+    ['BAO CAO TEAM'],
+    [''],
+    // Filter information
+    ['THONG TIN LOC'],
+    ['Tieu chi', 'Gia tri'],
+    [
+      'Thoi gian',
+      `Thang: ${filters.months.length > 0 ? filters.months.map(m => m.toString().padStart(2, '0')).join(', ') : 'Tat ca'} - Nam: ${filters.years.length > 0 ? filters.years.join(', ') : 'Tat ca'}`
+    ],
+    ['Team', filters.team || 'Tat ca'],
+    [''],
+    // Summary section
+    ['TONG HOP'],
+    ['Chi so', 'Gia tri'],
+    ['Bill', `${Math.round(totalBill)} VND`],
+    ['Pay', `${Math.round(totalPay)} VND`],
+    ['Save', `${Math.round(totalSave)} VND`],
+    ['Earn', `${Math.round(totalEarn)} VND`],
+    ['USD', `${Math.round(totalUSD)} USD`],
+    ['USDT', `${Math.round(totalUSDT)} USDT`],
+    [''],
+    // Detail section headers - matching exactly with the table
+    ['CHI TIET'],
+    [
+      'STT',
+      'Team',
+      'Nam',
+      'Thang',
+      'Final Bill',
+      'Final Pay',
+      'Final Save',
+      'Final Earn',
+      'Luu tru USD',
+      'Luu tru USDT',
+      'Chu thich'
+    ],
+    ...teamData.map((item, index) => [
+      index + 1,
+      item.team || '',
+      item.year,
+      String(item.month).padStart(2, '0'),
+      Math.round(item.final_bill || 0),
+      Math.round(item.final_pay || 0),
+      Math.round(item.final_save || 0),
+      Math.round(item.final_earn || 0),
+      Math.round(item.storage_usd || 0),
+      Math.round(item.storage_usdt || 0),
+      `"${item.notes || ''}"`
+    ])
+  ];
+
+  const csvContent = csvRows.map(row => row.join(',')).join('\n');
+  
+  // Create and download file
+  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `Bao_cao_team_${new Date().toISOString().split('T')[0]}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 export const exportTeamDetailToCSV = ({ teamReport, reportDetails }: ExportTeamDetailCSVParams) => {
   // Calculate totals based on the same logic as the summary
   const totalBill = reportDetails.reduce((sum, item) => sum + (item.converted_vnd || 0) + (item.package_vnd || 0), 0);

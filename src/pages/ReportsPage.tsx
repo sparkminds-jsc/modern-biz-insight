@@ -20,6 +20,7 @@ import { useReportsFilters } from '../hooks/useReportsFilters';
 import { useTeamReportOperations } from '../hooks/useTeamReportOperations';
 import { useRevenueExpenseOperations } from '../hooks/useRevenueExpenseOperations';
 import { exportTeamReportToPDF } from '../utils/pdfExport';
+import { exportTeamReportsToCSV } from '../utils/excelExport';
 
 const ReportsPage = () => {
   const {
@@ -69,6 +70,13 @@ const ReportsPage = () => {
 
   const handleExportPDF = () => {
     exportTeamReportToPDF({
+      teamData: filteredTeamReports,
+      filters: currentTeamFilters
+    });
+  };
+
+  const handleExportCSV = () => {
+    exportTeamReportsToCSV({
       teamData: filteredTeamReports,
       filters: currentTeamFilters
     });
@@ -163,6 +171,7 @@ const ReportsPage = () => {
               onCreateReport={handleCreateTeamReport}
               onCreateTeam={handleCreateTeam}
               onExportPDF={handleExportPDF}
+              onExportCSV={handleExportCSV}
               teams={teams}
             />
 
