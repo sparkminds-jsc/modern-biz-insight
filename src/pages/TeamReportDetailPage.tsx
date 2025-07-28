@@ -297,7 +297,6 @@ const TeamReportDetailPage = () => {
           onFilter={handleFilter}
           onCreateBill={() => setShowCreateDialog(true)}
           onCopyReport={() => setShowCopyDialog(true)}
-          onExportPDF={handleExportPDF}
           onExportCSV={handleExportCSV}
         />
 

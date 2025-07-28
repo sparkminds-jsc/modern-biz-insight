@@ -182,7 +182,6 @@ const ReportsPage = () => {
               onFilterChange={handleTeamFilterChange}
               onCreateReport={handleCreateTeamReport}
               onCreateTeam={handleCreateTeam}
-              onExportPDF={handleExportPDF}
               onExportCSV={handleExportCSV}
               teams={teams}
             />
