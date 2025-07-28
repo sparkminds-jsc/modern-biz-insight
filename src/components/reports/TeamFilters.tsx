@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, FileDown } from 'lucide-react';
 
 interface TeamFiltersProps {
   onFilter: (filters: {
@@ -16,10 +16,11 @@ interface TeamFiltersProps {
   onFilterChange?: (selectedMonths: number[], selectedYears: number[]) => void;
   onCreateReport: () => void;
   onCreateTeam: () => void;
+  onExportPDF: () => void;
   teams: string[];
 }
 
-export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreateTeam, teams }: TeamFiltersProps) {
+export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreateTeam, onExportPDF, teams }: TeamFiltersProps) {
   const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
   const [selectedYears, setSelectedYears] = useState<number[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>('all');
@@ -159,6 +160,10 @@ export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreate
           <Button onClick={onCreateTeam} variant="outline" className="flex-1">
             <Plus className="mr-2 h-4 w-4" />
             Tạo Team
+          </Button>
+          <Button onClick={onExportPDF} variant="outline" className="flex-1">
+            <FileDown className="mr-2 h-4 w-4" />
+            Export PDF
           </Button>
         </div>
       </div>

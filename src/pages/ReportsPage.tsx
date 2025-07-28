@@ -19,6 +19,7 @@ import { useReportsData } from '../hooks/useReportsData';
 import { useReportsFilters } from '../hooks/useReportsFilters';
 import { useTeamReportOperations } from '../hooks/useTeamReportOperations';
 import { useRevenueExpenseOperations } from '../hooks/useRevenueExpenseOperations';
+import { exportTeamReportToPDF } from '../utils/pdfExport';
 
 const ReportsPage = () => {
   const {
@@ -40,6 +41,7 @@ const ReportsPage = () => {
   const [currentFilters, setCurrentFilters] = useState<any>({});
   const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
   const [selectedYears, setSelectedYears] = useState<number[]>([]);
+  const [currentTeamFilters, setCurrentTeamFilters] = useState<any>({});
 
   const { handleFilter, handleTeamFilter } = useReportsFilters(
     revenues,
@@ -58,6 +60,18 @@ const ReportsPage = () => {
   const handleTeamFilterChange = (months: number[], years: number[]) => {
     setSelectedMonths(months);
     setSelectedYears(years);
+  };
+
+  const handleTeamFilterWithStorage = (filters: any) => {
+    setCurrentTeamFilters(filters);
+    handleTeamFilter(filters);
+  };
+
+  const handleExportPDF = () => {
+    exportTeamReportToPDF({
+      teamData: filteredTeamReports,
+      filters: currentTeamFilters
+    });
   };
 
   const {
@@ -144,10 +158,11 @@ const ReportsPage = () => {
           <TabsContent value="team" className="space-y-6">
             {/* Team Filters */}
             <TeamFilters 
-              onFilter={handleTeamFilter}
+              onFilter={handleTeamFilterWithStorage}
               onFilterChange={handleTeamFilterChange}
               onCreateReport={handleCreateTeamReport}
               onCreateTeam={handleCreateTeam}
+              onExportPDF={handleExportPDF}
               teams={teams}
             />
 
