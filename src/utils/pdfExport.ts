@@ -25,14 +25,14 @@ interface ExportTeamPDFParams {
 }
 
 export const exportTeamReportToPDF = ({ teamData, filters }: ExportTeamPDFParams) => {
-  const doc = new jsPDF();
+  const doc = new jsPDF('p', 'mm', 'a4');
   
-  // Set font to support Vietnamese characters
-  doc.setFont('helvetica');
+  // Add support for Vietnamese characters
   
-  // Title
+  // Title with proper Vietnamese encoding
   doc.setFontSize(18);
-  doc.text('BÁO CÁO TEAM', 14, 22);
+  const title = 'BAO CAO TEAM';
+  doc.text(title, 14, 22);
   
   // Filter information
   doc.setFontSize(12);
@@ -41,22 +41,22 @@ export const exportTeamReportToPDF = ({ teamData, filters }: ExportTeamPDFParams
   // Time period
   const monthsText = filters.months.length > 0 
     ? filters.months.map(m => m.toString().padStart(2, '0')).join(', ')
-    : 'Tất cả';
+    : 'Tat ca';
   const yearsText = filters.years.length > 0 
     ? filters.years.join(', ')
-    : 'Tất cả';
+    : 'Tat ca';
   
-  doc.text(`Thời gian: Tháng ${monthsText} - Năm ${yearsText}`, 14, yPosition);
+  doc.text(`Thoi gian: Thang ${monthsText} - Nam ${yearsText}`, 14, yPosition);
   yPosition += 8;
   
   // Team
-  const teamText = filters.team ? filters.team : 'Tất cả';
+  const teamText = filters.team ? filters.team : 'Tat ca';
   doc.text(`Team: ${teamText}`, 14, yPosition);
   yPosition += 15;
   
   // Summary section
   doc.setFontSize(14);
-  doc.text('TỔNG HỢP', 14, yPosition);
+  doc.text('TONG HOP', 14, yPosition);
   yPosition += 10;
   
   // Calculate totals
@@ -72,7 +72,7 @@ export const exportTeamReportToPDF = ({ teamData, filters }: ExportTeamPDFParams
   };
   
   const summaryData = [
-    ['Chỉ số', 'Giá trị'],
+    ['Chi so', 'Gia tri'],
     ['Final Bill', `${formatCurrency(totalBill)} VND`],
     ['Final Pay', `${formatCurrency(totalPay)} VND`],
     ['Final Save', `${formatCurrency(totalSave)} VND`],
@@ -94,13 +94,13 @@ export const exportTeamReportToPDF = ({ teamData, filters }: ExportTeamPDFParams
   yPosition = (doc as any).lastAutoTable.finalY + 20;
   
   doc.setFontSize(14);
-  doc.text('CHI TIẾT', 14, yPosition);
+  doc.text('CHI TIET', 14, yPosition);
   yPosition += 10;
   
   // Prepare table data
   const tableHeaders = [
-    'STT', 'Team', 'Năm', 'Tháng', 'Final Bill', 'Final Pay', 
-    'Final Save', 'Final Earn', 'USD', 'USDT', 'Ghi chú'
+    'STT', 'Team', 'Nam', 'Thang', 'Final Bill', 'Final Pay', 
+    'Final Save', 'Final Earn', 'USD', 'USDT', 'Ghi chu'
   ];
   
   const tableData = teamData.map((item, index) => [
@@ -156,7 +156,7 @@ export const exportTeamReportToPDF = ({ teamData, filters }: ExportTeamPDFParams
       doc.internal.pageSize.height - 10
     );
     doc.text(
-      `Xuất ngày: ${new Date().toLocaleDateString('vi-VN')}`,
+      `Xuat ngay: ${new Date().toLocaleDateString('vi-VN')}`,
       14,
       doc.internal.pageSize.height - 10
     );
@@ -203,21 +203,20 @@ interface ExportTeamDetailPDFParams {
 }
 
 export const exportTeamDetailToPDF = ({ teamReport, reportDetails }: ExportTeamDetailPDFParams) => {
-  const doc = new jsPDF();
+  const doc = new jsPDF('p', 'mm', 'a4');
   
-  // Set font to support Vietnamese characters
-  doc.setFont('helvetica');
+  // Add support for Vietnamese characters
   
-  // Title
+  // Title with proper Vietnamese encoding
   doc.setFontSize(18);
-  const title = `BÁO CÁO CHI TIẾT - ${teamReport.team.toUpperCase()} (THÁNG ${teamReport.month.toString().padStart(2, '0')}/${teamReport.year})`;
+  const title = `BAO CAO CHI TIET - ${teamReport.team.toUpperCase()} (THANG ${teamReport.month.toString().padStart(2, '0')}/${teamReport.year})`;
   doc.text(title, 14, 22);
   
   let yPosition = 40;
   
   // Summary section
   doc.setFontSize(14);
-  doc.text('TỔNG HỢP', 14, yPosition);
+  doc.text('TONG HOP', 14, yPosition);
   yPosition += 10;
   
   // Calculate totals
@@ -247,7 +246,7 @@ export const exportTeamDetailToPDF = ({ teamReport, reportDetails }: ExportTeamD
   };
   
   const summaryData = [
-    ['Chỉ số', 'Giá trị'],
+    ['Chi so', 'Gia tri'],
     ['Final Bill', `${formatCurrency(totalBill)} VND`],
     ['Final Pay', `${formatCurrency(totalPay)} VND`],
     ['Final Save', `${formatCurrency(totalSave)} VND`],
@@ -269,13 +268,13 @@ export const exportTeamDetailToPDF = ({ teamReport, reportDetails }: ExportTeamD
   yPosition = (doc as any).lastAutoTable.finalY + 20;
   
   doc.setFontSize(14);
-  doc.text('CHI TIẾT', 14, yPosition);
+  doc.text('CHI TIET', 14, yPosition);
   yPosition += 10;
   
   // Prepare table data
   const tableHeaders = [
-    'STT', 'Mã NV', 'Tên NV', 'Giờ', 'Rate', 'FX', '%', 
-    'Gói VND', 'CT trả', 'L13', 'USD', 'USDT', 'Ghi chú'
+    'STT', 'Ma NV', 'Ten NV', 'Gio', 'Rate', 'FX', '%', 
+    'Goi VND', 'CT tra', 'L13', 'USD', 'USDT', 'Ghi chu'
   ];
   
   const tableData = reportDetails.map((item, index) => [
@@ -335,7 +334,7 @@ export const exportTeamDetailToPDF = ({ teamReport, reportDetails }: ExportTeamD
       doc.internal.pageSize.height - 10
     );
     doc.text(
-      `Xuất ngày: ${new Date().toLocaleDateString('vi-VN')}`,
+      `Xuat ngay: ${new Date().toLocaleDateString('vi-VN')}`,
       14,
       doc.internal.pageSize.height - 10
     );
