@@ -34,7 +34,7 @@ export const exportTeamReportsToCSV = ({ teamData, filters }: ExportTeamReportsC
     ['Tieu chi', 'Gia tri'],
     [
       'Thoi gian',
-      `Thang: ${filters.months.length > 0 ? filters.months.map(m => m.toString().padStart(2, '0')).join(', ') : 'Tat ca'} - Nam: ${filters.years.length > 0 ? filters.years.join(', ') : 'Tat ca'}`
+      `Thang: ${filters.months && filters.months.length > 0 ? filters.months.map(m => m.toString().padStart(2, '0')).join(', ') : 'Tat ca'} - Nam: ${filters.years && filters.years.length > 0 ? filters.years.join(', ') : 'Tat ca'}`
     ],
     ['Team', filters.team || 'Tat ca'],
     [''],
