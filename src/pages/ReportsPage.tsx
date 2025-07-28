@@ -21,6 +21,7 @@ import { useTeamReportOperations } from '../hooks/useTeamReportOperations';
 import { useRevenueExpenseOperations } from '../hooks/useRevenueExpenseOperations';
 import { exportTeamReportToPDF } from '../utils/pdfExport';
 import { exportTeamReportsToCSV } from '../utils/excelExport';
+import { toast } from 'sonner';
 
 const ReportsPage = () => {
   const {
@@ -76,10 +77,21 @@ const ReportsPage = () => {
   };
 
   const handleExportCSV = () => {
-    exportTeamReportsToCSV({
-      teamData: filteredTeamReports,
-      filters: currentTeamFilters
-    });
+    if (filteredTeamReports.length === 0) {
+      toast.error('Không có dữ liệu để xuất');
+      return;
+    }
+
+    try {
+      exportTeamReportsToCSV({
+        teamData: filteredTeamReports,
+        filters: currentTeamFilters
+      });
+      toast.success('Xuất CSV thành công');
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      toast.error('Có lỗi xảy ra khi xuất CSV');
+    }
   };
 
   const {
