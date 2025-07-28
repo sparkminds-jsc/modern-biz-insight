@@ -12,6 +12,7 @@ import { ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { exportTeamDetailToPDF } from '@/utils/pdfExport';
+import { exportTeamDetailToCSV } from '@/utils/excelExport';
 
 const TeamReportDetailPage = () => {
   const { teamReportId } = useParams();
@@ -213,12 +214,34 @@ const TeamReportDetailPage = () => {
       return;
     }
 
-    exportTeamDetailToPDF({
-      teamReport,
-      reportDetails: filteredDetails
-    });
-    
-    toast.success('Đang xuất file PDF...');
+    try {
+      exportTeamDetailToPDF({
+        teamReport,
+        reportDetails: filteredDetails
+      });
+      toast.success('Xuất PDF thành công');
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast.error('Có lỗi xảy ra khi xuất PDF');
+    }
+  };
+
+  const handleExportCSV = () => {
+    if (!teamReport || filteredDetails.length === 0) {
+      toast.error('Không có dữ liệu để xuất');
+      return;
+    }
+
+    try {
+      exportTeamDetailToCSV({
+        teamReport,
+        reportDetails: filteredDetails
+      });
+      toast.success('Xuất CSV thành công');
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      toast.error('Có lỗi xảy ra khi xuất CSV');
+    }
   };
 
   if (loading) {
@@ -275,6 +298,7 @@ const TeamReportDetailPage = () => {
           onCreateBill={() => setShowCreateDialog(true)}
           onCopyReport={() => setShowCopyDialog(true)}
           onExportPDF={handleExportPDF}
+          onExportCSV={handleExportCSV}
         />
 
         {/* Summary */}

@@ -1,6 +1,83 @@
 
 import { SalaryDetail } from '@/types/salary';
 
+interface ExportTeamDetailCSVParams {
+  teamReport: any;
+  reportDetails: any[];
+}
+
+export const exportTeamDetailToCSV = ({ teamReport, reportDetails }: ExportTeamDetailCSVParams) => {
+  // Calculate totals
+  const totalBill = reportDetails.reduce((sum, item) => sum + (item.final_bill || 0), 0);
+  const totalPay = reportDetails.reduce((sum, item) => sum + (item.final_pay || 0), 0);
+  const totalSave = reportDetails.reduce((sum, item) => sum + (item.final_save || 0), 0);
+  const totalEarn = reportDetails.reduce((sum, item) => sum + (item.final_earn || 0), 0);
+  const totalUSD = reportDetails.reduce((sum, item) => sum + (item.usd || 0), 0);
+  const totalUSDT = reportDetails.reduce((sum, item) => sum + (item.usdt || 0), 0);
+
+  // Create CSV content
+  const csvRows = [
+    // Title
+    [`BAO CAO CHI TIET - ${teamReport.team.toUpperCase()} (THANG ${teamReport.month.toString().padStart(2, '0')}/${teamReport.year})`],
+    [''],
+    // Summary section
+    ['TONG HOP'],
+    ['Chi so', 'Gia tri'],
+    ['Final Bill', `${Math.round(totalBill)} VND`],
+    ['Final Pay', `${Math.round(totalPay)} VND`],
+    ['Final Save', `${Math.round(totalSave)} VND`],
+    ['Final Earn', `${Math.round(totalEarn)} VND`],
+    ['USD', `${Math.round(totalUSD)} USD`],
+    ['USDT', `${Math.round(totalUSDT)} USDT`],
+    [''],
+    // Detail section
+    ['CHI TIET'],
+    [
+      'STT',
+      'Ma NV',
+      'Ten NV', 
+      'Gio',
+      'Rate',
+      'FX',
+      '%',
+      'Goi VND',
+      'CT tra',
+      'L13',
+      'USD',
+      'USDT',
+      'Ghi chu'
+    ],
+    ...reportDetails.map((item, index) => [
+      index + 1,
+      item.employee_code || '',
+      `"${item.employee_name || ''}"`,
+      Math.round(item.hours || 0),
+      Math.round(item.rate || 0),
+      Math.round(item.fx || 0),
+      Math.round(item.percentage || 0),
+      Math.round(item.final_bill || 0),
+      Math.round(item.final_pay || 0),
+      Math.round(item.final_save || 0),
+      Math.round(item.usd || 0),
+      Math.round(item.usdt || 0),
+      `"${item.note || ''}"`
+    ])
+  ];
+
+  const csvContent = csvRows.map(row => row.join(',')).join('\n');
+  
+  // Create and download file
+  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `Bao_cao_chi_tiet_${teamReport.team}_${teamReport.month.toString().padStart(2, '0')}_${teamReport.year}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 export const exportSalaryToExcel = (salaryDetails: SalaryDetail[], month: number, year: number) => {
   // Create CSV content
   const headers = [
