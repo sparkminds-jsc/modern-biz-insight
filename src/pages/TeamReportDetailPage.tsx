@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { exportTeamDetailToPDF } from '@/utils/pdfExport';
 
 const TeamReportDetailPage = () => {
   const { teamReportId } = useParams();
@@ -206,6 +207,20 @@ const TeamReportDetailPage = () => {
     navigate('/reports');
   };
 
+  const handleExportPDF = () => {
+    if (!teamReport || filteredDetails.length === 0) {
+      toast.error('Không có dữ liệu để xuất');
+      return;
+    }
+
+    exportTeamDetailToPDF({
+      teamReport,
+      reportDetails: filteredDetails
+    });
+    
+    toast.success('Đang xuất file PDF...');
+  };
+
   if (loading) {
     return (
       <AppLayout>
@@ -259,6 +274,7 @@ const TeamReportDetailPage = () => {
           onFilter={handleFilter}
           onCreateBill={() => setShowCreateDialog(true)}
           onCopyReport={() => setShowCopyDialog(true)}
+          onExportPDF={handleExportPDF}
         />
 
         {/* Summary */}
