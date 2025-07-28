@@ -7,13 +7,13 @@ interface ExportTeamDetailCSVParams {
 }
 
 export const exportTeamDetailToCSV = ({ teamReport, reportDetails }: ExportTeamDetailCSVParams) => {
-  // Calculate totals
-  const totalBill = reportDetails.reduce((sum, item) => sum + (item.final_bill || 0), 0);
-  const totalPay = reportDetails.reduce((sum, item) => sum + (item.final_pay || 0), 0);
-  const totalSave = reportDetails.reduce((sum, item) => sum + (item.final_save || 0), 0);
-  const totalEarn = reportDetails.reduce((sum, item) => sum + (item.final_earn || 0), 0);
-  const totalUSD = reportDetails.reduce((sum, item) => sum + (item.usd || 0), 0);
-  const totalUSDT = reportDetails.reduce((sum, item) => sum + (item.usdt || 0), 0);
+  // Calculate totals based on the same logic as the summary
+  const totalBill = reportDetails.reduce((sum, item) => sum + (item.converted_vnd || 0) + (item.package_vnd || 0), 0);
+  const totalPay = reportDetails.reduce((sum, item) => sum + (item.total_payment || 0), 0);
+  const totalSave = totalBill * 0.3; // 30% of Bill
+  const totalEarn = totalBill - totalPay - totalSave; // Bill - Pay - Save (can be negative)
+  const totalUSD = reportDetails.reduce((sum, item) => sum + (item.storage_usd || 0), 0);
+  const totalUSDT = reportDetails.reduce((sum, item) => sum + (item.storage_usdt || 0), 0);
 
   // Create CSV content
   const csvRows = [
@@ -23,44 +23,56 @@ export const exportTeamDetailToCSV = ({ teamReport, reportDetails }: ExportTeamD
     // Summary section
     ['TONG HOP'],
     ['Chi so', 'Gia tri'],
-    ['Final Bill', `${Math.round(totalBill)} VND`],
-    ['Final Pay', `${Math.round(totalPay)} VND`],
-    ['Final Save', `${Math.round(totalSave)} VND`],
-    ['Final Earn', `${Math.round(totalEarn)} VND`],
+    ['Bill', `${Math.round(totalBill)} VND`],
+    ['Pay', `${Math.round(totalPay)} VND`],
+    ['Save', `${Math.round(totalSave)} VND`],
+    ['Earn', `${Math.round(totalEarn)} VND`],
     ['USD', `${Math.round(totalUSD)} USD`],
     ['USDT', `${Math.round(totalUSDT)} USDT`],
     [''],
-    // Detail section
+    // Detail section headers - matching exactly with the table
     ['CHI TIET'],
     [
       'STT',
-      'Ma NV',
-      'Ten NV', 
-      'Gio',
+      'Ma nhan vien',
+      'Ten nhan vien',
+      'Thang',
+      'Nam',
+      'Gio co bill',
       'Rate',
-      'FX',
-      '%',
-      'Goi VND',
-      'CT tra',
-      'L13',
-      'USD',
-      'USDT',
-      'Ghi chu'
+      'FX Rate',
+      'Percentage',
+      'Qui doi VND',
+      'Tron goi VND',
+      'Co tinh luong',
+      'Cong ty chi tra',
+      'Luong 13',
+      'Tong chi tra',
+      'Ti le %',
+      'Luu tru USD',
+      'Luu tru USDT',
+      'Chu thich'
     ],
     ...reportDetails.map((item, index) => [
       index + 1,
       item.employee_code || '',
       `"${item.employee_name || ''}"`,
-      Math.round(item.hours || 0),
+      String(item.month).padStart(2, '0'),
+      item.year,
+      Math.round(item.billable_hours || 0),
       Math.round(item.rate || 0),
-      Math.round(item.fx || 0),
-      Math.round(item.percentage || 0),
-      Math.round(item.final_bill || 0),
-      Math.round(item.final_pay || 0),
-      Math.round(item.final_save || 0),
-      Math.round(item.usd || 0),
-      Math.round(item.usdt || 0),
-      `"${item.note || ''}"`
+      Math.round(item.fx_rate || 0),
+      `${item.percentage || 0}%`,
+      Math.round(item.converted_vnd || 0),
+      Math.round(item.package_vnd || 0),
+      item.has_salary ? 'Co' : 'Khong',
+      Math.round(item.company_payment || 0),
+      Math.round(item.salary_13 || 0),
+      Math.round(item.total_payment || 0),
+      `${Math.round(item.percentage_ratio || 0)}%`,
+      Math.round(item.storage_usd || 0),
+      Math.round(item.storage_usdt || 0),
+      `"${item.notes || ''}"`
     ])
   ];
 
