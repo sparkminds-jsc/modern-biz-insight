@@ -1,12 +1,5 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-
-// Extend jsPDF type to include autoTable
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-  }
-}
+import autoTable from 'jspdf-autotable';
 
 interface TeamReportData {
   id: string;
@@ -88,7 +81,7 @@ export const exportTeamReportToPDF = ({ teamData, filters }: ExportTeamPDFParams
     ['Storage USDT', `${formatCurrency(totalUSDT)} USDT`]
   ];
   
-  doc.autoTable({
+  autoTable(doc, {
     startY: yPosition,
     head: [summaryData[0]],
     body: summaryData.slice(1),
@@ -124,7 +117,7 @@ export const exportTeamReportToPDF = ({ teamData, filters }: ExportTeamPDFParams
     item.notes || ''
   ]);
   
-  doc.autoTable({
+  autoTable(doc, {
     startY: yPosition,
     head: [tableHeaders],
     body: tableData,
@@ -263,7 +256,7 @@ export const exportTeamDetailToPDF = ({ teamReport, reportDetails }: ExportTeamD
     ['Storage USDT', `${formatCurrency(totalUSDT)} USDT`]
   ];
   
-  doc.autoTable({
+  autoTable(doc, {
     startY: yPosition,
     head: [summaryData[0]],
     body: summaryData.slice(1),
@@ -301,7 +294,7 @@ export const exportTeamDetailToPDF = ({ teamReport, reportDetails }: ExportTeamD
     item.notes || ''
   ]);
   
-  doc.autoTable({
+  autoTable(doc, {
     startY: yPosition,
     head: [tableHeaders],
     body: tableData,
