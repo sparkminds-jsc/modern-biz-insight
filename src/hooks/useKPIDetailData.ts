@@ -70,7 +70,7 @@ export const useKPIDetailData = (year?: string, month?: string) => {
     if (!year || !month) return;
     
     try {
-      setLoading(true);
+      console.log('Fetching KPI details for:', year, month);
       const { data, error } = await supabase
         .from('kpi_details')
         .select('*')
@@ -80,8 +80,10 @@ export const useKPIDetailData = (year?: string, month?: string) => {
 
       if (error) throw error;
       
-      setKpiDetails(data || []);
+      console.log('Raw KPI details fetched:', data);
       const transformedData = (data || []).map(transformKPIDetailData);
+      console.log('Transformed KPI details:', transformedData);
+      setKpiDetails(data || []);
       setFilteredData(transformedData);
 
       // Update the KPI record count to match actual data
