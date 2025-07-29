@@ -508,6 +508,7 @@ export type Database = {
           id: string
           insurance_base_amount: number
           insurance_deduction: number
+          is_locked: boolean | null
           kpi_bonus: number
           month: number
           net_salary: number
@@ -556,6 +557,7 @@ export type Database = {
           id?: string
           insurance_base_amount?: number
           insurance_deduction?: number
+          is_locked?: boolean | null
           kpi_bonus?: number
           month: number
           net_salary?: number
@@ -604,6 +606,7 @@ export type Database = {
           id?: string
           insurance_base_amount?: number
           insurance_deduction?: number
+          is_locked?: boolean | null
           kpi_bonus?: number
           month?: number
           net_salary?: number
