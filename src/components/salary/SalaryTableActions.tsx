@@ -1,5 +1,5 @@
 
-import { Eye, Edit, Trash } from 'lucide-react';
+import { Eye, Edit, Trash, Lock, Unlock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SalaryDetail } from '@/types/salary';
 
@@ -8,9 +8,10 @@ interface SalaryTableActionsProps {
   onViewDetail: (detail: SalaryDetail) => void;
   onEdit: (detail: SalaryDetail) => void;
   onDelete: (detail: SalaryDetail) => void;
+  onToggleLock: (detail: SalaryDetail) => void;
 }
 
-export function SalaryTableActions({ detail, onViewDetail, onEdit, onDelete }: SalaryTableActionsProps) {
+export function SalaryTableActions({ detail, onViewDetail, onEdit, onDelete, onToggleLock }: SalaryTableActionsProps) {
   return (
     <div className="flex gap-1">
       <Button
@@ -37,6 +38,24 @@ export function SalaryTableActions({ detail, onViewDetail, onEdit, onDelete }: S
       >
         <Trash className="w-4 h-4 mr-1" />
         Xóa
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onToggleLock(detail)}
+        className={detail.is_locked ? "text-green-600 hover:text-green-700 hover:bg-green-50" : ""}
+      >
+        {detail.is_locked ? (
+          <>
+            <Unlock className="w-4 h-4 mr-1" />
+            Hủy Khóa
+          </>
+        ) : (
+          <>
+            <Lock className="w-4 h-4 mr-1" />
+            Khóa
+          </>
+        )}
       </Button>
     </div>
   );

@@ -61,6 +61,7 @@ export interface SalaryDetail {
   actual_payment: number;
   created_at: string;
   updated_at: string;
+  is_locked?: boolean;
 }
 
 export interface SalaryFilters {

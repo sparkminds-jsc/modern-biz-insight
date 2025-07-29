@@ -9,9 +9,10 @@ interface SalaryTableRowProps {
   onViewDetail: (detail: SalaryDetail) => void;
   onEdit: (detail: SalaryDetail) => void;
   onDelete: (detail: SalaryDetail) => void;
+  onToggleLock: (detail: SalaryDetail) => void;
 }
 
-export function SalaryTableRow({ detail, index, onViewDetail, onEdit, onDelete }: SalaryTableRowProps) {
+export function SalaryTableRow({ detail, index, onViewDetail, onEdit, onDelete, onToggleLock }: SalaryTableRowProps) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -28,7 +29,7 @@ export function SalaryTableRow({ detail, index, onViewDetail, onEdit, onDelete }
   const salaryType = isSalaryWithInsurance ? 'Lương có BH' : 'Lương thời vụ';
 
   return (
-    <TableRow>
+    <TableRow className={detail.is_locked ? "bg-green-50" : ""}>
       <TableCell>{index + 1}</TableCell>
       <TableCell>{detail.employee_code}</TableCell>
       <TableCell>{detail.employee_name}</TableCell>
@@ -79,6 +80,7 @@ export function SalaryTableRow({ detail, index, onViewDetail, onEdit, onDelete }
           onViewDetail={onViewDetail}
           onEdit={onEdit}
           onDelete={onDelete}
+          onToggleLock={onToggleLock}
         />
       </TableCell>
     </TableRow>

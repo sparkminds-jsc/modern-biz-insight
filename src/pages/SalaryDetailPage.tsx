@@ -230,6 +230,37 @@ const SalaryDetailPage = () => {
     }
   };
 
+  const handleToggleLock = async (detail: SalaryDetail) => {
+    try {
+      const newLockStatus = !detail.is_locked;
+      
+      const { error } = await supabase
+        .from('salary_details')
+        .update({ is_locked: newLockStatus })
+        .eq('id', detail.id);
+
+      if (error) {
+        console.error('Error updating lock status:', error);
+        throw error;
+      }
+
+      toast({
+        title: 'Thành công',
+        description: `Đã ${newLockStatus ? 'khóa' : 'hủy khóa'} lương của nhân viên ${detail.employee_name}`,
+      });
+
+      // Refresh data
+      fetchSalarySheetAndDetails();
+    } catch (error) {
+      console.error('Error updating lock status:', error);
+      toast({
+        title: 'Lỗi',
+        description: 'Không thể cập nhật trạng thái khóa',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleDownloadExcel = () => {
     if (salarySheet && filteredSalaryDetails.length > 0) {
       exportSalaryToExcel(filteredSalaryDetails, salarySheet.month, salarySheet.year);
@@ -351,6 +382,7 @@ const SalaryDetailPage = () => {
           onViewDetail={handleViewDetail}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onToggleLock={handleToggleLock}
         />
 
         {/* Edit/Add Form */}

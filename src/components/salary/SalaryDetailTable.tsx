@@ -15,9 +15,10 @@ interface SalaryDetailTableProps {
   onViewDetail: (detail: SalaryDetail) => void;
   onEdit: (detail: SalaryDetail) => void;
   onDelete: (detail: SalaryDetail) => void;
+  onToggleLock: (detail: SalaryDetail) => void;
 }
 
-export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit, onDelete }: SalaryDetailTableProps) {
+export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit, onDelete, onToggleLock }: SalaryDetailTableProps) {
   if (!salaryDetails) {
     return <p>Không có dữ liệu lương.</p>;
   }
@@ -88,6 +89,7 @@ export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit, onDelet
                 onViewDetail={onViewDetail}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                onToggleLock={onToggleLock}
               />
             ))}
           </TableBody>
