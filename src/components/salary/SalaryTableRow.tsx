@@ -29,7 +29,7 @@ export function SalaryTableRow({ detail, index, onViewDetail, onEdit, onDelete, 
   const salaryType = isSalaryWithInsurance ? 'Lương có BH' : 'Lương thời vụ';
 
   return (
-    <TableRow className={detail.is_locked ? "bg-green-50" : ""}>
+    <TableRow className={detail.is_locked ? "bg-green-100" : ""}>
       <TableCell>{index + 1}</TableCell>
       <TableCell>{detail.employee_code}</TableCell>
       <TableCell>{detail.employee_name}</TableCell>
