@@ -115,6 +115,25 @@ const TeamReportDetailPage = () => {
     }
   };
 
+  const handleToggleLock = async (detail: any) => {
+    try {
+      const newLockStatus = !detail.is_locked;
+      
+      const { error } = await supabase
+        .from('team_report_details')
+        .update({ is_locked: newLockStatus })
+        .eq('id', detail.id);
+
+      if (error) throw error;
+      
+      toast.success(`Đã ${newLockStatus ? 'khóa' : 'hủy khóa'} báo cáo của nhân viên ${detail.employee_name}`);
+      fetchData();
+    } catch (error) {
+      console.error('Error updating lock status:', error);
+      toast.error('Có lỗi xảy ra khi cập nhật trạng thái khóa');
+    }
+  };
+
   const handleSaved = () => {
     fetchData();
   };
@@ -308,6 +327,7 @@ const TeamReportDetailPage = () => {
           data={filteredDetails}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onToggleLock={handleToggleLock}
         />
 
         {/* Dialogs */}

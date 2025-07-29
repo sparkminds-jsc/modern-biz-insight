@@ -700,6 +700,7 @@ export type Database = {
           fx_rate: number
           has_salary: boolean
           id: string
+          is_locked: boolean | null
           month: number
           notes: string | null
           package_vnd: number
@@ -724,6 +725,7 @@ export type Database = {
           fx_rate?: number
           has_salary?: boolean
           id?: string
+          is_locked?: boolean | null
           month: number
           notes?: string | null
           package_vnd?: number
@@ -748,6 +750,7 @@ export type Database = {
           fx_rate?: number
           has_salary?: boolean
           id?: string
+          is_locked?: boolean | null
           month?: number
           notes?: string | null
           package_vnd?: number

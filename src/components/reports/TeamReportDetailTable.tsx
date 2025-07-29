@@ -2,15 +2,16 @@
 import { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Edit, Trash2, ArrowUpDown } from 'lucide-react';
+import { Edit, Trash2, ArrowUpDown, Lock, Unlock } from 'lucide-react';
 
 interface TeamReportDetailTableProps {
   data: any[];
   onEdit: (detail: any) => void;
   onDelete: (detail: any) => void;
+  onToggleLock: (detail: any) => void;
 }
 
-export function TeamReportDetailTable({ data, onEdit, onDelete }: TeamReportDetailTableProps) {
+export function TeamReportDetailTable({ data, onEdit, onDelete, onToggleLock }: TeamReportDetailTableProps) {
   const [sortField, setSortField] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
@@ -91,7 +92,7 @@ export function TeamReportDetailTable({ data, onEdit, onDelete }: TeamReportDeta
         </TableHeader>
         <TableBody>
           {sortedData.map((item, index) => (
-            <TableRow key={item.id}>
+            <TableRow key={item.id} className={item.is_locked ? "bg-green-100" : ""}>
               <TableCell>{index + 1}</TableCell>
               <TableCell>{item.employee_code}</TableCell>
               <TableCell>{item.employee_name}</TableCell>
@@ -128,6 +129,18 @@ export function TeamReportDetailTable({ data, onEdit, onDelete }: TeamReportDeta
                     onClick={() => onDelete(item)}
                   >
                     <Trash2 className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onToggleLock(item)}
+                    className={item.is_locked ? "text-green-600 hover:text-green-700 hover:bg-green-50" : ""}
+                  >
+                    {item.is_locked ? (
+                      <Unlock className="h-3 w-3" />
+                    ) : (
+                      <Lock className="h-3 w-3" />
+                    )}
                   </Button>
                 </div>
               </TableCell>
