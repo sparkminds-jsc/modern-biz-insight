@@ -14,6 +14,7 @@ export const transformKPIDetailData = (detail: KPIDetail): KPIDetailData => ({
   salaryCoefficient: detail.salary_coefficient,
   kpiCoefficient: detail.kpi_coefficient,
   totalMonthlyKPI: detail.total_monthly_kpi,
+  isLocked: detail.is_locked,
   workProductivity: {
     total: detail.work_productivity?.total || 0,
     completedOnTime: detail.work_productivity?.completedOnTime || 0,

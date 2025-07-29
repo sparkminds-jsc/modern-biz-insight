@@ -362,6 +362,27 @@ export const useKPIDetailOperations = (
     }
   };
 
+  const handleToggleLock = async (detail: KPIDetailData) => {
+    try {
+      const newLockStatus = !detail.isLocked;
+      
+      const { error } = await supabase
+        .from('kpi_details')
+        .update({ is_locked: newLockStatus })
+        .eq('id', detail.id);
+
+      if (error) throw error;
+      
+      toast.success(`Đã ${newLockStatus ? 'khóa' : 'hủy khóa'} KPI của nhân viên ${detail.employeeCode}`);
+      if (onRefresh) {
+        await onRefresh();
+      }
+    } catch (error) {
+      console.error('Error updating lock status:', error);
+      toast.error('Có lỗi xảy ra khi cập nhật trạng thái khóa');
+    }
+  };
+
   return {
     showEditForm,
     setShowEditForm,
@@ -382,6 +403,7 @@ export const useKPIDetailOperations = (
     handleBackToKPI,
     handleDownloadExcel,
     handleDelete,
-    handleDeleteConfirm
+    handleDeleteConfirm,
+    handleToggleLock
   };
 };

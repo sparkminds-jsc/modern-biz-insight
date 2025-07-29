@@ -50,7 +50,8 @@ const KPIDetailPage = () => {
     handleBackToKPI,
     handleDownloadExcel,
     handleDelete,
-    handleDeleteConfirm
+    handleDeleteConfirm,
+    handleToggleLock
   } = useKPIDetailOperations(kpiDetails, year, month, fetchKPIDetails);
 
   const totalEmployeesWithKPIGap = filteredData.filter(item => item.hasKPIGap).length;
@@ -110,12 +111,13 @@ const KPIDetailPage = () => {
             <div className="text-gray-500">Đang tải dữ liệu...</div>
           </div>
         ) : (
-          <KPIDetailTable
-            data={filteredData}
-            onViewDetail={handleViewDetail}
-            onEdit={handleEdit}
-            onDelete={(id) => handleDelete(id, filteredData)}
-          />
+        <KPIDetailTable
+          data={filteredData}
+          onViewDetail={handleViewDetail}
+          onEdit={handleEdit}
+          onDelete={(id) => handleDelete(id, filteredData)}
+          onToggleLock={handleToggleLock}
+        />
         )}
 
         {/* All Dialogs */}

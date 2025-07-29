@@ -16,6 +16,7 @@ export interface KPIDetail {
   requirements: any;
   recruitment: any;
   revenue: any;
+  is_locked?: boolean;
 }
 
 export interface KPIDetailData {
@@ -28,6 +29,7 @@ export interface KPIDetailData {
   salaryCoefficient: number;
   kpiCoefficient: number;
   totalMonthlyKPI: number;
+  isLocked?: boolean;
   workProductivity: {
     total: number;
     completedOnTime: number;

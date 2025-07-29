@@ -323,6 +323,7 @@ export type Database = {
           employee_code: string
           has_kpi_gap: boolean
           id: string
+          is_locked: boolean | null
           kpi: number
           kpi_coefficient: number
           month: number
@@ -345,6 +346,7 @@ export type Database = {
           employee_code: string
           has_kpi_gap?: boolean
           id?: string
+          is_locked?: boolean | null
           kpi?: number
           kpi_coefficient?: number
           month: number
@@ -367,6 +369,7 @@ export type Database = {
           employee_code?: string
           has_kpi_gap?: boolean
           id?: string
+          is_locked?: boolean | null
           kpi?: number
           kpi_coefficient?: number
           month?: number

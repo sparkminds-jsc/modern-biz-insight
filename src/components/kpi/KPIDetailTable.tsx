@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ChevronUp, ChevronDown, Eye, Edit, Trash2 } from 'lucide-react';
+import { ChevronUp, ChevronDown, Eye, Edit, Trash2, Lock, Unlock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
   getPerformanceLabel,
@@ -35,6 +35,7 @@ interface KPIDetailData {
   salaryCoefficient: number;
   kpiCoefficient: number;
   totalMonthlyKPI: number;
+  isLocked?: boolean;
   // Năng suất công việc
   workProductivity: {
     total: number;
@@ -93,12 +94,13 @@ interface KPIDetailTableProps {
   onViewDetail: (id: string) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onToggleLock: (detail: KPIDetailData) => void;
 }
 
 type SortField = string;
 type SortDirection = 'asc' | 'desc';
 
-export function KPIDetailTable({ data, onViewDetail, onEdit, onDelete }: KPIDetailTableProps) {
+export function KPIDetailTable({ data, onViewDetail, onEdit, onDelete, onToggleLock }: KPIDetailTableProps) {
   const [sortField, setSortField] = useState<SortField>('');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
@@ -195,7 +197,7 @@ export function KPIDetailTable({ data, onViewDetail, onEdit, onDelete }: KPIDeta
           </TableHeader>
           <TableBody>
             {data.map((detail, index) => (
-              <TableRow key={detail.id}>
+              <TableRow key={detail.id} className={detail.isLocked ? "bg-green-100" : ""}>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{detail.employeeCode}</TableCell>
                 <TableCell>
@@ -277,6 +279,18 @@ export function KPIDetailTable({ data, onViewDetail, onEdit, onDelete }: KPIDeta
                       className="text-red-600 hover:text-red-700"
                     >
                       <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onToggleLock(detail)}
+                      className={detail.isLocked ? "text-green-600 hover:text-green-700 hover:bg-green-50" : ""}
+                    >
+                      {detail.isLocked ? (
+                        <Unlock className="h-4 w-4" />
+                      ) : (
+                        <Lock className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </TableCell>
