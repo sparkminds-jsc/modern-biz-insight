@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ProjectForm } from '@/components/projects/ProjectForm';
 import { ProjectFilters } from '@/components/projects/ProjectFilters';
 import { ProjectTable } from '@/components/projects/ProjectTable';
 import { supabase } from '@/integrations/supabase/client';
+import { ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Project } from '@/types/project';
 
 export default function ProjectsPage() {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [nameFilter, setNameFilter] = useState('');
@@ -46,6 +50,16 @@ export default function ProjectsPage() {
   return (
     <div className="container mx-auto py-6">
       <div className="mb-8">
+        <div className="flex items-center gap-4 mb-4">
+          <Button
+            variant="outline"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+        </div>
         <h1 className="text-3xl font-bold tracking-tight">Quản lý dự án</h1>
         <p className="text-muted-foreground">
           Quản lý thông tin các dự án trong công ty
