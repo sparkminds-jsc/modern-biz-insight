@@ -19,6 +19,10 @@ import { useReportsData } from '../hooks/useReportsData';
 import { useReportsFilters } from '../hooks/useReportsFilters';
 import { useTeamReportOperations } from '../hooks/useTeamReportOperations';
 import { useRevenueExpenseOperations } from '../hooks/useRevenueExpenseOperations';
+import { useProjectBillData } from '../hooks/useProjectBillData';
+import { ProjectBillFilters } from '../components/reports/ProjectBillFilters';
+import { ProjectBillSummary } from '../components/reports/ProjectBillSummary';
+import { ProjectBillTable } from '../components/reports/ProjectBillTable';
 import { exportTeamReportToPDF } from '../utils/pdfExport';
 import { exportTeamReportsToCSV } from '../utils/excelExport';
 import { toast } from 'sonner';
@@ -122,6 +126,12 @@ const ReportsPage = () => {
     handleViewExpense
   } = useRevenueExpenseOperations();
 
+  const {
+    filteredData: projectBillData,
+    loading: projectBillLoading,
+    handleFilter: handleProjectBillFilter
+  } = useProjectBillData();
+
   if (loading) {
     return (
       <AppLayout>
@@ -144,9 +154,10 @@ const ReportsPage = () => {
         </div>
 
         <Tabs defaultValue="revenue-expense" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="revenue-expense">Thu Chi</TabsTrigger>
             <TabsTrigger value="team">Team</TabsTrigger>
+            <TabsTrigger value="project-bills">Bill Dự Án</TabsTrigger>
           </TabsList>
           
           <TabsContent value="revenue-expense" className="space-y-6">
@@ -203,6 +214,17 @@ const ReportsPage = () => {
               selectedMonths={selectedMonths}
               selectedYears={selectedYears}
             />
+          </TabsContent>
+          
+          <TabsContent value="project-bills" className="space-y-6">
+            {/* Project Bill Filters */}
+            <ProjectBillFilters onFilter={handleProjectBillFilter} />
+
+            {/* Project Bill Summary */}
+            <ProjectBillSummary data={projectBillData} />
+
+            {/* Project Bill Table */}
+            <ProjectBillTable data={projectBillData} />
           </TabsContent>
         </Tabs>
 
