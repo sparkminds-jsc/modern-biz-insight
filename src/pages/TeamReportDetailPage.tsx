@@ -84,11 +84,21 @@ const TeamReportDetailPage = () => {
     fetchData();
   }, [teamReportId]);
 
-  const handleFilter = (employeeCode?: string, notes?: string) => {
+  const handleFilter = (employeeCode?: string, notes?: string, projectId?: string) => {
     let filtered = [...reportDetails];
     
     if (employeeCode && employeeCode !== 'all') {
       filtered = filtered.filter(item => item.employee_code === employeeCode);
+    }
+    
+    if (projectId && projectId !== 'all') {
+      if (projectId === 'none') {
+        // Filter for items with no project (null project_id)
+        filtered = filtered.filter(item => !item.project_id);
+      } else {
+        // Filter for items with specific project
+        filtered = filtered.filter(item => item.project_id === projectId);
+      }
     }
     
     if (notes && notes.trim() !== '') {
