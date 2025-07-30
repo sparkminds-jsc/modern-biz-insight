@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AppLayout } from '../components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ProjectForm } from '@/components/projects/ProjectForm';
@@ -48,7 +49,8 @@ export default function ProjectsPage() {
   );
 
   return (
-    <div className="container mx-auto py-6">
+    <AppLayout>
+      <div className="container mx-auto py-6">
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">
           <Button
@@ -92,5 +94,6 @@ export default function ProjectsPage() {
         </Card>
       </div>
     </div>
+    </AppLayout>
   );
 }
