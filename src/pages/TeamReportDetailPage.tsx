@@ -81,11 +81,17 @@ const TeamReportDetailPage = () => {
     fetchData();
   }, [teamReportId]);
 
-  const handleFilter = (employeeCode?: string) => {
+  const handleFilter = (employeeCode?: string, notes?: string) => {
     let filtered = [...reportDetails];
     
     if (employeeCode && employeeCode !== 'all') {
       filtered = filtered.filter(item => item.employee_code === employeeCode);
+    }
+    
+    if (notes && notes.trim() !== '') {
+      filtered = filtered.filter(item => 
+        item.notes && item.notes === notes.trim()
+      );
     }
     
     setFilteredDetails(filtered);

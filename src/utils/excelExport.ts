@@ -132,9 +132,8 @@ export const exportTeamDetailToCSV = ({ teamReport, reportDetails }: ExportTeamD
       'Tron goi VND',
       'Co tinh luong',
       'Cong ty chi tra',
-      'Luong 13',
+      'Tang ca',
       'Tong chi tra',
-      'Ti le %',
       'Luu tru USD',
       'Luu tru USDT',
       'Chu thich'
@@ -155,7 +154,6 @@ export const exportTeamDetailToCSV = ({ teamReport, reportDetails }: ExportTeamD
       Math.round(item.company_payment || 0),
       Math.round(item.salary_13 || 0),
       Math.round(item.total_payment || 0),
-      `${Math.round(item.percentage_ratio || 0)}%`,
       Math.round(item.storage_usd || 0),
       Math.round(item.storage_usdt || 0),
       `"${item.notes || ''}"`

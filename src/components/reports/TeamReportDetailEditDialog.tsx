@@ -334,7 +334,7 @@ export function TeamReportDetailEditDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="salary_13">Lương 13</Label>
+              <Label htmlFor="salary_13">Tăng ca</Label>
               <Input
                 id="salary_13"
                 type="number"
@@ -345,23 +345,13 @@ export function TeamReportDetailEditDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Tổng chi trả</Label>
-              <Input
-                value={Math.round(calculateTotalPayment()).toLocaleString('vi-VN')}
-                readOnly
-                className="bg-gray-100"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Tỉ lệ %</Label>
-              <Input
-                value={`${Math.round(calculatePercentageRatio())}%`}
-                readOnly
-                className="bg-gray-100"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label>Tổng chi trả</Label>
+            <Input
+              value={Math.round(calculateTotalPayment()).toLocaleString('vi-VN')}
+              readOnly
+              className="bg-gray-100"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

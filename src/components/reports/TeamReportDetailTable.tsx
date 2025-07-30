@@ -81,9 +81,8 @@ export function TeamReportDetailTable({ data, onEdit, onDelete, onToggleLock }: 
             <SortableHeader field="package_vnd">Trọn gói VND</SortableHeader>
             <SortableHeader field="has_salary">Có tính lương</SortableHeader>
             <SortableHeader field="company_payment">Công ty chi trả</SortableHeader>
-            <SortableHeader field="salary_13">Lương 13</SortableHeader>
+            <SortableHeader field="salary_13">Tăng ca</SortableHeader>
             <SortableHeader field="total_payment">Tổng chi trả</SortableHeader>
-            <SortableHeader field="percentage_ratio">Tỉ lệ %</SortableHeader>
             <SortableHeader field="storage_usd">Lưu trữ USD</SortableHeader>
             <SortableHeader field="storage_usdt">Lưu trữ USDT</SortableHeader>
             <TableHead>Chú thích</TableHead>
@@ -108,7 +107,6 @@ export function TeamReportDetailTable({ data, onEdit, onDelete, onToggleLock }: 
               <TableCell>{formatCurrency(item.company_payment)}</TableCell>
               <TableCell>{formatCurrency(item.salary_13)}</TableCell>
               <TableCell>{formatCurrency(item.total_payment)}</TableCell>
-              <TableCell>{formatPercentage(item.percentage_ratio)}</TableCell>
               <TableCell>{formatCurrency(item.storage_usd)}</TableCell>
               <TableCell>{formatCurrency(item.storage_usdt)}</TableCell>
               <TableCell className="max-w-32 truncate">
