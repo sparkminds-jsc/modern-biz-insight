@@ -47,16 +47,23 @@ export function CreateTeamReportDetailDialog({
   useEffect(() => {
     const fetchProjects = async () => {
       try {
+        console.log('Fetching projects...');
         const { data, error } = await supabase
           .from('projects')
           .select('id, name')
           .eq('status', 'Đang chạy')
           .order('name');
         
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching projects:', error);
+          throw error;
+        }
+        
+        console.log('Projects fetched:', data);
         setProjects(data || []);
       } catch (error) {
         console.error('Error fetching projects:', error);
+        setProjects([]); // Ensure projects is always an array
       }
     };
 
@@ -257,10 +264,12 @@ export function CreateTeamReportDetailDialog({
               </SelectTrigger>
               <SelectContent className="bg-white z-50">
                 <SelectItem value="">-- Không chọn dự án --</SelectItem>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.name}
-                  </SelectItem>
+                {Array.isArray(projects) && projects.map((project) => (
+                  project && project.id && project.name ? (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
+                  ) : null
                 ))}
               </SelectContent>
             </Select>
