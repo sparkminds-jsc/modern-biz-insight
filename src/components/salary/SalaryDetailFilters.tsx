@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Search, Plus, Copy } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import type { SalaryDetailFilters } from '@/types/salary';
 
 interface SalaryDetailFiltersProps {
@@ -27,20 +28,22 @@ export function SalaryDetailFilters({
   onAddEmployee,
   onCopySalarySheet
 }: SalaryDetailFiltersProps) {
-  const teams = [
-    'Tất cả',
-    'Frontend',
-    'Backend',
-    'Mobile',
-    'DevOps',
-    'QA',
-    'BA',
-    'Design',
-    'Marketing',
-    'Sales',
-    'HR',
-    'Admin'
-  ];
+  const [teams, setTeams] = useState<string[]>(['Tất cả']);
+
+  useEffect(() => {
+    const fetchTeams = async () => {
+      const { data, error } = await supabase
+        .from('teams')
+        .select('name')
+        .order('name');
+
+      if (!error && data) {
+        setTeams(['Tất cả', ...data.map(team => team.name)]);
+      }
+    };
+
+    fetchTeams();
+  }, []);
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
