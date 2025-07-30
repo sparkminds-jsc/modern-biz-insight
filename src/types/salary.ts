@@ -89,4 +89,5 @@ export interface SalaryDetailSummary {
   total_company_insurance: number;
   total_personal_insurance: number;
   total_payment: number;
+  total_internal_team_cost: number;
 }

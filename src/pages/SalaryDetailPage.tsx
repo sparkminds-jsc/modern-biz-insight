@@ -37,7 +37,8 @@ const SalaryDetailPage = () => {
     total_personal_income_tax: 0,
     total_company_insurance: 0,
     total_personal_insurance: 0,
-    total_payment: 0
+    total_payment: 0,
+    total_internal_team_cost: 0
   });
 
   // New state for modals
@@ -148,14 +149,16 @@ const SalaryDetailPage = () => {
         total_personal_income_tax: acc.total_personal_income_tax + detail.total_personal_income_tax,
         total_company_insurance: acc.total_company_insurance + detail.total_bhdn,
         total_personal_insurance: acc.total_personal_insurance + detail.total_bhnld,
-        total_payment: acc.total_payment + (detail.net_salary + detail.total_personal_income_tax + detail.total_bhdn + detail.total_bhnld)
+        total_payment: acc.total_payment + (detail.net_salary + detail.total_personal_income_tax + detail.total_bhdn + detail.total_bhnld),
+        total_internal_team_cost: acc.total_internal_team_cost + (detail.total_bhdn + (detail.daily_salary + detail.kpi_bonus)/12)
       }),
       {
         total_net_salary: 0,
         total_personal_income_tax: 0,
         total_company_insurance: 0,
         total_personal_insurance: 0,
-        total_payment: 0
+        total_payment: 0,
+        total_internal_team_cost: 0
       }
     );
 

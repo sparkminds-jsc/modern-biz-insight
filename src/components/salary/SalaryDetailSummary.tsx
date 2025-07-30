@@ -14,7 +14,7 @@ export function SalaryDetailSummary({ summary }: SalaryDetailSummaryProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <div className="text-sm font-medium text-gray-600 mb-2">
           Tổng tiền lương net chi trả
@@ -57,6 +57,15 @@ export function SalaryDetailSummary({ summary }: SalaryDetailSummaryProps) {
         </div>
         <div className="text-2xl font-bold text-red-600">
           {formatCurrency(summary.total_payment)}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <div className="text-sm font-medium text-gray-600 mb-2">
+          Tổng chi phí nội bộ team
+        </div>
+        <div className="text-2xl font-bold text-indigo-600">
+          {formatCurrency(summary.total_internal_team_cost)}
         </div>
       </div>
     </div>
