@@ -46,10 +46,13 @@ const TeamReportDetailPage = () => {
       if (teamReportError) throw teamReportError;
       setTeamReport(teamReportData);
 
-      // Fetch report details
+      // Fetch report details with project names
       const { data: detailsData, error: detailsError } = await supabase
         .from('team_report_details')
-        .select('*')
+        .select(`
+          *,
+          projects(name)
+        `)
         .eq('team', teamReportData.team)
         .eq('month', teamReportData.month)
         .eq('year', teamReportData.year)
@@ -199,6 +202,7 @@ const TeamReportDetailPage = () => {
           team: detail.team,
           month: month,
           year: year,
+          project_id: detail.project_id,
           billable_hours: detail.billable_hours,
           rate: detail.rate,
           fx_rate: detail.fx_rate,

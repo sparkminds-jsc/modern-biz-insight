@@ -1,8 +1,9 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2, ArrowUpDown, Lock, Unlock } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TeamReportDetailTableProps {
   data: any[];
@@ -14,6 +15,31 @@ interface TeamReportDetailTableProps {
 export function TeamReportDetailTable({ data, onEdit, onDelete, onToggleLock }: TeamReportDetailTableProps) {
   const [sortField, setSortField] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [projects, setProjects] = useState<any[]>([]);
+
+  // Fetch projects
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const { data: projectsData, error } = await supabase
+          .from('projects')
+          .select('id, name');
+        
+        if (error) throw error;
+        setProjects(projectsData || []);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  const getProjectName = (projectId: string) => {
+    if (!projectId) return '-';
+    const project = projects.find(p => p.id === projectId);
+    return project ? project.name : '-';
+  };
 
   const formatCurrency = (amount: number) => {
     const rounded = Math.round(amount || 0);
@@ -71,6 +97,7 @@ export function TeamReportDetailTable({ data, onEdit, onDelete, onToggleLock }: 
             <TableHead className="w-16">STT</TableHead>
             <SortableHeader field="employee_code">Mã nhân viên</SortableHeader>
             <SortableHeader field="employee_name">Tên nhân viên</SortableHeader>
+            <SortableHeader field="project_id">Dự án</SortableHeader>
             <SortableHeader field="month">Tháng</SortableHeader>
             <SortableHeader field="year">Năm</SortableHeader>
             <SortableHeader field="billable_hours">Giờ có bill</SortableHeader>
@@ -95,6 +122,7 @@ export function TeamReportDetailTable({ data, onEdit, onDelete, onToggleLock }: 
               <TableCell>{index + 1}</TableCell>
               <TableCell>{item.employee_code}</TableCell>
               <TableCell>{item.employee_name}</TableCell>
+              <TableCell>{getProjectName(item.project_id)}</TableCell>
               <TableCell>{String(item.month).padStart(2, '0')}</TableCell>
               <TableCell>{item.year}</TableCell>
               <TableCell>{formatCurrency(item.billable_hours)}</TableCell>

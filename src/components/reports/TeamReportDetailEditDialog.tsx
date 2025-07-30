@@ -29,6 +29,7 @@ export function TeamReportDetailEditDialog({
   const [formData, setFormData] = useState({
     employee_code: '',
     employee_name: '',
+    project_id: '',
     billable_hours: '',
     rate: '',
     fx_rate: '',
@@ -42,12 +43,36 @@ export function TeamReportDetailEditDialog({
     notes: ''
   });
   const [loading, setLoading] = useState(false);
+  const [projects, setProjects] = useState<any[]>([]);
+
+  // Fetch active projects
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('id, name')
+          .eq('status', 'Đang chạy')
+          .order('name');
+        
+        if (error) throw error;
+        setProjects(data || []);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+    if (open) {
+      fetchProjects();
+    }
+  }, [open]);
 
   useEffect(() => {
     if (detail) {
       setFormData({
         employee_code: detail.employee_code || '',
         employee_name: detail.employee_name || '',
+        project_id: detail.project_id || '',
         billable_hours: detail.billable_hours?.toString() || '',
         rate: detail.rate?.toString() || '',
         fx_rate: detail.fx_rate?.toString() || '',
@@ -153,6 +178,7 @@ export function TeamReportDetailEditDialog({
         .update({
           employee_code: formData.employee_code,
           employee_name: formData.employee_name,
+          project_id: formData.project_id || null,
           billable_hours: parseFloat(formData.billable_hours) || 0,
           rate: parseFloat(formData.rate) || 0,
           fx_rate: parseFloat(formData.fx_rate) || 0,
@@ -221,6 +247,24 @@ export function TeamReportDetailEditDialog({
                 className="bg-gray-100"
               />
             </div>
+          </div>
+
+          {/* Project Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="project_id">Dự án</Label>
+            <Select value={formData.project_id} onValueChange={(value) => handleInputChange('project_id', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn dự án" />
+              </SelectTrigger>
+              <SelectContent className="bg-white z-50">
+                <SelectItem value="">-- Không chọn dự án --</SelectItem>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

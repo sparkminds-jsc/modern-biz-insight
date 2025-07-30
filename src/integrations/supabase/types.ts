@@ -736,6 +736,7 @@ export type Database = {
           package_vnd: number
           percentage: number
           percentage_ratio: number | null
+          project_id: string | null
           rate: number
           salary_13: number
           storage_usd: number
@@ -761,6 +762,7 @@ export type Database = {
           package_vnd?: number
           percentage?: number
           percentage_ratio?: number | null
+          project_id?: string | null
           rate?: number
           salary_13?: number
           storage_usd?: number
@@ -786,6 +788,7 @@ export type Database = {
           package_vnd?: number
           percentage?: number
           percentage_ratio?: number | null
+          project_id?: string | null
           rate?: number
           salary_13?: number
           storage_usd?: number
@@ -795,7 +798,15 @@ export type Database = {
           updated_at?: string
           year?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "team_report_details_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       team_reports: {
         Row: {

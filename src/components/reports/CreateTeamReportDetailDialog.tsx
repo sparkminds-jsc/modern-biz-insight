@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +27,7 @@ export function CreateTeamReportDetailDialog({
   const [formData, setFormData] = useState({
     employee_code: '',
     employee_name: '',
+    project_id: '',
     billable_hours: '',
     rate: '',
     fx_rate: '',
@@ -40,6 +41,29 @@ export function CreateTeamReportDetailDialog({
     notes: ''
   });
   const [loading, setLoading] = useState(false);
+  const [projects, setProjects] = useState<any[]>([]);
+
+  // Fetch active projects
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('projects')
+          .select('id, name')
+          .eq('status', 'Đang chạy')
+          .order('name');
+        
+        if (error) throw error;
+        setProjects(data || []);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+    if (open) {
+      fetchProjects();
+    }
+  }, [open]);
 
   const handleEmployeeChange = (employeeCode: string) => {
     const employee = employees.find(emp => emp.employee_code === employeeCode);
@@ -137,6 +161,7 @@ export function CreateTeamReportDetailDialog({
           team: teamReport.team,
           month: teamReport.month,
           year: teamReport.year,
+          project_id: formData.project_id || null,
           billable_hours: parseFloat(formData.billable_hours) || 0,
           rate: parseFloat(formData.rate) || 0,
           fx_rate: parseFloat(formData.fx_rate) || 0,
@@ -159,6 +184,7 @@ export function CreateTeamReportDetailDialog({
       setFormData({
         employee_code: '',
         employee_name: '',
+        project_id: '',
         billable_hours: '',
         rate: '',
         fx_rate: '',
@@ -222,7 +248,24 @@ export function CreateTeamReportDetailDialog({
             </div>
           </div>
 
-          {/* Rest of form fields same as edit dialog */}
+          {/* Project Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="project_id">Dự án</Label>
+            <Select value={formData.project_id} onValueChange={(value) => handleInputChange('project_id', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn dự án" />
+              </SelectTrigger>
+              <SelectContent className="bg-white z-50">
+                <SelectItem value="">-- Không chọn dự án --</SelectItem>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="month">Tháng</Label>
