@@ -27,7 +27,7 @@ export function CreateTeamReportDetailDialog({
   const [formData, setFormData] = useState({
     employee_code: '',
     employee_name: '',
-    project_id: '',
+    project_id: 'none',
     billable_hours: '',
     rate: '',
     fx_rate: '',
@@ -168,7 +168,7 @@ export function CreateTeamReportDetailDialog({
           team: teamReport.team,
           month: teamReport.month,
           year: teamReport.year,
-          project_id: formData.project_id || null,
+          project_id: formData.project_id === 'none' ? null : formData.project_id,
           billable_hours: parseFloat(formData.billable_hours) || 0,
           rate: parseFloat(formData.rate) || 0,
           fx_rate: parseFloat(formData.fx_rate) || 0,
@@ -191,7 +191,7 @@ export function CreateTeamReportDetailDialog({
       setFormData({
         employee_code: '',
         employee_name: '',
-        project_id: '',
+        project_id: 'none',
         billable_hours: '',
         rate: '',
         fx_rate: '',
@@ -263,7 +263,7 @@ export function CreateTeamReportDetailDialog({
                 <SelectValue placeholder="Chọn dự án" />
               </SelectTrigger>
               <SelectContent className="bg-white z-50">
-                <SelectItem value="">-- Không chọn dự án --</SelectItem>
+                <SelectItem value="none">-- Không chọn dự án --</SelectItem>
                 {Array.isArray(projects) && projects.map((project) => (
                   project && project.id && project.name ? (
                     <SelectItem key={project.id} value={project.id}>
