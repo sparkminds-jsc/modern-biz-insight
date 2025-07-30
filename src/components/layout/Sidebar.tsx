@@ -10,7 +10,8 @@ import {
   PieChart,
   FileBarChart,
   Menu,
-  Home
+  Home,
+  FolderOpen
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -29,6 +30,7 @@ const menuItems = [
   { icon: TrendingUp, label: 'Quản lý doanh thu', path: '/revenue' },
   { icon: PieChart, label: 'Quản lý chi phí', path: '/expenses' },
   { icon: FileBarChart, label: 'Quản lý báo cáo', path: '/reports' },
+  { icon: FolderOpen, label: 'Quản lý dự án', path: '/projects' },
 ];
 
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
