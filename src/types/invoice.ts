@@ -14,6 +14,7 @@ export interface Invoice {
   payment_status: 'Chưa thu' | 'Đã thu đủ' | 'Thu một phần';
   remaining_amount: number;
   is_crypto: boolean;
+  project_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -37,6 +38,7 @@ export interface InvoiceFilters {
   status: string;
   payment_status: string;
   is_crypto: string;
+  project_id: string;
 }
 
 export interface CreateInvoiceData {
@@ -52,6 +54,7 @@ export interface CreateInvoiceData {
   payment_status: 'Chưa thu' | 'Đã thu đủ' | 'Thu một phần';
   remaining_amount: number;
   is_crypto: boolean;
+  project_id?: string;
 }
 
 export interface CreateInvoiceItemData {

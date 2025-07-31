@@ -16,7 +16,8 @@ const InvoicePage = () => {
     invoice_name: '',
     status: '',
     payment_status: '',
-    is_crypto: ''
+    is_crypto: '',
+    project_id: ''
   });
   
   const [showForm, setShowForm] = useState(false);
@@ -48,6 +49,9 @@ const InvoicePage = () => {
       }
       if (filters.is_crypto) {
         query = query.eq('is_crypto', filters.is_crypto === 'true');
+      }
+      if (filters.project_id) {
+        query = query.eq('project_id', filters.project_id);
       }
 
       const { data, error } = await query;

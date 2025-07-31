@@ -5,6 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Plus } from 'lucide-react';
 import { InvoiceFilters as InvoiceFiltersType } from '@/types/invoice';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Project } from '@/types/project';
 
 interface InvoiceFiltersProps {
   filters: InvoiceFiltersType;
@@ -14,6 +17,19 @@ interface InvoiceFiltersProps {
 }
 
 export function InvoiceFilters({ filters, onFiltersChange, onSearch, onAddInvoice }: InvoiceFiltersProps) {
+  // Fetch projects
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      return data as Project[];
+    }
+  });
+
   const handleFilterChange = (key: keyof InvoiceFiltersType, value: string) => {
     // Convert "all" values back to empty strings for the actual filter
     const actualValue = value === "all" ? "" : value;
@@ -25,7 +41,7 @@ export function InvoiceFilters({ filters, onFiltersChange, onSearch, onAddInvoic
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Tên khách hàng
@@ -93,6 +109,25 @@ export function InvoiceFilters({ filters, onFiltersChange, onSearch, onAddInvoic
               <SelectItem value="all">Tất cả</SelectItem>
               <SelectItem value="true">Đúng</SelectItem>
               <SelectItem value="false">Không</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Dự án
+          </label>
+          <Select value={filters.project_id || "all"} onValueChange={(value) => handleFilterChange('project_id', value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Chọn dự án" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả</SelectItem>
+              {projects.map((project) => (
+                <SelectItem key={project.id} value={project.id}>
+                  {project.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

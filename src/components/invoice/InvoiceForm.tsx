@@ -13,6 +13,9 @@ import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Invoice, InvoiceItem, CreateInvoiceData, CreateInvoiceItemData } from '@/types/invoice';
 import { InvoiceItemForm } from './InvoiceItemForm';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Project } from '@/types/project';
 
 interface InvoiceFormProps {
   open: boolean;
@@ -24,6 +27,19 @@ interface InvoiceFormProps {
 }
 
 export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [], mode }: InvoiceFormProps) {
+  // Fetch projects
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      return data as Project[];
+    }
+  });
+
   const [formData, setFormData] = useState<CreateInvoiceData>({
     customer_name: '',
     customer_address: '',
@@ -36,7 +52,8 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
     vnd_exchange_rate: undefined,
     payment_status: 'Chưa thu',
     remaining_amount: 0,
-    is_crypto: false
+    is_crypto: false,
+    project_id: undefined
   });
 
   const [items, setItems] = useState<CreateInvoiceItemData[]>([]);
@@ -62,7 +79,8 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
         vnd_exchange_rate: invoice.vnd_exchange_rate || undefined,
         payment_status: invoice.payment_status,
         remaining_amount: invoice.remaining_amount,
-        is_crypto: invoice.is_crypto
+        is_crypto: invoice.is_crypto,
+        project_id: invoice.project_id || undefined
       });
       setCreatedDate(invoiceCreatedDate);
       setDueDate(invoiceDueDate);
@@ -91,7 +109,8 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
         vnd_exchange_rate: undefined,
         payment_status: 'Chưa thu',
         remaining_amount: 0,
-        is_crypto: false
+        is_crypto: false,
+        project_id: undefined
       });
       setItems([]);
     }
@@ -159,7 +178,7 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
           </DialogHeader>
           
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Tên khách hàng *</label>
                 <Input
@@ -176,6 +195,23 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
                   onChange={(e) => handleInputChange('invoice_name', e.target.value)}
                   placeholder="Nhập tên invoice"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Dự án</label>
+                <Select value={formData.project_id || ''} onValueChange={(value) => handleInputChange('project_id', value || undefined)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn dự án" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Không chọn dự án</SelectItem>
+                    {projects.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

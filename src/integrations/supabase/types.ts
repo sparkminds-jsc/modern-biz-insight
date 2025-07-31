@@ -271,6 +271,7 @@ export type Database = {
           is_crypto: boolean
           payment_status: string
           payment_unit: string
+          project_id: string | null
           remaining_amount: number
           status: string
           total_amount: number
@@ -289,6 +290,7 @@ export type Database = {
           is_crypto?: boolean
           payment_status?: string
           payment_unit?: string
+          project_id?: string | null
           remaining_amount?: number
           status?: string
           total_amount?: number
@@ -307,13 +309,22 @@ export type Database = {
           is_crypto?: boolean
           payment_status?: string
           payment_unit?: string
+          project_id?: string | null
           remaining_amount?: number
           status?: string
           total_amount?: number
           updated_at?: string
           vnd_exchange_rate?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "invoices_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       kpi_details: {
         Row: {

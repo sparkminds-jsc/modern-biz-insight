@@ -4,6 +4,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { ChevronUp, ChevronDown, Eye, FileText, Edit, Trash2 } from 'lucide-react';
 import { Invoice } from '@/types/invoice';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Project } from '@/types/project';
 
 interface InvoiceTableProps {
   invoices: Invoice[];
@@ -19,6 +22,25 @@ type SortDirection = 'asc' | 'desc';
 export function InvoiceTable({ invoices, onViewDetail, onExportPDF, onEdit, onDelete }: InvoiceTableProps) {
   const [sortField, setSortField] = useState<SortField>('created_date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  // Fetch projects to display project names
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      return data as Project[];
+    }
+  });
+
+  const getProjectName = (projectId: string | null) => {
+    if (!projectId) return '';
+    const project = projects.find(p => p.id === projectId);
+    return project?.name || '';
+  };
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -76,6 +98,7 @@ export function InvoiceTable({ invoices, onViewDetail, onExportPDF, onEdit, onDe
                 <SortIcon field="invoice_name" />
               </div>
             </TableHead>
+            <TableHead>Dự án</TableHead>
             <TableHead 
               className="cursor-pointer hover:bg-gray-50" 
               onClick={() => handleSort('created_date')}
@@ -133,6 +156,7 @@ export function InvoiceTable({ invoices, onViewDetail, onExportPDF, onEdit, onDe
             <TableRow key={invoice.id}>
               <TableCell className="font-medium">{invoice.customer_name}</TableCell>
               <TableCell>{invoice.invoice_name}</TableCell>
+              <TableCell>{getProjectName(invoice.project_id)}</TableCell>
               <TableCell>{formatDate(invoice.created_date)}</TableCell>
               <TableCell>{formatDate(invoice.due_date)}</TableCell>
               <TableCell>
