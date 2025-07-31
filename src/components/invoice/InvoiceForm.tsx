@@ -199,12 +199,12 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
 
               <div>
                 <label className="block text-sm font-medium mb-1">Dự án</label>
-                <Select value={formData.project_id || ''} onValueChange={(value) => handleInputChange('project_id', value || undefined)}>
+                <Select value={formData.project_id || 'none'} onValueChange={(value) => handleInputChange('project_id', value === 'none' ? undefined : value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Chọn dự án" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Không chọn dự án</SelectItem>
+                    <SelectItem value="none">Không chọn dự án</SelectItem>
                     {projects.map((project) => (
                       <SelectItem key={project.id} value={project.id}>
                         {project.name}
