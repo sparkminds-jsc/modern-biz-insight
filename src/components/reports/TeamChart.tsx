@@ -17,8 +17,8 @@ interface ChartDataPoint {
   avgFinalBill: number;
   avgFinalPay: number;
   avgFinalEarn: number;
-  usdtEquivalence: number;
-  avgUsdtEquivalence: number;
+  earnWithUsdt: number;
+  avgEarnWithUsdt: number;
 }
 
 const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, selectedYears }) => {
@@ -77,13 +77,13 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
     const totalFinalBill = Object.values(aggregatedData).reduce((sum, data) => sum + data.finalBill, 0);
     const totalFinalPay = Object.values(aggregatedData).reduce((sum, data) => sum + data.finalPay, 0);
     const totalFinalEarn = Object.values(aggregatedData).reduce((sum, data) => sum + data.finalEarn, 0);
-    const totalUsdtEquivalence = Object.values(aggregatedData).reduce((sum, data) => sum + (data.storageUsdt * usdtExchangeRate), 0);
+    const totalEarnWithUsdt = Object.values(aggregatedData).reduce((sum, data) => sum + ((data.storageUsdt * usdtExchangeRate) + data.finalEarn), 0);
     const monthCount = monthYearCombinations.length;
 
     const avgFinalBill = monthCount > 0 ? totalFinalBill / monthCount : 0;
     const avgFinalPay = monthCount > 0 ? totalFinalPay / monthCount : 0;
     const avgFinalEarn = monthCount > 0 ? totalFinalEarn / monthCount : 0;
-    const avgUsdtEquivalence = monthCount > 0 ? totalUsdtEquivalence / monthCount : 0;
+    const avgEarnWithUsdt = monthCount > 0 ? totalEarnWithUsdt / monthCount : 0;
 
     // Create chart data
     const data: ChartDataPoint[] = monthYearCombinations.map(({ month, year }) => {
@@ -95,11 +95,11 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
         finalBill: monthData.finalBill,
         finalPay: monthData.finalPay,
         finalEarn: monthData.finalEarn,
-        usdtEquivalence: monthData.storageUsdt * usdtExchangeRate,
+        earnWithUsdt: (monthData.storageUsdt * usdtExchangeRate) + monthData.finalEarn,
         avgFinalBill,
         avgFinalPay,
         avgFinalEarn,
-        avgUsdtEquivalence
+        avgEarnWithUsdt
       };
     });
 
@@ -156,7 +156,7 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
   const totalFinalBill = chartData.reduce((sum, item) => sum + item.finalBill, 0);
   const totalFinalPay = chartData.reduce((sum, item) => sum + item.finalPay, 0);
   const totalFinalEarn = chartData.reduce((sum, item) => sum + item.finalEarn, 0);
-  const totalUsdtEquivalence = chartData.reduce((sum, item) => sum + item.usdtEquivalence, 0);
+  const totalEarnWithUsdt = chartData.reduce((sum, item) => sum + item.earnWithUsdt, 0);
 
   return (
     <Card>
@@ -199,8 +199,8 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
               <Bar dataKey="finalEarn" fill="#ffc658" name="Final Earn">
                 <LabelList dataKey="finalEarn" position="top" formatter={formatCurrency} fontSize={12} />
               </Bar>
-              <Bar dataKey="usdtEquivalence" fill="#ff7300" name="USDT Equivalence">
-                <LabelList dataKey="usdtEquivalence" position="top" formatter={formatCurrency} fontSize={12} />
+              <Bar dataKey="earnWithUsdt" fill="#ff7300" name="Earn with USDT">
+                <LabelList dataKey="earnWithUsdt" position="top" formatter={formatCurrency} fontSize={12} />
               </Bar>
               
               {/* Lines for averages */}
@@ -230,10 +230,10 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
               />
               <Line 
                 type="monotone" 
-                dataKey="avgUsdtEquivalence" 
+                dataKey="avgEarnWithUsdt" 
                 stroke="#f59e0b" 
                 strokeWidth={2}
-                name="TB USDT Equivalence"
+                name="TB Earn with USDT"
                 dot={false}
               />
             </ComposedChart>
@@ -255,8 +255,8 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
             <p className="text-lg font-semibold text-yellow-600">{formatCurrency(totalFinalEarn)}</p>
           </div>
           <div className="text-center">
-            <p className="text-sm text-muted-foreground">Tổng USDT Equivalence</p>
-            <p className="text-lg font-semibold text-orange-600">{formatCurrency(totalUsdtEquivalence)}</p>
+            <p className="text-sm text-muted-foreground">Tổng Earn with USDT</p>
+            <p className="text-lg font-semibold text-orange-600">{formatCurrency(totalEarnWithUsdt)}</p>
           </div>
         </div>
       </CardContent>
