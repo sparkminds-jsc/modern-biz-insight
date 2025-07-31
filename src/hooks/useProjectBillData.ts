@@ -22,10 +22,19 @@ export function useProjectBillData() {
   const [data, setData] = useState<ProjectBillData[]>([]);
   const [filteredData, setFilteredData] = useState<ProjectBillData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState<any[]>([]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
+      
+      // Fetch projects for filtering
+      const { data: projectsData, error: projectsError } = await supabase
+        .from('projects')
+        .select('id, name');
+      
+      if (projectsError) throw projectsError;
+      setProjects(projectsData || []);
       
       // Fetch team report details with project information
       const { data: teamReportDetails, error } = await supabase
@@ -80,12 +89,10 @@ export function useProjectBillData() {
 
     // Filter by project
     if (filters.projectId) {
-      // We need to get the project name from the project ID
-      filtered = filtered.filter(item => {
-        // This is a simplified approach - in a real scenario, you'd want to 
-        // maintain a project ID to name mapping
-        return true; // For now, we'll implement this logic in the component
-      });
+      const selectedProject = projects.find(p => p.id === filters.projectId);
+      if (selectedProject) {
+        filtered = filtered.filter(item => item.projectName === selectedProject.name);
+      }
     }
 
     // Filter by months
