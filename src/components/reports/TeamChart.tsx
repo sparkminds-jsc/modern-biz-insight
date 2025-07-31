@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface TeamChartProps {
   teamReports: any[];
@@ -16,9 +17,15 @@ interface ChartDataPoint {
   avgFinalBill: number;
   avgFinalPay: number;
   avgFinalEarn: number;
+  usdtEquivalence: number;
+  avgUsdtEquivalence: number;
 }
 
 const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, selectedYears }) => {
+  const [usdtExchangeRate, setUsdtExchangeRate] = useState<number>(25000);
+  
+  const exchangeRateOptions = [24000, 25000, 26000, 27000, 28000, 29000, 30000];
+  
   const chartData = useMemo(() => {
     // If no filters are selected, show all available data
     let monthsToUse = selectedMonths;
@@ -50,7 +57,7 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
     });
 
     // Aggregate data by month/year
-    const aggregatedData: { [key: string]: { finalBill: number; finalPay: number; finalEarn: number } } = {};
+    const aggregatedData: { [key: string]: { finalBill: number; finalPay: number; finalEarn: number; storageUsdt: number } } = {};
     
     monthYearCombinations.forEach(({ month, year }) => {
       const key = `${month.toString().padStart(2, '0')}/${year}`;
@@ -61,7 +68,8 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
       aggregatedData[key] = {
         finalBill: reportsForMonth.reduce((sum, report) => sum + (report.final_bill || 0), 0),
         finalPay: reportsForMonth.reduce((sum, report) => sum + (report.final_pay || 0), 0),
-        finalEarn: reportsForMonth.reduce((sum, report) => sum + (report.final_earn || 0), 0)
+        finalEarn: reportsForMonth.reduce((sum, report) => sum + (report.final_earn || 0), 0),
+        storageUsdt: reportsForMonth.reduce((sum, report) => sum + (report.storage_usdt || 0), 0)
       };
     });
 
@@ -69,11 +77,13 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
     const totalFinalBill = Object.values(aggregatedData).reduce((sum, data) => sum + data.finalBill, 0);
     const totalFinalPay = Object.values(aggregatedData).reduce((sum, data) => sum + data.finalPay, 0);
     const totalFinalEarn = Object.values(aggregatedData).reduce((sum, data) => sum + data.finalEarn, 0);
+    const totalUsdtEquivalence = Object.values(aggregatedData).reduce((sum, data) => sum + (data.storageUsdt * usdtExchangeRate), 0);
     const monthCount = monthYearCombinations.length;
 
     const avgFinalBill = monthCount > 0 ? totalFinalBill / monthCount : 0;
     const avgFinalPay = monthCount > 0 ? totalFinalPay / monthCount : 0;
     const avgFinalEarn = monthCount > 0 ? totalFinalEarn / monthCount : 0;
+    const avgUsdtEquivalence = monthCount > 0 ? totalUsdtEquivalence / monthCount : 0;
 
     // Create chart data
     const data: ChartDataPoint[] = monthYearCombinations.map(({ month, year }) => {
@@ -85,14 +95,16 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
         finalBill: monthData.finalBill,
         finalPay: monthData.finalPay,
         finalEarn: monthData.finalEarn,
+        usdtEquivalence: monthData.storageUsdt * usdtExchangeRate,
         avgFinalBill,
         avgFinalPay,
-        avgFinalEarn
+        avgFinalEarn,
+        avgUsdtEquivalence
       };
     });
 
     return data;
-  }, [teamReports, selectedMonths, selectedYears]);
+  }, [teamReports, selectedMonths, selectedYears, usdtExchangeRate]);
 
   const formatCurrency = (value: number): string => {
     if (value >= 1000000000) {
@@ -144,6 +156,7 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
   const totalFinalBill = chartData.reduce((sum, item) => sum + item.finalBill, 0);
   const totalFinalPay = chartData.reduce((sum, item) => sum + item.finalPay, 0);
   const totalFinalEarn = chartData.reduce((sum, item) => sum + item.finalEarn, 0);
+  const totalUsdtEquivalence = chartData.reduce((sum, item) => sum + item.usdtEquivalence, 0);
 
   return (
     <Card>
@@ -151,6 +164,22 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
         <CardTitle>Biểu Đồ Báo Cáo Team</CardTitle>
       </CardHeader>
       <CardContent>
+        {/* USDT Exchange Rate Selector */}
+        <div className="mb-6">
+          <label className="text-sm font-medium mb-2 block">Tỉ giá USDT</label>
+          <Select value={usdtExchangeRate.toString()} onValueChange={(value) => setUsdtExchangeRate(Number(value))}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Chọn tỉ giá USDT" />
+            </SelectTrigger>
+            <SelectContent>
+              {exchangeRateOptions.map((rate) => (
+                <SelectItem key={rate} value={rate.toString()}>
+                  {rate.toLocaleString()} VND
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div className="h-96 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
@@ -169,6 +198,9 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
               </Bar>
               <Bar dataKey="finalEarn" fill="#ffc658" name="Final Earn">
                 <LabelList dataKey="finalEarn" position="top" formatter={formatCurrency} fontSize={12} />
+              </Bar>
+              <Bar dataKey="usdtEquivalence" fill="#ff7300" name="USDT Equivalence">
+                <LabelList dataKey="usdtEquivalence" position="top" formatter={formatCurrency} fontSize={12} />
               </Bar>
               
               {/* Lines for averages */}
@@ -196,12 +228,20 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
                 name="TB Final Earn"
                 dot={false}
               />
+              <Line 
+                type="monotone" 
+                dataKey="avgUsdtEquivalence" 
+                stroke="#f59e0b" 
+                strokeWidth={2}
+                name="TB USDT Equivalence"
+                dot={false}
+              />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
         
         {/* Summary totals */}
-        <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t">
+        <div className="grid grid-cols-4 gap-4 mt-6 pt-4 border-t">
           <div className="text-center">
             <p className="text-sm text-muted-foreground">Tổng Final Bill</p>
             <p className="text-lg font-semibold text-blue-600">{formatCurrency(totalFinalBill)}</p>
@@ -213,6 +253,10 @@ const TeamChart: React.FC<TeamChartProps> = ({ teamReports, selectedMonths, sele
           <div className="text-center">
             <p className="text-sm text-muted-foreground">Tổng Final Earn</p>
             <p className="text-lg font-semibold text-yellow-600">{formatCurrency(totalFinalEarn)}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground">Tổng USDT Equivalence</p>
+            <p className="text-lg font-semibold text-orange-600">{formatCurrency(totalUsdtEquivalence)}</p>
           </div>
         </div>
       </CardContent>
