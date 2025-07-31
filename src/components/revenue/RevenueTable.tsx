@@ -6,6 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Eye, Edit, CheckCircle, ArrowUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Project } from '@/types/project';
 
 interface RevenueTableProps {
   data: any[];
@@ -17,6 +20,25 @@ interface RevenueTableProps {
 export function RevenueTable({ data, onViewDetail, onEdit, onFinalize }: RevenueTableProps) {
   const [sortField, setSortField] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+
+  // Fetch projects to display project names
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      return data as Project[];
+    }
+  });
+
+  const getProjectName = (projectId: string | null) => {
+    if (!projectId) return '';
+    const project = projects.find(p => p.id === projectId);
+    return project?.name || '';
+  };
 
   const formatCurrency = (amount: number) => {
     return Math.round(amount).toLocaleString('vi-VN');
@@ -70,6 +92,7 @@ export function RevenueTable({ data, onViewDetail, onEdit, onFinalize }: Revenue
             <SortableHeader field="created_date">Ngày tạo doanh thu</SortableHeader>
             <SortableHeader field="content">Nội dung doanh thu</SortableHeader>
             <SortableHeader field="revenue_type">Loại Doanh Thu</SortableHeader>
+            <TableHead>Dự án</TableHead>
             <SortableHeader field="amount_vnd">Số tiền VND</SortableHeader>
             <SortableHeader field="amount_usd">Số tiền USD</SortableHeader>
             <SortableHeader field="amount_usdt">Số tiền USDT</SortableHeader>
@@ -91,6 +114,7 @@ export function RevenueTable({ data, onViewDetail, onEdit, onFinalize }: Revenue
                   {revenue.revenue_type}
                 </Badge>
               </TableCell>
+              <TableCell>{getProjectName(revenue.project_id)}</TableCell>
               <TableCell>{formatCurrency(revenue.amount_vnd)}</TableCell>
               <TableCell>{formatCurrency(revenue.amount_usd)}</TableCell>
               <TableCell>{formatCurrency(revenue.amount_usdt)}</TableCell>

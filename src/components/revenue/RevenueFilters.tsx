@@ -10,6 +10,9 @@ import { CalendarIcon, Search, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Project } from '@/types/project';
 
 interface RevenueFiltersProps {
   onFilter: (filters: {
@@ -18,16 +21,31 @@ interface RevenueFiltersProps {
     revenueType?: string;
     needsDebtCollection?: string;
     content?: string;
+    projectId?: string;
   }) => void;
   onAddRevenue: () => void;
 }
 
 export function RevenueFilters({ onFilter, onAddRevenue }: RevenueFiltersProps) {
+  // Fetch projects
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      return data as Project[];
+    }
+  });
+
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [revenueType, setRevenueType] = useState<string>('all');
   const [needsDebtCollection, setNeedsDebtCollection] = useState<string>('all');
   const [content, setContent] = useState<string>('');
+  const [projectId, setProjectId] = useState<string>('all');
 
   const handleSearch = () => {
     onFilter({
@@ -35,13 +53,14 @@ export function RevenueFilters({ onFilter, onAddRevenue }: RevenueFiltersProps) 
       endDate,
       revenueType: revenueType === 'all' ? undefined : revenueType,
       needsDebtCollection: needsDebtCollection === 'all' ? undefined : needsDebtCollection,
-      content: content.trim() || undefined
+      content: content.trim() || undefined,
+      projectId: projectId === 'all' ? undefined : projectId
     });
   };
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 items-end">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4 items-end">
         {/* Ngày bắt đầu */}
         <div className="space-y-2">
           <Label>Ngày bắt đầu</Label>
@@ -136,6 +155,24 @@ export function RevenueFilters({ onFilter, onAddRevenue }: RevenueFiltersProps) 
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
+        </div>
+
+        {/* Dự án */}
+        <div className="space-y-2">
+          <Label>Dự án</Label>
+          <Select value={projectId} onValueChange={setProjectId}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tất cả</SelectItem>
+              {projects.map((project) => (
+                <SelectItem key={project.id} value={project.id}>
+                  {project.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Search Button */}

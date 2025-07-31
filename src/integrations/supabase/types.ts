@@ -493,6 +493,7 @@ export type Database = {
           id: string
           is_finalized: boolean
           needs_debt_collection: boolean
+          project_id: string | null
           revenue_type: string
           updated_at: string
           wallet_type: string
@@ -507,6 +508,7 @@ export type Database = {
           id?: string
           is_finalized?: boolean
           needs_debt_collection?: boolean
+          project_id?: string | null
           revenue_type: string
           updated_at?: string
           wallet_type: string
@@ -521,11 +523,20 @@ export type Database = {
           id?: string
           is_finalized?: boolean
           needs_debt_collection?: boolean
+          project_id?: string | null
           revenue_type?: string
           updated_at?: string
           wallet_type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "revenue_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       salary_details: {
         Row: {

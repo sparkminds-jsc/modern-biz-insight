@@ -88,6 +88,12 @@ const RevenuePage = () => {
       );
     }
 
+    if (filters.projectId) {
+      filtered = filtered.filter(revenue => 
+        revenue.project_id === filters.projectId
+      );
+    }
+
     setFilteredRevenues(filtered);
   };
 

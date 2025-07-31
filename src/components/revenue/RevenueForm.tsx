@@ -12,6 +12,9 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Project } from '@/types/project';
 
 interface RevenueFormProps {
   open: boolean;
@@ -22,6 +25,19 @@ interface RevenueFormProps {
 }
 
 export function RevenueForm({ open, onClose, onSubmit, revenue, mode }: RevenueFormProps) {
+  // Fetch projects
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      return data as Project[];
+    }
+  });
+
   const [formData, setFormData] = useState({
     content: '',
     revenue_type: 'Invoice',
@@ -30,7 +46,8 @@ export function RevenueForm({ open, onClose, onSubmit, revenue, mode }: RevenueF
     amount_usdt: 0,
     wallet_type: 'Ngân Hàng',
     needs_debt_collection: false,
-    created_date: format(new Date(), 'yyyy-MM-dd')
+    created_date: format(new Date(), 'yyyy-MM-dd'),
+    project_id: undefined as string | undefined
   });
   const [createdDate, setCreatedDate] = useState<Date>(new Date());
 
@@ -45,7 +62,8 @@ export function RevenueForm({ open, onClose, onSubmit, revenue, mode }: RevenueF
         amount_usdt: revenue.amount_usdt,
         wallet_type: revenue.wallet_type,
         needs_debt_collection: revenue.needs_debt_collection,
-        created_date: format(revenueCreatedDate, 'yyyy-MM-dd')
+        created_date: format(revenueCreatedDate, 'yyyy-MM-dd'),
+        project_id: revenue.project_id || undefined
       });
       setCreatedDate(revenueCreatedDate);
     } else if (mode === 'create') {
@@ -58,7 +76,8 @@ export function RevenueForm({ open, onClose, onSubmit, revenue, mode }: RevenueF
         amount_usdt: 0,
         wallet_type: 'Ngân Hàng',
         needs_debt_collection: false,
-        created_date: format(today, 'yyyy-MM-dd')
+        created_date: format(today, 'yyyy-MM-dd'),
+        project_id: undefined
       });
       setCreatedDate(today);
     }
@@ -143,6 +162,24 @@ export function RevenueForm({ open, onClose, onSubmit, revenue, mode }: RevenueF
               <SelectContent>
                 <SelectItem value="Lãi Ngân Hàng">Lãi Ngân Hàng</SelectItem>
                 <SelectItem value="Invoice">Invoice</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Dự án */}
+          <div className="space-y-2">
+            <Label>Dự án</Label>
+            <Select value={formData.project_id || 'none'} onValueChange={(value) => handleInputChange('project_id', value === 'none' ? undefined : value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn dự án" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Không chọn dự án</SelectItem>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
