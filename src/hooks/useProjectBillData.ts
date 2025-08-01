@@ -59,8 +59,8 @@ export function useProjectBillData() {
         if (groupedData.has(key)) {
           const existing = groupedData.get(key)!;
           existing.billVnd += (detail.converted_vnd || 0) + (detail.package_vnd || 0);
-          existing.billUsd += detail.storage_usd || 0;
-          existing.billUsdt += detail.storage_usdt || 0;
+          existing.billUsd += (detail.storage_usd || 0) * 10 / 7;
+          existing.billUsdt += (detail.storage_usdt || 0) * 10 / 7;
         } else {
           groupedData.set(key, {
             projectName,
@@ -68,8 +68,8 @@ export function useProjectBillData() {
             month: detail.month,
             team: detail.team,
             billVnd: (detail.converted_vnd || 0) + (detail.package_vnd || 0),
-            billUsd: detail.storage_usd || 0,
-            billUsdt: detail.storage_usdt || 0,
+            billUsd: (detail.storage_usd || 0) * 10 / 7,
+            billUsdt: (detail.storage_usdt || 0) * 10 / 7,
           });
         }
       });
