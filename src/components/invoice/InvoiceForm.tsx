@@ -305,13 +305,14 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
 
               <div>
                 <label className="block text-sm font-medium mb-1">Trạng thái</label>
-                <Select value={formData.status} onValueChange={(value: 'Mới tạo' | 'Đã xuất hóa đơn') => handleInputChange('status', value)}>
+                <Select value={formData.status} onValueChange={(value: 'Mới tạo' | 'Đã xuất hóa đơn' | 'Không xuất hóa đơn') => handleInputChange('status', value)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Mới tạo">Mới tạo</SelectItem>
                     <SelectItem value="Đã xuất hóa đơn">Đã xuất hóa đơn</SelectItem>
+                    <SelectItem value="Không xuất hóa đơn">Không xuất hóa đơn</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -324,7 +325,7 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
                   type="number"
                   value={formData.vnd_exchange_rate || ''}
                   onChange={(e) => handleInputChange('vnd_exchange_rate', e.target.value ? Number(e.target.value) : undefined)}
-                  placeholder="Nhập tỷ giá quy đổi"
+                  placeholder="Nhập giá trị quy đổi"
                 />
               </div>
 

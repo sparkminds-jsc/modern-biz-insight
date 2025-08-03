@@ -8,7 +8,7 @@ export interface Invoice {
   payment_unit: 'USD' | 'VND';
   created_date: string;
   due_date: string;
-  status: 'Mới tạo' | 'Đã xuất hóa đơn';
+  status: 'Mới tạo' | 'Đã xuất hóa đơn' | 'Không xuất hóa đơn';
   total_amount: number;
   vnd_exchange_rate: number | null;
   payment_status: 'Chưa thu' | 'Đã thu đủ' | 'Thu một phần';
@@ -49,7 +49,7 @@ export interface CreateInvoiceData {
   payment_unit: 'USD' | 'VND';
   created_date: string;
   due_date: string;
-  status: 'Mới tạo' | 'Đã xuất hóa đơn';
+  status: 'Mới tạo' | 'Đã xuất hóa đơn' | 'Không xuất hóa đơn';
   vnd_exchange_rate?: number;
   payment_status: 'Chưa thu' | 'Đã thu đủ' | 'Thu một phần';
   remaining_amount: number;
