@@ -16,13 +16,15 @@ interface ProjectBillData {
   billVnd: number;
   billUsd: number;
   billUsdt: number;
+  usdEquivalent?: number;
 }
 
 interface ProjectBillTableProps {
   data: ProjectBillData[];
+  exchangeRate?: number;
 }
 
-export function ProjectBillTable({ data }: ProjectBillTableProps) {
+export function ProjectBillTable({ data, exchangeRate = 25000 }: ProjectBillTableProps) {
   const getMonthName = (month: number) => {
     const months = [
       'Tháng 01', 'Tháng 02', 'Tháng 03', 'Tháng 04',
@@ -44,6 +46,7 @@ export function ProjectBillTable({ data }: ProjectBillTableProps) {
               <TableHead>Tháng</TableHead>
               <TableHead>Team</TableHead>
               <TableHead className="text-right">Bill VND</TableHead>
+              <TableHead className="text-right">USD Tương đương</TableHead>
               <TableHead className="text-right">Bill USD</TableHead>
               <TableHead className="text-right">Bill USDT</TableHead>
             </TableRow>
@@ -51,7 +54,7 @@ export function ProjectBillTable({ data }: ProjectBillTableProps) {
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={9} className="text-center py-8 text-gray-500">
                   Không có dữ liệu
                 </TableCell>
               </TableRow>
@@ -65,6 +68,9 @@ export function ProjectBillTable({ data }: ProjectBillTableProps) {
                   <TableCell>{item.team}</TableCell>
                   <TableCell className="text-right font-medium">
                     {formatCurrency(item.billVnd, 'VND')}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {formatCurrency(item.billVnd / exchangeRate, 'USD')}
                   </TableCell>
                   <TableCell className="text-right font-medium">
                     {formatCurrency(item.billUsd, 'USD')}

@@ -16,6 +16,7 @@ interface ProjectBillFilters {
   months: number[];
   years: number[];
   team?: string;
+  exchangeRate?: number;
 }
 
 export function useProjectBillData() {
@@ -23,6 +24,7 @@ export function useProjectBillData() {
   const [filteredData, setFilteredData] = useState<ProjectBillData[]>([]);
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<any[]>([]);
+  const [exchangeRate, setExchangeRate] = useState<number>(25000);
 
   const fetchData = async () => {
     try {
@@ -110,6 +112,11 @@ export function useProjectBillData() {
       filtered = filtered.filter(item => item.team === filters.team);
     }
 
+    // Set exchange rate if provided
+    if (filters.exchangeRate) {
+      setExchangeRate(filters.exchangeRate);
+    }
+
     setFilteredData(filtered);
   };
 
@@ -123,5 +130,6 @@ export function useProjectBillData() {
     loading,
     fetchData,
     handleFilter,
+    exchangeRate,
   };
 }

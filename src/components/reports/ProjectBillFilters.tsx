@@ -12,6 +12,7 @@ interface ProjectBillFiltersProps {
     months: number[];
     years: number[];
     team?: string;
+    exchangeRate?: number;
   }) => void;
 }
 
@@ -20,6 +21,7 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
   const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
   const [selectedYears, setSelectedYears] = useState<number[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>('all');
+  const [selectedExchangeRate, setSelectedExchangeRate] = useState<number>(25000);
   const [projects, setProjects] = useState<any[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
 
@@ -39,6 +41,7 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
   ];
 
   const years = Array.from({ length: 11 }, (_, i) => 2021 + i);
+  const exchangeRates = [24000, 25000, 26000, 27000, 28000, 29000, 30000];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -90,13 +93,14 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
       months: selectedMonths,
       years: selectedYears,
       team: selectedTeam === 'all' ? undefined : selectedTeam,
+      exchangeRate: selectedExchangeRate,
     });
   };
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Project Filter */}
           <div className="space-y-2">
             <Label>Dự án</Label>
@@ -127,6 +131,23 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
                 {teams.map((team) => (
                   <SelectItem key={team.id} value={team.name}>
                     {team.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Exchange Rate Filter */}
+          <div className="space-y-2">
+            <Label>Tỷ giá</Label>
+            <Select value={selectedExchangeRate.toString()} onValueChange={(value) => setSelectedExchangeRate(Number(value))}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white z-50">
+                {exchangeRates.map((rate) => (
+                  <SelectItem key={rate} value={rate.toString()}>
+                    {rate.toLocaleString()}
                   </SelectItem>
                 ))}
               </SelectContent>

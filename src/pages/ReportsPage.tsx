@@ -129,7 +129,8 @@ const ReportsPage = () => {
   const {
     filteredData: projectBillData,
     loading: projectBillLoading,
-    handleFilter: handleProjectBillFilter
+    handleFilter: handleProjectBillFilter,
+    exchangeRate
   } = useProjectBillData();
 
   if (loading) {
@@ -224,7 +225,7 @@ const ReportsPage = () => {
             <ProjectBillSummary data={projectBillData} />
 
             {/* Project Bill Table */}
-            <ProjectBillTable data={projectBillData} />
+            <ProjectBillTable data={projectBillData} exchangeRate={exchangeRate} />
           </TabsContent>
         </Tabs>
 
