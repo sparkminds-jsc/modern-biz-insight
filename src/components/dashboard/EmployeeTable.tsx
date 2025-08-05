@@ -1,5 +1,5 @@
 
-import { Calendar, AlertCircle, Check } from 'lucide-react';
+import { Calendar, AlertCircle, Check, ChevronUp, ChevronDown } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
@@ -11,15 +11,18 @@ interface Employee {
   birth_date: string | null;
   contract_end_date: string | null;
   team: string;
-  hasBirthdayThisMonth: boolean;
-  hasContractEndThisMonth: boolean;
-  birthdayHandled: boolean;
-  contractHandled: boolean;
+  birthdayGiftDate: string | null;
+  contractSignedDate: string | null;
 }
+
+type SortField = 'birth_date' | 'contract_end_date';
+type SortDirection = 'asc' | 'desc';
 
 export function EmployeeTable() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortField, setSortField] = useState<SortField>('birth_date');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
   const fetchEmployees = async () => {
     try {
@@ -30,46 +33,61 @@ export function EmployeeTable() {
 
       if (error) throw error;
 
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth() + 1;
-      const currentYear = currentDate.getFullYear();
+      const currentYear = new Date().getFullYear();
 
-      // Fetch employee events for current month
+      // Fetch all employee events to get historical birthday gift and contract signing dates
       const { data: employeeEvents, error: eventsError } = await supabase
         .from('employee_events')
-        .select('*')
-        .eq('month', currentMonth)
-        .eq('year', currentYear);
+        .select('*');
 
       if (eventsError) throw eventsError;
 
       const processedEmployees = (data || []).map((employee) => {
-        let hasBirthdayThisMonth = false;
-        let hasContractEndThisMonth = false;
+        // Find the most recent birthday gift and contract signing dates for this employee
+        const employeeEventsList = employeeEvents?.filter(event => event.employee_id === employee.id) || [];
+        
+        let birthdayGiftDate = null;
+        let contractSignedDate = null;
+
+        // Get the most recent dates from events
+        employeeEventsList.forEach(event => {
+          if (event.birthday_gift_date && (!birthdayGiftDate || new Date(event.birthday_gift_date) > new Date(birthdayGiftDate))) {
+            birthdayGiftDate = event.birthday_gift_date;
+          }
+          if (event.contract_signed_date && (!contractSignedDate || new Date(event.contract_signed_date) > new Date(contractSignedDate))) {
+            contractSignedDate = event.contract_signed_date;
+          }
+        });
+
+        // Check if employee has events with years different from current year
+        let showForBirthday = false;
+        let showForContract = false;
 
         if (employee.birth_date) {
-          const birthDate = new Date(employee.birth_date);
-          hasBirthdayThisMonth = birthDate.getMonth() + 1 === currentMonth;
+          const lastGiftYear = birthdayGiftDate ? new Date(birthdayGiftDate).getFullYear() : null;
+          showForBirthday = !lastGiftYear || lastGiftYear !== currentYear;
         }
 
         if (employee.contract_end_date) {
-          const contractEndDate = new Date(employee.contract_end_date);
-          hasContractEndThisMonth = 
-            contractEndDate.getMonth() + 1 === currentMonth && 
-            contractEndDate.getFullYear() === currentYear;
+          const lastSignYear = contractSignedDate ? new Date(contractSignedDate).getFullYear() : null;
+          showForContract = !lastSignYear || lastSignYear !== currentYear;
         }
-
-        // Find event status for this employee
-        const eventStatus = employeeEvents?.find(event => event.employee_id === employee.id);
 
         return {
           ...employee,
-          hasBirthdayThisMonth,
-          hasContractEndThisMonth,
-          birthdayHandled: eventStatus?.birthday_handled || false,
-          contractHandled: eventStatus?.contract_handled || false
+          birthdayGiftDate,
+          contractSignedDate
         };
-      }).filter(employee => employee.hasBirthdayThisMonth || employee.hasContractEndThisMonth);
+      }).filter(employee => {
+        // Show employees who have birth dates or contract end dates and don't have current year events
+        const birthdayGiftYear = employee.birthdayGiftDate ? new Date(employee.birthdayGiftDate).getFullYear() : null;
+        const contractSignedYear = employee.contractSignedDate ? new Date(employee.contractSignedDate).getFullYear() : null;
+        
+        const showForBirthday = employee.birth_date && (!birthdayGiftYear || birthdayGiftYear !== currentYear);
+        const showForContract = employee.contract_end_date && (!contractSignedYear || contractSignedYear !== currentYear);
+        
+        return showForBirthday || showForContract;
+      });
 
       setEmployees(processedEmployees);
     } catch (error) {
@@ -88,6 +106,27 @@ export function EmployeeTable() {
     fetchEmployees();
   }, []);
 
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const sortedEmployees = [...employees].sort((a, b) => {
+    const aValue = a[sortField];
+    const bValue = b[sortField];
+    
+    if (!aValue && !bValue) return 0;
+    if (!aValue) return 1;
+    if (!bValue) return -1;
+    
+    const comparison = new Date(aValue).getTime() - new Date(bValue).getTime();
+    return sortDirection === 'asc' ? comparison : -comparison;
+  });
+
   const handleBirthdayGift = async (employeeId: string) => {
     try {
       const currentDate = new Date();
@@ -100,18 +139,16 @@ export function EmployeeTable() {
           employee_id: employeeId,
           month: currentMonth,
           year: currentYear,
-          birthday_handled: true
+          birthday_handled: true,
+          birthday_gift_date: currentDate.toISOString()
         }, {
           onConflict: 'employee_id,month,year'
         });
 
       if (error) throw error;
 
-      setEmployees(prev => 
-        prev.map(emp => 
-          emp.id === employeeId ? { ...emp, birthdayHandled: true } : emp
-        )
-      );
+      // Refresh the data to show updated dates
+      fetchEmployees();
       
       toast({
         title: 'Thành công',
@@ -139,18 +176,16 @@ export function EmployeeTable() {
           employee_id: employeeId,
           month: currentMonth,
           year: currentYear,
-          contract_handled: true
+          contract_handled: true,
+          contract_signed_date: currentDate.toISOString()
         }, {
           onConflict: 'employee_id,month,year'
         });
 
       if (error) throw error;
 
-      setEmployees(prev => 
-        prev.map(emp => 
-          emp.id === employeeId ? { ...emp, contractHandled: true } : emp
-        )
-      );
+      // Refresh the data to show updated dates
+      fetchEmployees();
       
       toast({
         title: 'Thành công',
@@ -181,12 +216,12 @@ export function EmployeeTable() {
       <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Nhân viên có sự kiện trong tháng</h2>
+            <h2 className="text-xl font-bold text-gray-900">Sự kiện nhân viên</h2>
             <p className="text-gray-600">Sinh nhật và kết thúc hợp đồng</p>
           </div>
           <div className="flex items-center text-sm text-gray-500">
             <Calendar className="w-4 h-4 mr-2" />
-            Tháng {new Date().getMonth() + 1}/{new Date().getFullYear()}
+            Năm {new Date().getFullYear()}
           </div>
         </div>
       </div>
@@ -204,14 +239,33 @@ export function EmployeeTable() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Phòng ban
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Ngày sinh
+              <th 
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSort('birth_date')}
+              >
+                <div className="flex items-center gap-1">
+                  Ngày sinh
+                  {sortField === 'birth_date' && (
+                    sortDirection === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+                  )}
+                </div>
+              </th>
+              <th 
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSort('contract_end_date')}
+              >
+                <div className="flex items-center gap-1">
+                  Kết thúc HĐ
+                  {sortField === 'contract_end_date' && (
+                    sortDirection === 'asc' ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />
+                  )}
+                </div>
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Kết thúc HĐ
+                Ngày tặng SN
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Trạng thái
+                Ngày ký HĐ
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Thao tác
@@ -219,103 +273,90 @@ export function EmployeeTable() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {employees.map((employee) => (
-              <tr key={employee.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium">
-                      {employee.full_name.split(' ').pop()?.charAt(0)}
+            {sortedEmployees.map((employee) => {
+              const currentYear = new Date().getFullYear();
+              const birthdayGiftYear = employee.birthdayGiftDate ? new Date(employee.birthdayGiftDate).getFullYear() : null;
+              const contractSignedYear = employee.contractSignedDate ? new Date(employee.contractSignedDate).getFullYear() : null;
+              
+              const canGiveBirthdayGift = employee.birth_date && (!birthdayGiftYear || birthdayGiftYear !== currentYear);
+              const canSignContract = employee.contract_end_date && (!contractSignedYear || contractSignedYear !== currentYear);
+
+              return (
+                <tr key={employee.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium">
+                        {employee.full_name.split(' ').pop()?.charAt(0)}
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">{employee.full_name}</div>
+                      </div>
                     </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{employee.full_name}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {employee.position}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {employee.team}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {employee.birth_date ? (
+                      new Date(employee.birth_date).toLocaleDateString('vi-VN')
+                    ) : (
+                      'Không có'
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {employee.contract_end_date ? (
+                      new Date(employee.contract_end_date).toLocaleDateString('vi-VN')
+                    ) : (
+                      'Vô thời hạn'
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {employee.birthdayGiftDate ? (
+                      new Date(employee.birthdayGiftDate).toLocaleDateString('vi-VN')
+                    ) : (
+                      'Chưa tặng'
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {employee.contractSignedDate ? (
+                      new Date(employee.contractSignedDate).toLocaleDateString('vi-VN')
+                    ) : (
+                      'Chưa ký'
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex space-x-2">
+                      {canGiveBirthdayGift && (
+                        <button
+                          onClick={() => handleBirthdayGift(employee.id)}
+                          className="inline-flex items-center px-3 py-1 border border-green-300 text-xs font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                          <Check className="w-3 h-3 mr-1" />
+                          Đã tặng SN
+                        </button>
+                      )}
+                      {canSignContract && (
+                        <button
+                          onClick={() => handleContractSigned(employee.id)}
+                          className="inline-flex items-center px-3 py-1 border border-blue-300 text-xs font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <Check className="w-3 h-3 mr-1" />
+                          Đã ký HĐ
+                        </button>
+                      )}
                     </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {employee.position}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {employee.team}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {employee.birth_date ? (
-                    <span className={`text-sm ${
-                      employee.hasBirthdayThisMonth && !employee.birthdayHandled 
-                        ? 'font-bold text-red-600' 
-                        : 'text-gray-500'
-                    }`}>
-                      {new Date(employee.birth_date).toLocaleDateString('vi-VN')}
-                    </span>
-                  ) : (
-                    <span className="text-sm text-gray-400">Không có</span>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {employee.contract_end_date ? (
-                    <span className={`text-sm ${
-                      employee.hasContractEndThisMonth && !employee.contractHandled 
-                        ? 'font-bold text-red-600' 
-                        : 'text-gray-500'
-                    }`}>
-                      {new Date(employee.contract_end_date).toLocaleDateString('vi-VN')}
-                    </span>
-                  ) : (
-                    <span className="text-sm text-gray-400">Vô thời hạn</span>
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex space-x-2">
-                    {employee.hasBirthdayThisMonth && (
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        employee.birthdayHandled 
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        <Calendar className="w-3 h-3 mr-1" />
-                        {employee.birthdayHandled ? 'Đã tặng SN' : 'Sinh nhật'}
-                      </span>
-                    )}
-                    {employee.hasContractEndThisMonth && (
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        employee.contractHandled 
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-orange-100 text-orange-800'
-                      }`}>
-                        <AlertCircle className="w-3 h-3 mr-1" />
-                        {employee.contractHandled ? 'Đã ký HĐ' : 'Hết HĐ'}
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex space-x-2">
-                    {employee.hasBirthdayThisMonth && !employee.birthdayHandled && (
-                      <button
-                        onClick={() => handleBirthdayGift(employee.id)}
-                        className="inline-flex items-center px-3 py-1 border border-green-300 text-xs font-medium rounded-md text-green-700 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500"
-                      >
-                        <Check className="w-3 h-3 mr-1" />
-                        Đã tặng SN
-                      </button>
-                    )}
-                    {employee.hasContractEndThisMonth && !employee.contractHandled && (
-                      <button
-                        onClick={() => handleContractSigned(employee.id)}
-                        className="inline-flex items-center px-3 py-1 border border-blue-300 text-xs font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <Check className="w-3 h-3 mr-1" />
-                        Đã ký HĐ
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
         {employees.length === 0 && (
           <div className="text-center py-8 text-gray-500">
-            Không có nhân viên nào có sự kiện trong tháng này
+            Không có nhân viên nào cần xử lý sự kiện
           </div>
         )}
       </div>

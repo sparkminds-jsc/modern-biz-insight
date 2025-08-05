@@ -58,8 +58,10 @@ export type Database = {
       }
       employee_events: {
         Row: {
+          birthday_gift_date: string | null
           birthday_handled: boolean | null
           contract_handled: boolean | null
+          contract_signed_date: string | null
           created_at: string | null
           employee_id: string
           id: string
@@ -68,8 +70,10 @@ export type Database = {
           year: number
         }
         Insert: {
+          birthday_gift_date?: string | null
           birthday_handled?: boolean | null
           contract_handled?: boolean | null
+          contract_signed_date?: string | null
           created_at?: string | null
           employee_id: string
           id?: string
@@ -78,8 +82,10 @@ export type Database = {
           year: number
         }
         Update: {
+          birthday_gift_date?: string | null
           birthday_handled?: boolean | null
           contract_handled?: boolean | null
+          contract_signed_date?: string | null
           created_at?: string | null
           employee_id?: string
           id?: string
