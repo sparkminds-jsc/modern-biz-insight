@@ -16,6 +16,12 @@ const EmployeesPage = () => {
     email: ''
   });
   
+  const [searchFilters, setSearchFilters] = useState({
+    name: '',
+    team: '',
+    email: ''
+  });
+  
   const [sortConfig, setSortConfig] = useState<SortConfig>({
     key: null,
     direction: 'asc'
@@ -30,18 +36,18 @@ const EmployeesPage = () => {
 
   // Fetch employees
   const { data: employees = [], isLoading } = useQuery({
-    queryKey: ['employees', filters],
+    queryKey: ['employees', searchFilters],
     queryFn: async () => {
       let query = supabase.from('employees').select('*');
       
-      if (filters.name) {
-        query = query.ilike('full_name', `%${filters.name}%`);
+      if (searchFilters.name) {
+        query = query.ilike('full_name', `%${searchFilters.name}%`);
       }
-      if (filters.team) {
-        query = query.ilike('team', `%${filters.team}%`);
+      if (searchFilters.team) {
+        query = query.ilike('team', `%${searchFilters.team}%`);
       }
-      if (filters.email) {
-        query = query.ilike('email', `%${filters.email}%`);
+      if (searchFilters.email) {
+        query = query.ilike('email', `%${searchFilters.email}%`);
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });
@@ -176,7 +182,7 @@ const EmployeesPage = () => {
   });
 
   const handleSearch = () => {
-    // Query will be refetched automatically due to filters dependency
+    setSearchFilters(filters);
   };
 
   const handleAddEmployee = () => {
