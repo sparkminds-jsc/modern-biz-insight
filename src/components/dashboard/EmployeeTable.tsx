@@ -3,6 +3,7 @@ import { Calendar, AlertCircle, Check, ChevronUp, ChevronDown } from 'lucide-rea
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Employee {
   id: string;
@@ -23,6 +24,7 @@ export function EmployeeTable() {
   const [loading, setLoading] = useState(true);
   const [sortField, setSortField] = useState<SortField>('birth_date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [selectedMonth, setSelectedMonth] = useState<string>('all');
 
   const fetchEmployees = async () => {
     try {
@@ -115,7 +117,17 @@ export function EmployeeTable() {
     }
   };
 
-  const sortedEmployees = [...employees].sort((a, b) => {
+  const filteredEmployees = employees.filter((employee) => {
+    if (selectedMonth === 'all') return true;
+    
+    const month = parseInt(selectedMonth);
+    const birthMonth = employee.birth_date ? new Date(employee.birth_date).getMonth() + 1 : null;
+    const contractMonth = employee.contract_end_date ? new Date(employee.contract_end_date).getMonth() + 1 : null;
+    
+    return birthMonth === month || contractMonth === month;
+  });
+
+  const sortedEmployees = [...filteredEmployees].sort((a, b) => {
     const aValue = a[sortField];
     const bValue = b[sortField];
     
@@ -219,9 +231,36 @@ export function EmployeeTable() {
             <h2 className="text-xl font-bold text-gray-900">Sự kiện nhân viên</h2>
             <p className="text-gray-600">Sinh nhật và kết thúc hợp đồng</p>
           </div>
-          <div className="flex items-center text-sm text-gray-500">
-            <Calendar className="w-4 h-4 mr-2" />
-            Năm {new Date().getFullYear()}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <label htmlFor="month-filter" className="text-sm font-medium text-gray-700">
+                Tháng:
+              </label>
+              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Chọn tháng" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tất cả</SelectItem>
+                  <SelectItem value="1">Tháng 1</SelectItem>
+                  <SelectItem value="2">Tháng 2</SelectItem>
+                  <SelectItem value="3">Tháng 3</SelectItem>
+                  <SelectItem value="4">Tháng 4</SelectItem>
+                  <SelectItem value="5">Tháng 5</SelectItem>
+                  <SelectItem value="6">Tháng 6</SelectItem>
+                  <SelectItem value="7">Tháng 7</SelectItem>
+                  <SelectItem value="8">Tháng 8</SelectItem>
+                  <SelectItem value="9">Tháng 9</SelectItem>
+                  <SelectItem value="10">Tháng 10</SelectItem>
+                  <SelectItem value="11">Tháng 11</SelectItem>
+                  <SelectItem value="12">Tháng 12</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center text-sm text-gray-500">
+              <Calendar className="w-4 h-4 mr-2" />
+              Năm {new Date().getFullYear()}
+            </div>
           </div>
         </div>
       </div>
@@ -354,9 +393,12 @@ export function EmployeeTable() {
             })}
           </tbody>
         </table>
-        {employees.length === 0 && (
+        {sortedEmployees.length === 0 && (
           <div className="text-center py-8 text-gray-500">
-            Không có nhân viên nào cần xử lý sự kiện
+            {selectedMonth === 'all' 
+              ? 'Không có nhân viên nào cần xử lý sự kiện'
+              : `Không có nhân viên nào có sự kiện trong tháng ${selectedMonth}`
+            }
           </div>
         )}
       </div>
