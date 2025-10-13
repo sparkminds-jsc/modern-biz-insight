@@ -103,6 +103,7 @@ export function AllocateTable({ employees, allocates, projects, onAllocateChange
             ) : (
               sortedEmployees.map((employee, index) => {
                 const allocate = allocates[employee.employee_code] || {
+                  employee_code: employee.employee_code,
                   role: 'Member',
                   position: 'BE',
                   call_kh: false,
