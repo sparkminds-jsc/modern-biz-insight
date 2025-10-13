@@ -142,7 +142,8 @@ export function StatisticsSection() {
   // Group available employees by role
   const groupedByRole: Record<string, Record<string, AvailableEmployee[]>> = {};
   availableEmployees.forEach(emp => {
-    const role = emp.call_kh ? 'Call KH' : emp.role;
+    // Add to their actual role (Leader/Member)
+    const role = emp.role;
     const position = emp.position;
     
     if (!groupedByRole[role]) {
@@ -152,6 +153,17 @@ export function StatisticsSection() {
       groupedByRole[role][position] = [];
     }
     groupedByRole[role][position].push(emp);
+    
+    // Also add to Call KH if applicable
+    if (emp.call_kh) {
+      if (!groupedByRole['Call KH']) {
+        groupedByRole['Call KH'] = {};
+      }
+      if (!groupedByRole['Call KH'][position]) {
+        groupedByRole['Call KH'][position] = [];
+      }
+      groupedByRole['Call KH'][position].push(emp);
+    }
   });
 
   return (
