@@ -163,10 +163,10 @@ export function AllocateTable({ employees, allocates, projects, onAllocateChange
                     {projects.map((project) => (
                       <TableCell key={project.id}>
                         <Select
-                          value={allocate.project_allocations[project.id] || ''}
+                          value={allocate.project_allocations[project.id] || 'none'}
                           onValueChange={(value) => {
                             const newAllocations = { ...allocate.project_allocations };
-                            if (value) {
+                            if (value && value !== 'none') {
                               newAllocations[project.id] = value;
                             } else {
                               delete newAllocations[project.id];
@@ -178,7 +178,7 @@ export function AllocateTable({ employees, allocates, projects, onAllocateChange
                             <SelectValue placeholder="-" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">-</SelectItem>
+                            <SelectItem value="none">-</SelectItem>
                             {ALLOCATION_OPTIONS.map((option) => (
                               <SelectItem key={option} value={option}>{option}</SelectItem>
                             ))}
