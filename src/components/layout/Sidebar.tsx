@@ -13,7 +13,8 @@ import {
   Home,
   FolderOpen,
   UserCog,
-  Lightbulb
+  Lightbulb,
+  Building2
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -25,6 +26,7 @@ interface SidebarProps {
 const menuItems = [
   { icon: Home, label: 'Dashboard', path: '/dashboard' },
   { icon: Users, label: 'Quản lý nhân viên', path: '/employees' },
+  { icon: Building2, label: 'Quản lý Khách hàng', path: '/customers' },
   { icon: FileText, label: 'Quản lý hợp đồng', path: '/contracts' },
   { icon: Target, label: 'Quản lý KPI', path: '/kpi' },
   { icon: DollarSign, label: 'Quản lý lương', path: '/salary' },

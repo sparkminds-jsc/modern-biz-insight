@@ -89,6 +89,69 @@ export type Database = {
         }
         Relationships: []
       }
+      customers: {
+        Row: {
+          address: string | null
+          country: string | null
+          created_at: string
+          customer_type: string
+          first_project: string | null
+          first_project_start_date: string | null
+          id: string
+          last_contact_date: string | null
+          latest_project: string | null
+          latest_project_end_date: string | null
+          name: string
+          notes: string | null
+          potential_level: string
+          status: string
+          total_debt: number
+          total_revenue: number
+          updated_at: string
+          vip_level: string
+        }
+        Insert: {
+          address?: string | null
+          country?: string | null
+          created_at?: string
+          customer_type?: string
+          first_project?: string | null
+          first_project_start_date?: string | null
+          id?: string
+          last_contact_date?: string | null
+          latest_project?: string | null
+          latest_project_end_date?: string | null
+          name: string
+          notes?: string | null
+          potential_level?: string
+          status?: string
+          total_debt?: number
+          total_revenue?: number
+          updated_at?: string
+          vip_level?: string
+        }
+        Update: {
+          address?: string | null
+          country?: string | null
+          created_at?: string
+          customer_type?: string
+          first_project?: string | null
+          first_project_start_date?: string | null
+          id?: string
+          last_contact_date?: string | null
+          latest_project?: string | null
+          latest_project_end_date?: string | null
+          name?: string
+          notes?: string | null
+          potential_level?: string
+          status?: string
+          total_debt?: number
+          total_revenue?: number
+          updated_at?: string
+          vip_level?: string
+        }
+        Relationships: []
+      }
       employee_events: {
         Row: {
           birthday_gift_date: string | null

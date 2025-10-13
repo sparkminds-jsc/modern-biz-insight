@@ -16,6 +16,7 @@ import KPIDetailPage from './pages/KPIDetailPage';
 import ProjectsPage from './pages/ProjectsPage';
 import AllocatePage from './pages/AllocatePage';
 import StrategyPage from './pages/StrategyPage';
+import CustomersPage from './pages/CustomersPage';
 import NotFound from './pages/NotFound';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import TeamReportDetailPage from './pages/TeamReportDetailPage';
@@ -40,6 +41,7 @@ function App() {
         <Route path="/projects" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
         <Route path="/allocate" element={<ProtectedRoute><AllocatePage /></ProtectedRoute>} />
         <Route path="/strategy" element={<ProtectedRoute><StrategyPage /></ProtectedRoute>} />
+        <Route path="/customers" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
