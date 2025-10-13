@@ -142,7 +142,7 @@ export function StatisticsSection() {
   // Group available employees by role
   const groupedByRole: Record<string, Record<string, AvailableEmployee[]>> = {};
   availableEmployees.forEach(emp => {
-    const role = emp.call_kh ? `${emp.role} (Call KH)` : emp.role;
+    const role = emp.call_kh ? 'Call KH' : emp.role;
     const position = emp.position;
     
     if (!groupedByRole[role]) {
