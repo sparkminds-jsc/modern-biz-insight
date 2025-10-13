@@ -135,20 +135,14 @@ export default function AllocatePage() {
       // Prepare data for upsert
       const allocateRecords = Object.values(allocates);
 
-      // Delete all existing records first
-      const { error: deleteError } = await supabase
+      // Use upsert to update existing records and insert new ones
+      const { error: upsertError } = await supabase
         .from('allocates')
-        .delete()
-        .neq('id', '00000000-0000-0000-0000-000000000000');
+        .upsert(allocateRecords, {
+          onConflict: 'employee_code'
+        });
 
-      if (deleteError) throw deleteError;
-
-      // Insert new records
-      const { error: insertError } = await supabase
-        .from('allocates')
-        .insert(allocateRecords);
-
-      if (insertError) throw insertError;
+      if (upsertError) throw upsertError;
 
       toast.success('Lưu dữ liệu thành công');
       fetchData();

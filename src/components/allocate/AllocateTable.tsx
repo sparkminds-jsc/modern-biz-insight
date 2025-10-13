@@ -35,7 +35,7 @@ const CALL_KH_OPTIONS = [
   { value: 'true', label: 'Có' },
   { value: 'false', label: 'Không' }
 ];
-const ALLOCATION_OPTIONS = ['25%', '50%', '75%', '100%'];
+const ALLOCATION_OPTIONS = ['0%', '25%', '50%', '75%', '100%'];
 
 export function AllocateTable({ employees, allocates, projects, onAllocateChange }: AllocateTableProps) {
   const [sortField, setSortField] = useState<SortField>('employee_code');
@@ -165,10 +165,10 @@ export function AllocateTable({ employees, allocates, projects, onAllocateChange
                     {projects.map((project) => (
                       <TableCell key={project.id}>
                         <Select
-                          value={allocate.project_allocations[project.id] || 'none'}
+                          value={allocate.project_allocations[project.id] || '0%'}
                           onValueChange={(value) => {
                             const newAllocations = { ...allocate.project_allocations };
-                            if (value && value !== 'none') {
+                            if (value && value !== '0%') {
                               newAllocations[project.id] = value;
                             } else {
                               delete newAllocations[project.id];
@@ -177,10 +177,9 @@ export function AllocateTable({ employees, allocates, projects, onAllocateChange
                           }}
                         >
                           <SelectTrigger className="w-24">
-                            <SelectValue placeholder="-" />
+                            <SelectValue placeholder="0%" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="none">-</SelectItem>
                             {ALLOCATION_OPTIONS.map((option) => (
                               <SelectItem key={option} value={option}>{option}</SelectItem>
                             ))}
