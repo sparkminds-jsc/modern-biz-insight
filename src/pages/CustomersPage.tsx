@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { CustomerFilters } from "@/components/customers/CustomerFilters";
 import { CustomerForm } from "@/components/customers/CustomerForm";
 import { CustomerTable } from "@/components/customers/CustomerTable";
@@ -117,37 +118,43 @@ export default function CustomersPage() {
   };
 
   if (loading) {
-    return <div className="p-6">Đang tải...</div>;
+    return (
+      <AppLayout>
+        <div className="p-6">Đang tải...</div>
+      </AppLayout>
+    );
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Quản lý Khách hàng</h1>
-        <Button onClick={handleAddNew}>
-          <Plus className="h-4 w-4 mr-2" />
-          Thêm khách hàng
-        </Button>
+    <AppLayout>
+      <div className="p-6 space-y-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Quản lý Khách hàng</h1>
+          <Button onClick={handleAddNew}>
+            <Plus className="h-4 w-4 mr-2" />
+            Thêm khách hàng
+          </Button>
+        </div>
+
+        <CustomerFilters
+          selectedCustomer={selectedCustomer}
+          selectedVipLevel={selectedVipLevel}
+          selectedPotentialLevel={selectedPotentialLevel}
+          customers={customers.map((c) => ({ id: c.id, name: c.name }))}
+          onCustomerChange={setSelectedCustomer}
+          onVipLevelChange={setSelectedVipLevel}
+          onPotentialLevelChange={setSelectedPotentialLevel}
+        />
+
+        <CustomerTable data={filteredCustomers} onEdit={handleEdit} />
+
+        <CustomerForm
+          open={formOpen}
+          onOpenChange={setFormOpen}
+          onSubmit={handleSubmit}
+          initialData={editingCustomer}
+        />
       </div>
-
-      <CustomerFilters
-        selectedCustomer={selectedCustomer}
-        selectedVipLevel={selectedVipLevel}
-        selectedPotentialLevel={selectedPotentialLevel}
-        customers={customers.map((c) => ({ id: c.id, name: c.name }))}
-        onCustomerChange={setSelectedCustomer}
-        onVipLevelChange={setSelectedVipLevel}
-        onPotentialLevelChange={setSelectedPotentialLevel}
-      />
-
-      <CustomerTable data={filteredCustomers} onEdit={handleEdit} />
-
-      <CustomerForm
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        onSubmit={handleSubmit}
-        initialData={editingCustomer}
-      />
-    </div>
+    </AppLayout>
   );
 }
