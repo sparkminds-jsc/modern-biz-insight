@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -19,7 +20,9 @@ interface TeamAverageCost {
 export function AverageCostsSection() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [costs, setCosts] = useState<Record<string, TeamAverageCost>>({});
+  const [localCosts, setLocalCosts] = useState<Record<string, TeamAverageCost>>({});
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -44,6 +47,7 @@ export function AverageCostsSection() {
         costsMap[cost.team] = cost;
       });
       setCosts(costsMap);
+      setLocalCosts(costsMap);
     } catch (error: any) {
       toast.error('Lỗi tải dữ liệu: ' + error.message);
     } finally {
@@ -51,33 +55,52 @@ export function AverageCostsSection() {
     }
   };
 
-  const updateCost = async (teamName: string, value: string) => {
+  const updateLocalCost = (teamName: string, value: string) => {
+    const currentCost = localCosts[teamName];
+    const costValue = parseFloat(value) || 0;
+
+    setLocalCosts(prev => ({
+      ...prev,
+      [teamName]: {
+        ...currentCost,
+        team: teamName,
+        average_monthly_cost: costValue
+      } as TeamAverageCost
+    }));
+  };
+
+  const saveCosts = async () => {
     try {
-      const currentCost = costs[teamName];
-      const costValue = parseFloat(value) || 0;
+      setSaving(true);
+      
+      for (const [teamName, localCost] of Object.entries(localCosts)) {
+        const originalCost = costs[teamName];
+        
+        if (originalCost) {
+          const { error } = await supabase
+            .from('team_average_costs')
+            .update({ average_monthly_cost: localCost.average_monthly_cost })
+            .eq('id', originalCost.id);
 
-      if (currentCost) {
-        const { error } = await supabase
-          .from('team_average_costs')
-          .update({ average_monthly_cost: costValue })
-          .eq('id', currentCost.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase
+            .from('team_average_costs')
+            .insert({
+              team: teamName,
+              average_monthly_cost: localCost.average_monthly_cost
+            });
 
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('team_average_costs')
-          .insert({
-            team: teamName,
-            average_monthly_cost: costValue
-          });
-
-        if (error) throw error;
+          if (error) throw error;
+        }
       }
 
       await fetchData();
-      toast.success('Cập nhật thành công');
+      toast.success('Lưu thành công');
     } catch (error: any) {
-      toast.error('Lỗi cập nhật: ' + error.message);
+      toast.error('Lỗi lưu dữ liệu: ' + error.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -96,8 +119,11 @@ export function AverageCostsSection() {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Chi phí trung bình tháng</CardTitle>
+        <Button onClick={saveCosts} disabled={saving}>
+          {saving ? 'Đang lưu...' : 'Lưu'}
+        </Button>
       </CardHeader>
       <CardContent>
         <Table>
@@ -122,8 +148,8 @@ export function AverageCostsSection() {
                     <Input
                       type="number"
                       placeholder="Nhập chi phí"
-                      value={costs[team.name]?.average_monthly_cost || ''}
-                      onChange={(e) => updateCost(team.name, e.target.value)}
+                      value={localCosts[team.name]?.average_monthly_cost || ''}
+                      onChange={(e) => updateLocalCost(team.name, e.target.value)}
                       className="max-w-xs"
                     />
                   </TableCell>

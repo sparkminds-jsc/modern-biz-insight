@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Project } from '@/types/project';
@@ -24,7 +25,9 @@ export function EstimatesSection() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [estimates, setEstimates] = useState<Record<string, ProjectEstimate>>({});
+  const [localEstimates, setLocalEstimates] = useState<Record<string, ProjectEstimate>>({});
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -52,6 +55,7 @@ export function EstimatesSection() {
         estimatesMap[est.project_id] = est;
       });
       setEstimates(estimatesMap);
+      setLocalEstimates(estimatesMap);
     } catch (error: any) {
       toast.error('Lỗi tải dữ liệu: ' + error.message);
     } finally {
@@ -59,43 +63,68 @@ export function EstimatesSection() {
     }
   };
 
-  const updateEstimate = async (projectId: string, field: string, value: any) => {
+  const updateLocalEstimate = (projectId: string, field: string, value: any) => {
+    const currentEstimate = localEstimates[projectId];
+    
+    let updateData: any = {};
+    if (field === 'is_estimated') {
+      updateData = { is_estimated: value === 'true' };
+    } else if (field === 'estimated_duration') {
+      updateData = { estimated_duration: parseInt(value) };
+    } else if (field.startsWith('team_')) {
+      const teamName = field.replace('team_', '');
+      const teamRevenues = { ...(currentEstimate?.team_revenues || {}), [teamName]: parseFloat(value) || 0 };
+      updateData = { team_revenues: teamRevenues };
+    }
+
+    setLocalEstimates(prev => ({
+      ...prev,
+      [projectId]: {
+        ...currentEstimate,
+        ...updateData,
+        project_id: projectId
+      } as ProjectEstimate
+    }));
+  };
+
+  const saveEstimates = async () => {
     try {
-      const currentEstimate = estimates[projectId];
+      setSaving(true);
       
-      let updateData: any = {};
-      if (field === 'is_estimated') {
-        updateData = { is_estimated: value === 'true' };
-      } else if (field === 'estimated_duration') {
-        updateData = { estimated_duration: parseInt(value) };
-      } else if (field.startsWith('team_')) {
-        const teamName = field.replace('team_', '');
-        const teamRevenues = { ...(currentEstimate?.team_revenues || {}), [teamName]: parseFloat(value) || 0 };
-        updateData = { team_revenues: teamRevenues };
-      }
+      for (const [projectId, localEstimate] of Object.entries(localEstimates)) {
+        const originalEstimate = estimates[projectId];
+        
+        if (originalEstimate) {
+          const { error } = await supabase
+            .from('project_estimates')
+            .update({
+              is_estimated: localEstimate.is_estimated,
+              estimated_duration: localEstimate.estimated_duration,
+              team_revenues: localEstimate.team_revenues
+            })
+            .eq('id', originalEstimate.id);
 
-      if (currentEstimate) {
-        const { error } = await supabase
-          .from('project_estimates')
-          .update(updateData)
-          .eq('id', currentEstimate.id);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase
+            .from('project_estimates')
+            .insert({
+              project_id: projectId,
+              is_estimated: localEstimate.is_estimated,
+              estimated_duration: localEstimate.estimated_duration,
+              team_revenues: localEstimate.team_revenues
+            });
 
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('project_estimates')
-          .insert({
-            project_id: projectId,
-            ...updateData
-          });
-
-        if (error) throw error;
+          if (error) throw error;
+        }
       }
 
       await fetchData();
-      toast.success('Cập nhật thành công');
+      toast.success('Lưu thành công');
     } catch (error: any) {
-      toast.error('Lỗi cập nhật: ' + error.message);
+      toast.error('Lỗi lưu dữ liệu: ' + error.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -114,8 +143,11 @@ export function EstimatesSection() {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Ước tính</CardTitle>
+        <Button onClick={saveEstimates} disabled={saving}>
+          {saving ? 'Đang lưu...' : 'Lưu'}
+        </Button>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
@@ -139,13 +171,13 @@ export function EstimatesSection() {
                 </TableRow>
               ) : (
                 projects.map((project) => {
-                  const estimate = estimates[project.id];
+                  const estimate = localEstimates[project.id];
                   return (
                     <TableRow key={project.id}>
                       <TableCell>
                         <Select
                           value={estimate?.is_estimated?.toString() || 'false'}
-                          onValueChange={(value) => updateEstimate(project.id, 'is_estimated', value)}
+                          onValueChange={(value) => updateLocalEstimate(project.id, 'is_estimated', value)}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Chọn" />
@@ -163,7 +195,7 @@ export function EstimatesSection() {
                             type="number"
                             placeholder="Doanh thu trung bình tháng"
                             value={estimate?.team_revenues?.[team.name] || ''}
-                            onChange={(e) => updateEstimate(project.id, `team_${team.name}`, e.target.value)}
+                            onChange={(e) => updateLocalEstimate(project.id, `team_${team.name}`, e.target.value)}
                             className="w-full"
                           />
                         </TableCell>
@@ -171,7 +203,7 @@ export function EstimatesSection() {
                       <TableCell>
                         <Select
                           value={estimate?.estimated_duration?.toString() || '1'}
-                          onValueChange={(value) => updateEstimate(project.id, 'estimated_duration', value)}
+                          onValueChange={(value) => updateLocalEstimate(project.id, 'estimated_duration', value)}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Chọn thời gian" />
