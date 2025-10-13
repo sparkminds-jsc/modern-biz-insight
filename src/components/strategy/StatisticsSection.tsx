@@ -215,20 +215,22 @@ export function StatisticsSection() {
                 <div key={role} className="space-y-1">
                   <div className="font-medium">{role}:</div>
                   <div className="pl-4 space-y-1">
-                    {Object.entries(positions).map(([position, employees]) => (
-                      <div key={position} className="text-sm">
-                        {employees.length} {position}
-                        {employees.map((emp, idx) => (
-                          <span key={emp.employee_code}>
-                            {idx === 0 && ': '}
-                            {emp.employee_code}
-                            {idx < employees.length - 1 && ', '}
-                          </span>
-                        ))}
-                        {' '}
-                        ({Math.round(employees.reduce((sum, e) => sum + e.available_percentage, 0))}%)
-                      </div>
-                    ))}
+                    {Object.entries(positions).map(([position, employees]) => {
+                      const totalPercentage = employees.reduce((sum, e) => sum + e.available_percentage, 0);
+                      const equivalentCount = (totalPercentage / 100).toFixed(2);
+                      
+                      return (
+                        <div key={position} className="text-sm">
+                          {equivalentCount} {position}:
+                          {employees.map((emp, idx) => (
+                            <span key={emp.employee_code}>
+                              {' '}{emp.employee_code} ({Math.round(emp.available_percentage)}%)
+                              {idx < employees.length - 1 && ','}
+                            </span>
+                          ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ))}
