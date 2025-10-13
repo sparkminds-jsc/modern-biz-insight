@@ -214,7 +214,7 @@ export function StatisticsSection() {
                           </span>
                         ))}
                         {' '}
-                        ({Math.round(employees.reduce((sum, e) => sum + e.available_percentage, 0) / employees.length)}%)
+                        ({Math.round(employees.reduce((sum, e) => sum + e.available_percentage, 0))}%)
                       </div>
                     ))}
                   </div>
