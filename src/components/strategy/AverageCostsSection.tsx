@@ -17,7 +17,11 @@ interface TeamAverageCost {
   average_monthly_cost: number;
 }
 
-export function AverageCostsSection() {
+interface AverageCostsSectionProps {
+  onSave?: () => void;
+}
+
+export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
   const [teams, setTeams] = useState<Team[]>([]);
   const [costs, setCosts] = useState<Record<string, TeamAverageCost>>({});
   const [localCosts, setLocalCosts] = useState<Record<string, TeamAverageCost>>({});
@@ -97,6 +101,7 @@ export function AverageCostsSection() {
 
       await fetchData();
       toast.success('Lưu thành công');
+      onSave?.();
     } catch (error: any) {
       toast.error('Lỗi lưu dữ liệu: ' + error.message);
     } finally {

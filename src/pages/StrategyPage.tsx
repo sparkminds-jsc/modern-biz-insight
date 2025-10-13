@@ -1,10 +1,16 @@
+import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { EstimatesSection } from '@/components/strategy/EstimatesSection';
 import { AverageCostsSection } from '@/components/strategy/AverageCostsSection';
 import { StatisticsSection } from '@/components/strategy/StatisticsSection';
-import { TimelineSection } from '@/components/strategy/TimelineSection';
 
 export default function StrategyPage() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleDataChange = () => {
+    setRefreshKey(prev => prev + 1);
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -15,12 +21,10 @@ export default function StrategyPage() {
           </p>
         </div>
 
-        <EstimatesSection />
-        <AverageCostsSection />
+        <StatisticsSection key={refreshKey} />
 
-        <StatisticsSection />
-
-        <TimelineSection />
+        <EstimatesSection onSave={handleDataChange} />
+        <AverageCostsSection onSave={handleDataChange} />
       </div>
     </AppLayout>
   );

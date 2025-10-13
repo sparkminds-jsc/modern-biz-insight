@@ -21,7 +21,11 @@ interface ProjectEstimate {
   team_revenues: Record<string, number>;
 }
 
-export function EstimatesSection() {
+interface EstimatesSectionProps {
+  onSave?: () => void;
+}
+
+export function EstimatesSection({ onSave }: EstimatesSectionProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [estimates, setEstimates] = useState<Record<string, ProjectEstimate>>({});
@@ -121,6 +125,7 @@ export function EstimatesSection() {
 
       await fetchData();
       toast.success('Lưu thành công');
+      onSave?.();
     } catch (error: any) {
       toast.error('Lỗi lưu dữ liệu: ' + error.message);
     } finally {
@@ -159,13 +164,12 @@ export function EstimatesSection() {
                 {teams.map((team) => (
                   <TableHead key={team.id} className="min-w-[150px]">{team.name}</TableHead>
                 ))}
-                <TableHead className="min-w-[180px]">Thời gian dự tính</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {projects.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={teams.length + 3} className="text-center text-muted-foreground">
+                  <TableCell colSpan={teams.length + 2} className="text-center text-muted-foreground">
                     Chưa có dự án nào
                   </TableCell>
                 </TableRow>
@@ -200,24 +204,6 @@ export function EstimatesSection() {
                           />
                         </TableCell>
                       ))}
-                      <TableCell>
-                        <Select
-                          value={estimate?.estimated_duration?.toString() || '1'}
-                          onValueChange={(value) => updateLocalEstimate(project.id, 'estimated_duration', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Chọn thời gian" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="1">1 tháng</SelectItem>
-                            <SelectItem value="2">2 tháng</SelectItem>
-                            <SelectItem value="3">3 tháng</SelectItem>
-                            <SelectItem value="4">4 tháng</SelectItem>
-                            <SelectItem value="5">5 tháng</SelectItem>
-                            <SelectItem value="6">6 tháng</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </TableCell>
                     </TableRow>
                   );
                 })
