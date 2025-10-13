@@ -2,6 +2,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EstimatesSection } from '@/components/strategy/EstimatesSection';
 import { AverageCostsSection } from '@/components/strategy/AverageCostsSection';
+import { StatisticsSection } from '@/components/strategy/StatisticsSection';
 
 export default function StrategyPage() {
   return (
@@ -17,14 +18,7 @@ export default function StrategyPage() {
         <EstimatesSection />
         <AverageCostsSection />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Thống kê</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">Chức năng sẽ được bổ sung sau</p>
-          </CardContent>
-        </Card>
+        <StatisticsSection />
 
         <Card>
           <CardHeader>
