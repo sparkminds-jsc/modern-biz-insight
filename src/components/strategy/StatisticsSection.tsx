@@ -54,7 +54,7 @@ export function StatisticsSection() {
         if (estimate.is_estimated && estimate.team_revenues) {
           Object.entries(estimate.team_revenues).forEach(([team, revenue]) => {
             const revenueNum = typeof revenue === 'number' ? revenue : parseFloat(String(revenue)) || 0;
-            teamRevenueMap[team] = (teamRevenueMap[team] || 0) + revenueNum * (estimate.estimated_duration || 1);
+            teamRevenueMap[team] = (teamRevenueMap[team] || 0) + revenueNum;
           });
         }
       });
