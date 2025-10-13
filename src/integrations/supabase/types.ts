@@ -7,13 +7,46 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
   }
   public: {
     Tables: {
+      allocates: {
+        Row: {
+          call_kh: boolean
+          created_at: string
+          employee_code: string
+          id: string
+          position: string
+          project_allocations: Json
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          call_kh?: boolean
+          created_at?: string
+          employee_code: string
+          id?: string
+          position?: string
+          project_allocations?: Json
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          call_kh?: boolean
+          created_at?: string
+          employee_code?: string
+          id?: string
+          position?: string
+          project_allocations?: Json
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contracts: {
         Row: {
           auto_renewal: boolean | null
@@ -933,8 +966,8 @@ export type Database = {
     Functions: {
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }

@@ -11,7 +11,8 @@ import {
   FileBarChart,
   Menu,
   Home,
-  FolderOpen
+  FolderOpen,
+  UserCog
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -31,6 +32,7 @@ const menuItems = [
   { icon: PieChart, label: 'Quản lý chi phí', path: '/expenses' },
   { icon: FileBarChart, label: 'Quản lý báo cáo', path: '/reports' },
   { icon: FolderOpen, label: 'Quản lý dự án', path: '/projects' },
+  { icon: UserCog, label: 'Quản lý allocate', path: '/allocate' },
 ];
 
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {

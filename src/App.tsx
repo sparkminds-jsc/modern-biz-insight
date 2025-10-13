@@ -14,6 +14,7 @@ import ContractsPage from './pages/ContractsPage';
 import KPIPage from './pages/KPIPage';
 import KPIDetailPage from './pages/KPIDetailPage';
 import ProjectsPage from './pages/ProjectsPage';
+import AllocatePage from './pages/AllocatePage';
 import NotFound from './pages/NotFound';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import TeamReportDetailPage from './pages/TeamReportDetailPage';
@@ -36,6 +37,7 @@ function App() {
         <Route path="/kpi" element={<ProtectedRoute><KPIPage /></ProtectedRoute>} />
         <Route path="/kpi/detail/:year/:month" element={<ProtectedRoute><KPIDetailPage /></ProtectedRoute>} />
         <Route path="/projects" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
+        <Route path="/allocate" element={<ProtectedRoute><AllocatePage /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
