@@ -494,6 +494,44 @@ export type Database = {
         }
         Relationships: []
       }
+      project_estimates: {
+        Row: {
+          created_at: string
+          estimated_duration: number
+          id: string
+          is_estimated: boolean
+          project_id: string | null
+          team_revenues: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          estimated_duration?: number
+          id?: string
+          is_estimated?: boolean
+          project_id?: string | null
+          team_revenues?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          estimated_duration?: number
+          id?: string
+          is_estimated?: boolean
+          project_id?: string | null
+          team_revenues?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_estimates_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           created_at: string
@@ -777,6 +815,30 @@ export type Database = {
           total_personal_insurance?: number
           updated_at?: string
           year?: number
+        }
+        Relationships: []
+      }
+      team_average_costs: {
+        Row: {
+          average_monthly_cost: number
+          created_at: string
+          id: string
+          team: string
+          updated_at: string
+        }
+        Insert: {
+          average_monthly_cost?: number
+          created_at?: string
+          id?: string
+          team: string
+          updated_at?: string
+        }
+        Update: {
+          average_monthly_cost?: number
+          created_at?: string
+          id?: string
+          team?: string
+          updated_at?: string
         }
         Relationships: []
       }
