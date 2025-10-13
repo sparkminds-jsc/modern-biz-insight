@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { AllocateFilters } from '@/components/allocate/AllocateFilters';
 import { AllocateTable } from '@/components/allocate/AllocateTable';
