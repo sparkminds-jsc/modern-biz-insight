@@ -121,8 +121,12 @@ export default function AllocatePage() {
     setAllocates(prev => ({
       ...prev,
       [employeeCode]: {
-        ...prev[employeeCode],
         employee_code: employeeCode,
+        role: prev[employeeCode]?.role || 'Member',
+        position: prev[employeeCode]?.position || 'BE',
+        call_kh: prev[employeeCode]?.call_kh || false,
+        project_allocations: prev[employeeCode]?.project_allocations || {},
+        ...prev[employeeCode],
         [field]: value
       }
     }));
@@ -132,8 +136,14 @@ export default function AllocatePage() {
     try {
       setLoading(true);
 
-      // Prepare data for upsert
-      const allocateRecords = Object.values(allocates);
+      // Prepare data for upsert - only save records that have been modified
+      const allocateRecords = Object.values(allocates).map(record => ({
+        employee_code: record.employee_code,
+        role: record.role || 'Member',
+        position: record.position || 'BE',
+        call_kh: record.call_kh || false,
+        project_allocations: record.project_allocations || {}
+      }));
 
       // Use upsert to update existing records and insert new ones
       const { error: upsertError } = await supabase
@@ -145,7 +155,7 @@ export default function AllocatePage() {
       if (upsertError) throw upsertError;
 
       toast.success('Lưu dữ liệu thành công');
-      fetchData();
+      await fetchData();
     } catch (error) {
       console.error('Error saving allocates:', error);
       toast.error('Có lỗi xảy ra khi lưu dữ liệu');
