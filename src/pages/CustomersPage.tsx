@@ -147,10 +147,13 @@ export default function CustomersPage() {
     try {
       let customerId = editingCustomer?.id;
 
+      // Remove calculated fields before saving
+      const { calculated_revenue, calculated_debt, ...dataToSave } = customerData as any;
+
       if (editingCustomer) {
         const { error } = await supabase
           .from("customers")
-          .update(customerData)
+          .update(dataToSave)
           .eq("id", editingCustomer.id);
 
         if (error) throw error;
@@ -164,7 +167,7 @@ export default function CustomersPage() {
       } else {
         const { data, error } = await supabase
           .from("customers")
-          .insert([customerData as any])
+          .insert([dataToSave])
           .select()
           .single();
 
