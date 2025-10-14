@@ -7,6 +7,7 @@ import { CustomerForm } from "@/components/customers/CustomerForm";
 import { CustomerTable } from "@/components/customers/CustomerTable";
 import { supabase } from "@/integrations/supabase/client";
 import { Customer } from "@/types/customer";
+import { CustomerContact } from "@/types/customerContact";
 import { useToast } from "@/hooks/use-toast";
 
 export default function CustomersPage() {
@@ -15,6 +16,7 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [editingContacts, setEditingContacts] = useState<CustomerContact[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState("all");
   const [selectedVipLevel, setSelectedVipLevel] = useState("all");
   const [selectedPotentialLevel, setSelectedPotentialLevel] = useState("all");
@@ -67,8 +69,10 @@ export default function CustomersPage() {
     setFilteredCustomers(filtered);
   };
 
-  const handleSubmit = async (customerData: Partial<Customer>) => {
+  const handleSubmit = async (customerData: Partial<Customer>, contacts: Partial<CustomerContact>[]) => {
     try {
+      let customerId = editingCustomer?.id;
+
       if (editingCustomer) {
         const { error } = await supabase
           .from("customers")
@@ -77,26 +81,46 @@ export default function CustomersPage() {
 
         if (error) throw error;
 
-        toast({
-          title: "Thành công",
-          description: "Đã cập nhật thông tin khách hàng",
-        });
+        // Delete existing contacts and insert new ones
+        await supabase
+          .from("customer_contacts")
+          .delete()
+          .eq("customer_id", editingCustomer.id);
+
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from("customers")
-          .insert([customerData as any]);
+          .insert([customerData as any])
+          .select()
+          .single();
 
         if (error) throw error;
-
-        toast({
-          title: "Thành công",
-          description: "Đã thêm khách hàng mới",
-        });
+        customerId = data.id;
       }
+
+      // Insert contacts
+      if (contacts.length > 0 && customerId) {
+        const contactsToInsert = contacts.map((contact) => ({
+          ...contact,
+          customer_id: customerId,
+        }));
+
+        const { error: contactError } = await supabase
+          .from("customer_contacts")
+          .insert(contactsToInsert as any);
+
+        if (contactError) throw contactError;
+      }
+
+      toast({
+        title: "Thành công",
+        description: editingCustomer ? "Đã cập nhật thông tin khách hàng" : "Đã thêm khách hàng mới",
+      });
 
       fetchCustomers();
       setFormOpen(false);
       setEditingCustomer(null);
+      setEditingContacts([]);
     } catch (error) {
       console.error("Error saving customer:", error);
       toast({
@@ -107,8 +131,22 @@ export default function CustomersPage() {
     }
   };
 
-  const handleEdit = (customer: Customer) => {
+  const handleEdit = async (customer: Customer) => {
     setEditingCustomer(customer);
+    
+    // Fetch contacts for this customer
+    try {
+      const { data, error } = await supabase
+        .from("customer_contacts")
+        .select("*")
+        .eq("customer_id", customer.id);
+      
+      if (error) throw error;
+      setEditingContacts(data || []);
+    } catch (error) {
+      console.error("Error fetching contacts:", error);
+    }
+    
     setFormOpen(true);
   };
 
@@ -153,6 +191,7 @@ export default function CustomersPage() {
           onOpenChange={setFormOpen}
           onSubmit={handleSubmit}
           initialData={editingCustomer}
+          initialContacts={editingContacts}
         />
       </div>
     </AppLayout>

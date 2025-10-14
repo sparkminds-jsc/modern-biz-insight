@@ -89,6 +89,50 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_contacts: {
+        Row: {
+          contact_info: string | null
+          created_at: string
+          customer_id: string
+          id: string
+          last_contact_date: string | null
+          name: string
+          notes: string | null
+          position: string | null
+          updated_at: string
+        }
+        Insert: {
+          contact_info?: string | null
+          created_at?: string
+          customer_id: string
+          id?: string
+          last_contact_date?: string | null
+          name: string
+          notes?: string | null
+          position?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contact_info?: string | null
+          created_at?: string
+          customer_id?: string
+          id?: string
+          last_contact_date?: string | null
+          name?: string
+          notes?: string | null
+          position?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_contacts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
           address: string | null

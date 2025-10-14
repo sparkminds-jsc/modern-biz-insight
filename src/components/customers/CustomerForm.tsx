@@ -1,20 +1,23 @@
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Customer, CUSTOMER_TYPES, CUSTOMER_STATUSES, VIP_LEVELS, POTENTIAL_LEVELS } from "@/types/customer";
+import { CustomerContact } from "@/types/customerContact";
+import { ContactList } from "./ContactList";
 
 interface CustomerFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (customer: Partial<Customer>) => void;
+  onSubmit: (customer: Partial<Customer>, contacts: Partial<CustomerContact>[]) => void;
   initialData?: Customer | null;
+  initialContacts?: CustomerContact[];
 }
 
-export function CustomerForm({ open, onOpenChange, onSubmit, initialData }: CustomerFormProps) {
+export function CustomerForm({ open, onOpenChange, onSubmit, initialData, initialContacts = [] }: CustomerFormProps) {
   const [formData, setFormData] = useState<Partial<Customer>>(
     initialData || {
       name: "",
@@ -26,19 +29,25 @@ export function CustomerForm({ open, onOpenChange, onSubmit, initialData }: Cust
       potential_level: "Không đáng đầu tư",
       total_revenue: 0,
       total_debt: 0,
+      first_project: "",
+      first_project_start_date: "",
+      latest_project: "",
+      latest_project_end_date: "",
       notes: "",
     }
   );
 
+  const [contacts, setContacts] = useState<Partial<CustomerContact>[]>(initialContacts);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    onSubmit(formData, contacts);
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{initialData ? "Chỉnh sửa khách hàng" : "Thêm khách hàng"}</DialogTitle>
         </DialogHeader>
@@ -150,16 +159,11 @@ export function CustomerForm({ open, onOpenChange, onSubmit, initialData }: Cust
             </div>
           </div>
 
+          <div className="border-t pt-4">
+            <ContactList contacts={contacts} onContactsChange={setContacts} />
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="last_contact_date">Lần liên hệ cuối</Label>
-              <Input
-                id="last_contact_date"
-                type="date"
-                value={formData.last_contact_date || ""}
-                onChange={(e) => setFormData({ ...formData, last_contact_date: e.target.value })}
-              />
-            </div>
             <div>
               <Label htmlFor="total_revenue">Tổng doanh thu (VND)</Label>
               <Input
@@ -169,9 +173,6 @@ export function CustomerForm({ open, onOpenChange, onSubmit, initialData }: Cust
                 onChange={(e) => setFormData({ ...formData, total_revenue: parseFloat(e.target.value) })}
               />
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="total_debt">Tổng nợ</Label>
               <Input
@@ -181,6 +182,9 @@ export function CustomerForm({ open, onOpenChange, onSubmit, initialData }: Cust
                 onChange={(e) => setFormData({ ...formData, total_debt: parseFloat(e.target.value) })}
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="first_project">Dự án đầu tiên</Label>
               <Input
@@ -189,9 +193,6 @@ export function CustomerForm({ open, onOpenChange, onSubmit, initialData }: Cust
                 onChange={(e) => setFormData({ ...formData, first_project: e.target.value })}
               />
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="first_project_start_date">Ngày bắt đầu dự án đầu</Label>
               <Input
@@ -201,6 +202,9 @@ export function CustomerForm({ open, onOpenChange, onSubmit, initialData }: Cust
                 onChange={(e) => setFormData({ ...formData, first_project_start_date: e.target.value })}
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="latest_project">Dự án gần nhất</Label>
               <Input
@@ -209,16 +213,15 @@ export function CustomerForm({ open, onOpenChange, onSubmit, initialData }: Cust
                 onChange={(e) => setFormData({ ...formData, latest_project: e.target.value })}
               />
             </div>
-          </div>
-
-          <div>
-            <Label htmlFor="latest_project_end_date">Ngày kết thúc dự án gần nhất</Label>
-            <Input
-              id="latest_project_end_date"
-              type="date"
-              value={formData.latest_project_end_date || ""}
-              onChange={(e) => setFormData({ ...formData, latest_project_end_date: e.target.value })}
-            />
+            <div>
+              <Label htmlFor="latest_project_end_date">Ngày kết thúc dự án gần nhất</Label>
+              <Input
+                id="latest_project_end_date"
+                type="date"
+                value={formData.latest_project_end_date || ""}
+                onChange={(e) => setFormData({ ...formData, latest_project_end_date: e.target.value })}
+              />
+            </div>
           </div>
 
           <div>
