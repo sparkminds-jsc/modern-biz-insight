@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,35 @@ export function CustomerForm({ open, onOpenChange, onSubmit, initialData, initia
   );
 
   const [contacts, setContacts] = useState<Partial<CustomerContact>[]>(initialContacts);
+
+  // Update form data when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    } else {
+      setFormData({
+        name: "",
+        address: "",
+        country: "",
+        customer_type: "Cá nhân",
+        status: "Chưa kết nối",
+        vip_level: "Bỏ qua",
+        potential_level: "Không đáng đầu tư",
+        total_revenue: 0,
+        total_debt: 0,
+        first_project: "",
+        first_project_start_date: "",
+        latest_project: "",
+        latest_project_end_date: "",
+        notes: "",
+      });
+    }
+  }, [initialData]);
+
+  // Update contacts when initialContacts changes
+  useEffect(() => {
+    setContacts(initialContacts);
+  }, [initialContacts]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
