@@ -3,6 +3,7 @@ import { Customer } from "@/types/customer";
 import { CustomerContact } from "@/types/customerContact";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/utils/numberFormat";
 import { format } from "date-fns";
 import { ChevronDown, ChevronRight, Pencil, Trash2 } from "lucide-react";
@@ -86,6 +87,63 @@ export function CustomerTable({ data, onEdit }: CustomerTableProps) {
     return format(new Date(date), "dd/MM/yyyy HH:mm");
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Chưa kết nối":
+        return "bg-gray-100 text-gray-800 hover:bg-gray-100";
+      case "Đã kết nối":
+        return "bg-blue-100 text-blue-800 hover:bg-blue-100";
+      case "Đã kí HĐ":
+        return "bg-green-100 text-green-800 hover:bg-green-100";
+      case "Dự án đang dang dở":
+        return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100";
+      case "Đã hoàn thành dự án đầu":
+        return "bg-purple-100 text-purple-800 hover:bg-purple-100";
+      case "Đã trở thành khách hàng thân thiết":
+        return "bg-indigo-100 text-indigo-800 hover:bg-indigo-100";
+      case "Đã là khách hàng VIP":
+        return "bg-pink-100 text-pink-800 hover:bg-pink-100";
+      default:
+        return "bg-gray-100 text-gray-800 hover:bg-gray-100";
+    }
+  };
+
+  const getVipLevelColor = (level: string) => {
+    switch (level) {
+      case "Bỏ qua":
+        return "bg-gray-100 text-gray-600 hover:bg-gray-100";
+      case "Ít chú ý cũng được":
+        return "bg-slate-100 text-slate-700 hover:bg-slate-100";
+      case "Cần chú ý nhiều 1 chút":
+        return "bg-blue-100 text-blue-700 hover:bg-blue-100";
+      case "Cần chú ý kĩ càng":
+        return "bg-amber-100 text-amber-700 hover:bg-amber-100";
+      case "Cần phục vụ hết mình":
+        return "bg-orange-100 text-orange-700 hover:bg-orange-100";
+      case "Cần xem như thượng đế":
+        return "bg-red-100 text-red-700 hover:bg-red-100";
+      default:
+        return "bg-gray-100 text-gray-600 hover:bg-gray-100";
+    }
+  };
+
+  const getPotentialLevelColor = (level: string) => {
+    switch (level) {
+      case "Không đáng đầu tư":
+        return "bg-gray-100 text-gray-600 hover:bg-gray-100";
+      case "Đầu tư nhỏ cũng được":
+        return "bg-cyan-100 text-cyan-700 hover:bg-cyan-100";
+      case "Đầu tư vừa":
+        return "bg-teal-100 text-teal-700 hover:bg-teal-100";
+      case "Đầu tư lớn":
+        return "bg-emerald-100 text-emerald-700 hover:bg-emerald-100";
+      case "Đầu tư hết mình":
+        return "bg-green-100 text-green-700 hover:bg-green-100";
+      default:
+        return "bg-gray-100 text-gray-600 hover:bg-gray-100";
+    }
+  };
+
   return (
     <div className="border rounded-lg overflow-hidden">
       <Table>
@@ -131,9 +189,21 @@ export function CustomerTable({ data, onEdit }: CustomerTableProps) {
                   <TableCell>{customer.address || "-"}</TableCell>
                   <TableCell>{customer.country || "-"}</TableCell>
                   <TableCell>{customer.customer_type}</TableCell>
-                  <TableCell>{customer.status}</TableCell>
-                  <TableCell>{customer.vip_level}</TableCell>
-                  <TableCell>{customer.potential_level}</TableCell>
+                  <TableCell>
+                    <Badge className={getStatusColor(customer.status)}>
+                      {customer.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={getVipLevelColor(customer.vip_level)}>
+                      {customer.vip_level}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={getPotentialLevelColor(customer.potential_level)}>
+                      {customer.potential_level}
+                    </Badge>
+                  </TableCell>
                   <TableCell>{formatCurrency(customer.calculated_revenue)}</TableCell>
                   <TableCell>{customer.calculated_debt}</TableCell>
                   <TableCell>{customer.first_project || "-"}</TableCell>
