@@ -9,8 +9,13 @@ import { ChevronDown, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+interface CustomerWithCalculations extends Customer {
+  calculated_revenue: number;
+  calculated_debt: string;
+}
+
 interface CustomerTableProps {
-  data: Customer[];
+  data: CustomerWithCalculations[];
   onEdit: (customer: Customer) => void;
 }
 
@@ -129,8 +134,8 @@ export function CustomerTable({ data, onEdit }: CustomerTableProps) {
                   <TableCell>{customer.status}</TableCell>
                   <TableCell>{customer.vip_level}</TableCell>
                   <TableCell>{customer.potential_level}</TableCell>
-                  <TableCell>{formatCurrency(customer.total_revenue)}</TableCell>
-                  <TableCell>{formatCurrency(customer.total_debt)}</TableCell>
+                  <TableCell>{formatCurrency(customer.calculated_revenue)}</TableCell>
+                  <TableCell>{customer.calculated_debt}</TableCell>
                   <TableCell>{customer.first_project || "-"}</TableCell>
                   <TableCell>
                     {customer.first_project_start_date
