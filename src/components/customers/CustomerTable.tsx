@@ -249,9 +249,9 @@ export function CustomerTable({ data, onEdit }: CustomerTableProps) {
                                   <TableRow key={contact.id}>
                                     <TableCell>{contact.name}</TableCell>
                                     <TableCell>{contact.position || "-"}</TableCell>
-                                    <TableCell className="max-w-xs truncate">{contact.contact_info || "-"}</TableCell>
+                                    <TableCell className="max-w-xs whitespace-pre-wrap">{contact.contact_info || "-"}</TableCell>
                                     <TableCell>{formatLastContact(contact.last_contact_date)}</TableCell>
-                                    <TableCell className="max-w-xs truncate">{contact.notes || "-"}</TableCell>
+                                    <TableCell className="max-w-xs whitespace-pre-wrap">{contact.notes || "-"}</TableCell>
                                     <TableCell>
                                       <Button
                                         size="sm"
