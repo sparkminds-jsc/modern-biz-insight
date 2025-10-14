@@ -16,6 +16,7 @@ import { InvoiceItemForm } from './InvoiceItemForm';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Project } from '@/types/project';
+import { Customer } from '@/types/customer';
 
 interface InvoiceFormProps {
   open: boolean;
@@ -37,6 +38,19 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
         .order('name');
       if (error) throw error;
       return data as Project[];
+    }
+  });
+
+  // Fetch customers
+  const { data: customers = [] } = useQuery({
+    queryKey: ['customers'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('customers')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      return data as Customer[];
     }
   });
 
@@ -181,11 +195,21 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Tên khách hàng *</label>
-                <Input
-                  value={formData.customer_name}
-                  onChange={(e) => handleInputChange('customer_name', e.target.value)}
-                  placeholder="Nhập tên khách hàng"
-                />
+                <Select 
+                  value={formData.customer_name} 
+                  onValueChange={(value) => handleInputChange('customer_name', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Chọn khách hàng" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customers.map((customer) => (
+                      <SelectItem key={customer.id} value={customer.name}>
+                        {customer.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               
               <div>

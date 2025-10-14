@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Contract, ContractFile } from '@/types/contract';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
+import { useQuery } from '@tanstack/react-query';
+import { Customer } from '@/types/customer';
 
 interface ContractFormProps {
   isOpen: boolean;
@@ -22,6 +24,19 @@ interface ContractFormProps {
 }
 
 export function ContractForm({ isOpen, onClose, contract, onSave }: ContractFormProps) {
+  // Fetch customers
+  const { data: customers = [] } = useQuery({
+    queryKey: ['customers'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('customers')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      return data as Customer[];
+    }
+  });
+
   const [formData, setFormData] = useState({
     contract_code: '',
     contract_name: '',
@@ -216,12 +231,22 @@ export function ContractForm({ isOpen, onClose, contract, onSave }: ContractForm
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tên khách hàng *
             </label>
-            <Input
+            <Select
               required
               value={formData.customer_name}
-              onChange={(e) => setFormData({...formData, customer_name: e.target.value})}
-              placeholder="Nhập tên khách hàng"
-            />
+              onValueChange={(value) => setFormData({...formData, customer_name: value})}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn khách hàng" />
+              </SelectTrigger>
+              <SelectContent>
+                {customers.map((customer) => (
+                  <SelectItem key={customer.id} value={customer.name}>
+                    {customer.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
