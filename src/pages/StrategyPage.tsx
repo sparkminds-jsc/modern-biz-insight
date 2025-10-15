@@ -22,9 +22,9 @@ export default function StrategyPage() {
           </p>
         </div>
 
-        <ProjectStaffSection key={refreshKey} />
+        <ProjectStaffSection key="project-staff" />
         
-        <StatisticsSection key={refreshKey} />
+        <StatisticsSection key="statistics" />
 
         <EstimatesSection onSave={handleDataChange} />
         <AverageCostsSection onSave={handleDataChange} />
