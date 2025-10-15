@@ -3,6 +3,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { EstimatesSection } from '@/components/strategy/EstimatesSection';
 import { AverageCostsSection } from '@/components/strategy/AverageCostsSection';
 import { StatisticsSection } from '@/components/strategy/StatisticsSection';
+import { ProjectStaffSection } from '@/components/strategy/ProjectStaffSection';
 
 export default function StrategyPage() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -21,6 +22,8 @@ export default function StrategyPage() {
           </p>
         </div>
 
+        <ProjectStaffSection key={refreshKey} />
+        
         <StatisticsSection key={refreshKey} />
 
         <EstimatesSection onSave={handleDataChange} />
