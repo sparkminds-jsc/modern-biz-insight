@@ -7,13 +7,16 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Edit } from 'lucide-react';
 import type { Project } from '@/types/project';
 
 interface ProjectTableProps {
   projects: Project[];
+  onEdit: (project: Project) => void;
 }
 
-export function ProjectTable({ projects }: ProjectTableProps) {
+export function ProjectTable({ projects, onEdit }: ProjectTableProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Đang chạy':
@@ -33,6 +36,7 @@ export function ProjectTable({ projects }: ProjectTableProps) {
           <TableHead>Tên dự án</TableHead>
           <TableHead>Thông tin dự án</TableHead>
           <TableHead>Trạng thái</TableHead>
+          <TableHead className="w-32">Hành động</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -45,6 +49,16 @@ export function ProjectTable({ projects }: ProjectTableProps) {
               <Badge className={getStatusColor(project.status)}>
                 {project.status}
               </Badge>
+            </TableCell>
+            <TableCell>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit(project)}
+              >
+                <Edit className="h-4 w-4 mr-1" />
+                Chỉnh sửa
+              </Button>
             </TableCell>
           </TableRow>
         ))}

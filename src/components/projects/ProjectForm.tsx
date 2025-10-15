@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -12,10 +12,16 @@ import type { ProjectFormData } from '@/types/project';
 
 interface ProjectFormProps {
   onProjectCreated: () => void;
+  project?: { id: string; name: string; description: string | null; status: string } | null;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function ProjectForm({ onProjectCreated }: ProjectFormProps) {
-  const [open, setOpen] = useState(false);
+export function ProjectForm({ onProjectCreated, project, open: controlledOpen, onOpenChange }: ProjectFormProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
+  
   const [formData, setFormData] = useState<ProjectFormData>({
     name: '',
     description: '',
@@ -24,34 +30,71 @@ export function ProjectForm({ onProjectCreated }: ProjectFormProps) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  // Update form data when project prop changes
+  useEffect(() => {
+    if (project) {
+      setFormData({
+        name: project.name,
+        description: project.description || '',
+        status: project.status
+      });
+    } else {
+      setFormData({
+        name: '',
+        description: '',
+        status: 'Đang chạy'
+      });
+    }
+  }, [project]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const { error } = await supabase
-        .from('projects')
-        .insert({
-          name: formData.name,
-          description: formData.description,
-          status: formData.status
+      if (project) {
+        // Update existing project
+        const { error } = await supabase
+          .from('projects')
+          .update({
+            name: formData.name,
+            description: formData.description,
+            status: formData.status
+          })
+          .eq('id', project.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Thành công",
+          description: "Dự án đã được cập nhật thành công",
         });
+      } else {
+        // Create new project
+        const { error } = await supabase
+          .from('projects')
+          .insert({
+            name: formData.name,
+            description: formData.description,
+            status: formData.status
+          });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Thành công",
-        description: "Dự án đã được tạo thành công",
-      });
+        toast({
+          title: "Thành công",
+          description: "Dự án đã được tạo thành công",
+        });
+      }
 
       setFormData({ name: '', description: '', status: 'Đang chạy' });
       setOpen(false);
       onProjectCreated();
     } catch (error) {
-      console.error('Error creating project:', error);
+      console.error('Error saving project:', error);
       toast({
         title: "Lỗi",
-        description: "Không thể tạo dự án",
+        description: project ? "Không thể cập nhật dự án" : "Không thể tạo dự án",
         variant: "destructive",
       });
     } finally {
@@ -60,7 +103,7 @@ export function ProjectForm({ onProjectCreated }: ProjectFormProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
@@ -69,7 +112,7 @@ export function ProjectForm({ onProjectCreated }: ProjectFormProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Tạo dự án mới</DialogTitle>
+          <DialogTitle>{project ? 'Chỉnh sửa dự án' : 'Tạo dự án mới'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -110,7 +153,7 @@ export function ProjectForm({ onProjectCreated }: ProjectFormProps) {
               Hủy
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Đang tạo...' : 'Tạo dự án'}
+              {loading ? (project ? 'Đang cập nhật...' : 'Đang tạo...') : (project ? 'Cập nhật' : 'Tạo dự án')}
             </Button>
           </div>
         </form>

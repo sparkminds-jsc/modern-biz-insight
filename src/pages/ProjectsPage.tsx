@@ -16,6 +16,9 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [nameFilter, setNameFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('Đang chạy');
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const fetchProjects = async () => {
@@ -23,11 +26,18 @@ export default function ProjectsPage() {
       setLoading(true);
       const { data, error } = await supabase
         .from('projects')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*');
 
       if (error) throw error;
-      setProjects(data || []);
+      
+      // Sort by status (Đang chạy first) then by created_at
+      const sortedData = (data || []).sort((a, b) => {
+        if (a.status === 'Đang chạy' && b.status !== 'Đang chạy') return -1;
+        if (a.status !== 'Đang chạy' && b.status === 'Đang chạy') return 1;
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      });
+      
+      setProjects(sortedData);
     } catch (error) {
       console.error('Error fetching projects:', error);
       toast({
@@ -44,9 +54,21 @@ export default function ProjectsPage() {
     fetchProjects();
   }, []);
 
-  const filteredProjects = projects.filter(project =>
-    project.name.toLowerCase().includes(nameFilter.toLowerCase())
-  );
+  const filteredProjects = projects.filter(project => {
+    const matchesName = project.name.toLowerCase().includes(nameFilter.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
+    return matchesName && matchesStatus;
+  });
+
+  const handleEdit = (project: Project) => {
+    setEditingProject(project);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditDialogClose = () => {
+    setEditDialogOpen(false);
+    setEditingProject(null);
+  };
 
   return (
     <AppLayout>
@@ -72,10 +94,25 @@ export default function ProjectsPage() {
         <div className="flex justify-between items-center">
           <ProjectFilters
             nameFilter={nameFilter}
+            statusFilter={statusFilter}
             onNameFilterChange={setNameFilter}
+            onStatusFilterChange={setStatusFilter}
           />
           <ProjectForm onProjectCreated={fetchProjects} />
         </div>
+        
+        <ProjectForm 
+          project={editingProject}
+          open={editDialogOpen}
+          onOpenChange={(open) => {
+            setEditDialogOpen(open);
+            if (!open) setEditingProject(null);
+          }}
+          onProjectCreated={() => {
+            fetchProjects();
+            handleEditDialogClose();
+          }}
+        />
 
         <Card>
           <CardHeader>
@@ -88,7 +125,7 @@ export default function ProjectsPage() {
             {loading ? (
               <div className="text-center py-4">Đang tải...</div>
             ) : (
-              <ProjectTable projects={filteredProjects} />
+              <ProjectTable projects={filteredProjects} onEdit={handleEdit} />
             )}
           </CardContent>
         </Card>
