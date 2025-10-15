@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 interface ProjectStaff {
   projectId: string;
   projectName: string;
+  estimatedBill: number;
   staff: Array<{
     name: string;
     percentage: number;
@@ -27,7 +28,7 @@ export function ProjectStaffSection() {
       // Fetch estimated projects
       const { data: estimates, error: estimatesError } = await supabase
         .from('project_estimates')
-        .select('project_id')
+        .select('project_id, estimated_bill')
         .eq('is_estimated', true);
 
       if (estimatesError) throw estimatesError;
@@ -68,11 +69,13 @@ export function ProjectStaffSection() {
 
       // Build project staff data
       const projectStaffMap = new Map<string, ProjectStaff>();
+      const estimatesMap = new Map(estimates?.map(e => [e.project_id, e.estimated_bill || 0]) || []);
 
       projects?.forEach(project => {
         projectStaffMap.set(project.id, {
           projectId: project.id,
           projectName: project.name,
+          estimatedBill: estimatesMap.get(project.id) || 0,
           staff: []
         });
       });
@@ -152,7 +155,10 @@ export function ProjectStaffSection() {
           <div className="space-y-3">
             {projectStaffData.map(project => (
               <div key={project.projectId} className="flex gap-2">
-                <span className="font-medium min-w-[150px]">{project.projectName}:</span>
+                <span className="font-medium min-w-[150px]">
+                  {project.projectName}
+                  {project.estimatedBill > 0 && ` (~${project.estimatedBill} bill)`}:
+                </span>
                 <span className="text-muted-foreground">{formatStaffList(project.staff)}</span>
               </div>
             ))}

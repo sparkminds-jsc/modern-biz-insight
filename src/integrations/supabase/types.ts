@@ -604,6 +604,7 @@ export type Database = {
       project_estimates: {
         Row: {
           created_at: string
+          estimated_bill: number | null
           estimated_duration: number
           id: string
           is_estimated: boolean
@@ -613,6 +614,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          estimated_bill?: number | null
           estimated_duration?: number
           id?: string
           is_estimated?: boolean
@@ -622,6 +624,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          estimated_bill?: number | null
           estimated_duration?: number
           id?: string
           is_estimated?: boolean

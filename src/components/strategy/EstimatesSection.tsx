@@ -19,6 +19,7 @@ interface ProjectEstimate {
   is_estimated: boolean;
   estimated_duration: number;
   team_revenues: Record<string, number>;
+  estimated_bill: number;
 }
 
 interface EstimatesSectionProps {
@@ -75,6 +76,8 @@ export function EstimatesSection({ onSave }: EstimatesSectionProps) {
       updateData = { is_estimated: value === 'true' };
     } else if (field === 'estimated_duration') {
       updateData = { estimated_duration: parseInt(value) };
+    } else if (field === 'estimated_bill') {
+      updateData = { estimated_bill: parseFloat(value) || 0 };
     } else if (field.startsWith('team_')) {
       const teamName = field.replace('team_', '');
       const teamRevenues = { ...(currentEstimate?.team_revenues || {}), [teamName]: parseFloat(value) || 0 };
@@ -104,7 +107,8 @@ export function EstimatesSection({ onSave }: EstimatesSectionProps) {
             .update({
               is_estimated: localEstimate.is_estimated,
               estimated_duration: localEstimate.estimated_duration,
-              team_revenues: localEstimate.team_revenues
+              team_revenues: localEstimate.team_revenues,
+              estimated_bill: localEstimate.estimated_bill
             })
             .eq('id', originalEstimate.id);
 
@@ -116,7 +120,8 @@ export function EstimatesSection({ onSave }: EstimatesSectionProps) {
               project_id: projectId,
               is_estimated: localEstimate.is_estimated,
               estimated_duration: localEstimate.estimated_duration,
-              team_revenues: localEstimate.team_revenues
+              team_revenues: localEstimate.team_revenues,
+              estimated_bill: localEstimate.estimated_bill
             });
 
           if (error) throw error;
@@ -161,6 +166,7 @@ export function EstimatesSection({ onSave }: EstimatesSectionProps) {
               <TableRow>
                 <TableHead className="min-w-[120px]">Ước tính</TableHead>
                 <TableHead className="min-w-[200px]">Tên dự án</TableHead>
+                <TableHead className="min-w-[150px]">Tổng số bill (est)</TableHead>
                 {teams.map((team) => (
                   <TableHead key={team.id} className="min-w-[150px]">{team.name}</TableHead>
                 ))}
@@ -169,7 +175,7 @@ export function EstimatesSection({ onSave }: EstimatesSectionProps) {
             <TableBody>
               {projects.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={teams.length + 2} className="text-center text-muted-foreground">
+                  <TableCell colSpan={teams.length + 3} className="text-center text-muted-foreground">
                     Chưa có dự án nào
                   </TableCell>
                 </TableRow>
@@ -193,6 +199,15 @@ export function EstimatesSection({ onSave }: EstimatesSectionProps) {
                         </Select>
                       </TableCell>
                       <TableCell className="font-medium">{project.name}</TableCell>
+                      <TableCell>
+                        <Input
+                          type="number"
+                          placeholder="Tổng số bill"
+                          value={estimate?.estimated_bill || ''}
+                          onChange={(e) => updateLocalEstimate(project.id, 'estimated_bill', e.target.value)}
+                          className="w-full"
+                        />
+                      </TableCell>
                       {teams.map((team) => (
                         <TableCell key={team.id}>
                           <Input
