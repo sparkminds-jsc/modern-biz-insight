@@ -24,7 +24,7 @@ export default function StrategyPage() {
 
         <ProjectStaffSection refreshTrigger={refreshKey} />
         
-        <StatisticsSection key="statistics" />
+        <StatisticsSection refreshTrigger={refreshKey} />
 
         <EstimatesSection onSave={handleDataChange} />
         <AverageCostsSection onSave={handleDataChange} />

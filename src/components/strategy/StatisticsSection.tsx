@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/utils/numberFormat';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface TeamStats {
   team: string;
   revenue: number;
   cost: number;
+  storage: number;
   profit: number;
 }
 
@@ -20,14 +23,19 @@ interface AvailableEmployee {
   available_percentage: number;
 }
 
-export function StatisticsSection() {
+interface StatisticsSectionProps {
+  refreshTrigger?: number;
+}
+
+export function StatisticsSection({ refreshTrigger }: StatisticsSectionProps) {
   const [teamStats, setTeamStats] = useState<TeamStats[]>([]);
   const [availableEmployees, setAvailableEmployees] = useState<AvailableEmployee[]>([]);
   const [loading, setLoading] = useState(true);
+  const [visibleTeams, setVisibleTeams] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchStatistics();
-  }, []);
+  }, [refreshTrigger]);
 
   const fetchStatistics = async () => {
     try {
@@ -70,11 +78,13 @@ export function StatisticsSection() {
       const stats: TeamStats[] = Array.from(allTeams).map(team => {
         const revenue = teamRevenueMap[team] || 0;
         const cost = teamCostMap[team] || 0;
+        const storage = revenue * 0.3; // 30% of revenue
         return {
           team,
           revenue,
           cost,
-          profit: revenue - cost
+          storage,
+          profit: revenue - cost - storage
         };
       }).filter(stat => stat.revenue > 0 || stat.cost > 0);
 
@@ -166,6 +176,25 @@ export function StatisticsSection() {
     }
   });
 
+  const toggleTeamVisibility = (team: string) => {
+    setVisibleTeams(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(team)) {
+        newSet.delete(team);
+      } else {
+        newSet.add(team);
+      }
+      return newSet;
+    });
+  };
+
+  const formatAmount = (amount: number, team: string) => {
+    if (visibleTeams.has(team)) {
+      return formatCurrency(amount);
+    }
+    return '***';
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Box 1: Revenue/Cost */}
@@ -180,18 +209,36 @@ export function StatisticsSection() {
             <div className="space-y-3">
               {teamStats.map((stat) => (
                 <div key={stat.team} className="space-y-1">
-                  <div className="font-medium">{stat.team}</div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{stat.team}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => toggleTeamVisibility(stat.team)}
+                    >
+                      {visibleTeams.has(stat.team) ? (
+                        <Eye className="h-4 w-4" />
+                      ) : (
+                        <EyeOff className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                   <div className="flex items-center gap-3 text-sm pl-4">
                     <span className="text-green-600 dark:text-green-400">
-                      {formatCurrency(stat.revenue)}
+                      {formatAmount(stat.revenue, stat.team)}
                     </span>
                     <span>-</span>
                     <span className="text-red-600 dark:text-red-400">
-                      {formatCurrency(stat.cost)}
+                      {formatAmount(stat.cost, stat.team)}
+                    </span>
+                    <span>-</span>
+                    <span className="text-orange-600 dark:text-orange-400">
+                      {formatAmount(stat.storage, stat.team)}
                     </span>
                     <span>-</span>
                     <span className={stat.profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                      {formatCurrency(stat.profit)}
+                      {formatAmount(stat.profit, stat.team)}
                     </span>
                   </div>
                 </div>
