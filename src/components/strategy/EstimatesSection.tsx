@@ -202,6 +202,7 @@ export function EstimatesSection({ onSave }: EstimatesSectionProps) {
                       <TableCell>
                         <Input
                           type="number"
+                          step="0.01"
                           placeholder="Tổng số bill"
                           value={estimate?.estimated_bill || ''}
                           onChange={(e) => updateLocalEstimate(project.id, 'estimated_bill', e.target.value)}
