@@ -77,10 +77,10 @@ export function AllocateTable({ employees, allocates, projects, onAllocateChange
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <div className="overflow-x-auto max-h-[calc(100vh-250px)] overflow-y-auto">
-        <Table>
-          <TableHeader className="sticky top-0 z-10 bg-white">
-            <TableRow>
+      <div className="relative max-h-[calc(100vh-250px)] overflow-auto">
+        <table className="w-full caption-bottom text-sm">
+          <thead className="sticky top-0 z-10 bg-white border-b">
+            <tr className="border-b">
               <TableHead className="w-16">STT</TableHead>
               <SortableHeader field="employee_code">Mã nhân viên</SortableHeader>
               <SortableHeader field="full_name">Tên nhân viên</SortableHeader>
@@ -91,15 +91,15 @@ export function AllocateTable({ employees, allocates, projects, onAllocateChange
               {projects.map((project) => (
                 <TableHead key={project.id}>{project.name}</TableHead>
               ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+            </tr>
+          </thead>
+          <tbody className="[&_tr:last-child]:border-0">
             {sortedEmployees.length === 0 ? (
-              <TableRow>
+              <tr className="border-b transition-colors hover:bg-muted/50">
                 <TableCell colSpan={7 + projects.length} className="text-center py-8 text-gray-500">
                   Không có dữ liệu
                 </TableCell>
-              </TableRow>
+              </tr>
             ) : (
               sortedEmployees.map((employee, index) => {
                 const allocate = {
@@ -112,7 +112,7 @@ export function AllocateTable({ employees, allocates, projects, onAllocateChange
                 };
 
                 return (
-                  <TableRow key={employee.id}>
+                  <tr key={employee.id} className="border-b transition-colors hover:bg-muted/50">
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{employee.employee_code}</TableCell>
                     <TableCell>{employee.full_name}</TableCell>
@@ -187,12 +187,12 @@ export function AllocateTable({ employees, allocates, projects, onAllocateChange
                         </Select>
                       </TableCell>
                     ))}
-                  </TableRow>
+                  </tr>
                 );
               })
             )}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
     </div>
   );
