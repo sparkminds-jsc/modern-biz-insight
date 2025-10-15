@@ -13,13 +13,15 @@ const EmployeesPage = () => {
   const [filters, setFilters] = useState({
     name: '',
     team: '',
-    email: ''
+    email: '',
+    status: 'Đang làm'
   });
   
   const [searchFilters, setSearchFilters] = useState({
     name: '',
     team: '',
-    email: ''
+    email: '',
+    status: 'Đang làm'
   });
   
   const [sortConfig, setSortConfig] = useState<SortConfig>({
@@ -48,6 +50,9 @@ const EmployeesPage = () => {
       }
       if (searchFilters.email) {
         query = query.ilike('email', `%${searchFilters.email}%`);
+      }
+      if (searchFilters.status && searchFilters.status !== 'all') {
+        query = query.eq('status', searchFilters.status);
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });
