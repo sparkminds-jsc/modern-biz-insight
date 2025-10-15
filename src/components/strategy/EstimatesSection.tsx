@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Project } from '@/types/project';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface Team {
   id: string;
@@ -33,6 +34,7 @@ export function EstimatesSection({ onSave }: EstimatesSectionProps) {
   const [localEstimates, setLocalEstimates] = useState<Record<string, ProjectEstimate>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [visibleTeams, setVisibleTeams] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchData();
@@ -138,6 +140,25 @@ export function EstimatesSection({ onSave }: EstimatesSectionProps) {
     }
   };
 
+  const toggleTeamVisibility = (teamName: string) => {
+    setVisibleTeams(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(teamName)) {
+        newSet.delete(teamName);
+      } else {
+        newSet.add(teamName);
+      }
+      return newSet;
+    });
+  };
+
+  const formatTeamValue = (value: number | undefined, teamName: string) => {
+    if (visibleTeams.has(teamName)) {
+      return value || '';
+    }
+    return value ? '***' : '';
+  };
+
   if (loading) {
     return (
       <Card>
@@ -168,7 +189,23 @@ export function EstimatesSection({ onSave }: EstimatesSectionProps) {
                 <TableHead className="min-w-[200px]">Tên dự án</TableHead>
                 <TableHead className="min-w-[150px]">Tổng số bill (est)</TableHead>
                 {teams.map((team) => (
-                  <TableHead key={team.id} className="min-w-[150px]">{team.name}</TableHead>
+                  <TableHead key={team.id} className="min-w-[150px]">
+                    <div className="flex items-center gap-2">
+                      <span>{team.name}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => toggleTeamVisibility(team.name)}
+                      >
+                        {visibleTeams.has(team.name) ? (
+                          <Eye className="h-4 w-4" />
+                        ) : (
+                          <EyeOff className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
@@ -212,11 +249,12 @@ export function EstimatesSection({ onSave }: EstimatesSectionProps) {
                       {teams.map((team) => (
                         <TableCell key={team.id}>
                           <Input
-                            type="number"
+                            type={visibleTeams.has(team.name) ? "number" : "text"}
                             placeholder="Doanh thu trung bình tháng"
-                            value={estimate?.team_revenues?.[team.name] || ''}
+                            value={formatTeamValue(estimate?.team_revenues?.[team.name], team.name)}
                             onChange={(e) => updateLocalEstimate(project.id, `team_${team.name}`, e.target.value)}
                             className="w-full"
+                            readOnly={!visibleTeams.has(team.name) && !!estimate?.team_revenues?.[team.name]}
                           />
                         </TableCell>
                       ))}

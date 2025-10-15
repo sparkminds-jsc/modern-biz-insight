@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface Team {
   id: string;
@@ -27,6 +28,7 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
   const [localCosts, setLocalCosts] = useState<Record<string, TeamAverageCost>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [visibleTeams, setVisibleTeams] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchData();
@@ -109,6 +111,25 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
     }
   };
 
+  const toggleTeamVisibility = (teamName: string) => {
+    setVisibleTeams(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(teamName)) {
+        newSet.delete(teamName);
+      } else {
+        newSet.add(teamName);
+      }
+      return newSet;
+    });
+  };
+
+  const formatCostValue = (value: number | undefined, teamName: string) => {
+    if (visibleTeams.has(teamName)) {
+      return value || '';
+    }
+    return value ? '***' : '';
+  };
+
   if (loading) {
     return (
       <Card>
@@ -148,14 +169,31 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
             ) : (
               teams.map((team) => (
                 <TableRow key={team.id}>
-                  <TableCell className="font-medium">{team.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      <span>{team.name}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => toggleTeamVisibility(team.name)}
+                      >
+                        {visibleTeams.has(team.name) ? (
+                          <Eye className="h-4 w-4" />
+                        ) : (
+                          <EyeOff className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <Input
-                      type="number"
+                      type={visibleTeams.has(team.name) ? "number" : "text"}
                       placeholder="Nhập chi phí"
-                      value={localCosts[team.name]?.average_monthly_cost || ''}
+                      value={formatCostValue(localCosts[team.name]?.average_monthly_cost, team.name)}
                       onChange={(e) => updateLocalCost(team.name, e.target.value)}
                       className="max-w-xs"
+                      readOnly={!visibleTeams.has(team.name) && !!localCosts[team.name]?.average_monthly_cost}
                     />
                   </TableCell>
                 </TableRow>
