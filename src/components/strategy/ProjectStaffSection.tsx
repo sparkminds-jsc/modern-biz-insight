@@ -78,12 +78,20 @@ export function ProjectStaffSection() {
       });
 
       allocates?.forEach(allocate => {
-        const allocations = allocate.project_allocations as Record<string, number>;
+        const allocations = allocate.project_allocations as Record<string, string | number>;
         const employeeName = employeeMap.get(allocate.employee_code);
 
         if (!employeeName) return;
 
-        Object.entries(allocations).forEach(([projectId, percentage]) => {
+        Object.entries(allocations).forEach(([projectId, percentageValue]) => {
+          // Parse percentage: can be "25%" string or 25 number
+          let percentage: number;
+          if (typeof percentageValue === 'string') {
+            percentage = parseFloat(percentageValue.replace('%', ''));
+          } else {
+            percentage = percentageValue;
+          }
+
           if (percentage > 0 && projectStaffMap.has(projectId)) {
             const projectStaff = projectStaffMap.get(projectId)!;
             projectStaff.staff.push({
