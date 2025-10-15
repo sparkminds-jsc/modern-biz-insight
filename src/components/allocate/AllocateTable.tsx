@@ -77,9 +77,9 @@ export function AllocateTable({ employees, allocates, projects, onAllocateChange
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-[calc(100vh-250px)] overflow-y-auto">
         <Table>
-          <TableHeader>
+          <TableHeader className="sticky top-0 z-10 bg-white">
             <TableRow>
               <TableHead className="w-16">STT</TableHead>
               <SortableHeader field="employee_code">Mã nhân viên</SortableHeader>
