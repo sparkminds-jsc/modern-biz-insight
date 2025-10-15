@@ -22,7 +22,7 @@ export default function StrategyPage() {
           </p>
         </div>
 
-        <ProjectStaffSection key="project-staff" />
+        <ProjectStaffSection refreshTrigger={refreshKey} />
         
         <StatisticsSection key="statistics" />
 

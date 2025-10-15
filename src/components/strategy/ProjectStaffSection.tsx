@@ -13,13 +13,17 @@ interface ProjectStaff {
   }>;
 }
 
-export function ProjectStaffSection() {
+interface ProjectStaffSectionProps {
+  refreshTrigger?: number;
+}
+
+export function ProjectStaffSection({ refreshTrigger }: ProjectStaffSectionProps) {
   const [projectStaffData, setProjectStaffData] = useState<ProjectStaff[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchProjectStaffData();
-  }, []);
+  }, [refreshTrigger]);
 
   const fetchProjectStaffData = async () => {
     try {
