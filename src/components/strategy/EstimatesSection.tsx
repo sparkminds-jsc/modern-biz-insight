@@ -43,7 +43,7 @@ export function EstimatesSection({ onSave }: EstimatesSectionProps) {
       setLoading(true);
       
       const [projectsRes, teamsRes, estimatesRes] = await Promise.all([
-        supabase.from('projects').select('*').order('name'),
+        supabase.from('projects').select('*').neq('status', 'Kết thúc').order('name'),
         supabase.from('teams').select('*').order('name'),
         supabase.from('project_estimates').select('*')
       ]);
