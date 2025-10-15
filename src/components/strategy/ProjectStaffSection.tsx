@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { formatNumber } from '@/utils/numberFormat';
 
 interface ProjectStaff {
   projectId: string;
   projectName: string;
   estimatedBill: number;
+  totalPersonnel: number;
   staff: Array<{
     name: string;
     percentage: number;
@@ -80,6 +82,7 @@ export function ProjectStaffSection({ refreshTrigger }: ProjectStaffSectionProps
           projectId: project.id,
           projectName: project.name,
           estimatedBill: estimatesMap.get(project.id) || 0,
+          totalPersonnel: 0,
           staff: []
         });
       });
@@ -107,6 +110,11 @@ export function ProjectStaffSection({ refreshTrigger }: ProjectStaffSectionProps
             });
           }
         });
+      });
+
+      // Calculate total personnel for each project
+      projectStaffMap.forEach(projectStaff => {
+        projectStaff.totalPersonnel = projectStaff.staff.reduce((sum, s) => sum + (s.percentage / 100), 0);
       });
 
       // Convert to array and sort
@@ -161,7 +169,7 @@ export function ProjectStaffSection({ refreshTrigger }: ProjectStaffSectionProps
               <div key={project.projectId} className="flex gap-2">
                 <span className="font-medium min-w-[150px]">
                   {project.projectName}
-                  {project.estimatedBill > 0 && ` (~${project.estimatedBill} bill)`}:
+                  {project.estimatedBill > 0 && ` (~${project.estimatedBill} bill/${formatNumber(project.totalPersonnel, 2)} nhân sự)`}:
                 </span>
                 <span className="text-muted-foreground">{formatStaffList(project.staff)}</span>
               </div>
