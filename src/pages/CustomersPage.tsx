@@ -175,12 +175,15 @@ export default function CustomersPage() {
         customerId = data.id;
       }
 
-      // Insert contacts
+      // Insert contacts (remove id, created_at, updated_at from existing contacts)
       if (contacts.length > 0 && customerId) {
-        const contactsToInsert = contacts.map((contact) => ({
-          ...contact,
-          customer_id: customerId,
-        }));
+        const contactsToInsert = contacts.map((contact) => {
+          const { id, created_at, updated_at, ...contactData } = contact as CustomerContact;
+          return {
+            ...contactData,
+            customer_id: customerId,
+          };
+        });
 
         const { error: contactError } = await supabase
           .from("customer_contacts")
@@ -229,6 +232,7 @@ export default function CustomersPage() {
 
   const handleAddNew = () => {
     setEditingCustomer(null);
+    setEditingContacts([]);
     setFormOpen(true);
   };
 
