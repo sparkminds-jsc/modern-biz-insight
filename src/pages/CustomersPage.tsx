@@ -175,21 +175,26 @@ export default function CustomersPage() {
         customerId = data.id;
       }
 
-      // Insert contacts (remove id, created_at, updated_at from existing contacts)
+      // Insert contacts (only include the necessary fields)
       if (contacts.length > 0 && customerId) {
-        const contactsToInsert = contacts.map((contact) => {
-          const { id, created_at, updated_at, ...contactData } = contact as CustomerContact;
-          return {
-            ...contactData,
+        const contactsToInsert = contacts
+          .filter(contact => contact.name && contact.name.trim() !== '') // Only insert contacts with names
+          .map((contact) => ({
             customer_id: customerId,
-          };
-        });
+            name: contact.name || '',
+            position: contact.position || null,
+            contact_info: contact.contact_info || null,
+            last_contact_date: contact.last_contact_date || null,
+            notes: contact.notes || null,
+          }));
 
-        const { error: contactError } = await supabase
-          .from("customer_contacts")
-          .insert(contactsToInsert as any);
+        if (contactsToInsert.length > 0) {
+          const { error: contactError } = await supabase
+            .from("customer_contacts")
+            .insert(contactsToInsert);
 
-        if (contactError) throw contactError;
+          if (contactError) throw contactError;
+        }
       }
 
       toast({
