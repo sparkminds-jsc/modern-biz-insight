@@ -64,13 +64,8 @@ export function InvoiceChart() {
         const monthKey = format(startOfMonth(parseISO(invoice.created_date)), 'MM/yyyy', { locale: vi });
         const projectId = invoice.project_id || 'no_project';
         
-        // Calculate VND amount
-        let vndAmount = 0;
-        if (invoice.payment_unit === 'VND') {
-          vndAmount = invoice.total_amount;
-        } else if (invoice.payment_unit === 'USD' && invoice.vnd_exchange_rate) {
-          vndAmount = invoice.total_amount * invoice.vnd_exchange_rate;
-        }
+        // Use vnd_exchange_rate value directly (user-entered)
+        const vndAmount = invoice.vnd_exchange_rate || 0;
 
         if (!monthProjectMap[monthKey]) {
           monthProjectMap[monthKey] = {};
