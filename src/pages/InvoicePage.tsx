@@ -6,6 +6,7 @@ import { InvoiceFilters } from '../components/invoice/InvoiceFilters';
 import { InvoiceTable } from '../components/invoice/InvoiceTable';
 import { InvoiceForm } from '../components/invoice/InvoiceForm';
 import { InvoiceDetailDialog } from '../components/invoice/InvoiceDetailDialog';
+import { InvoiceChart } from '../components/invoice/InvoiceChart';
 import { supabase } from '../integrations/supabase/client';
 import { Invoice, InvoiceItem, InvoiceFilters as InvoiceFiltersType, CreateInvoiceData, CreateInvoiceItemData } from '../types/invoice';
 import { useToast } from '../hooks/use-toast';
@@ -291,6 +292,8 @@ const InvoicePage = () => {
             onDelete={handleDelete}
           />
         )}
+
+        <InvoiceChart />
 
         <InvoiceForm
           open={showForm}
