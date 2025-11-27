@@ -25,6 +25,7 @@ export function TeamSummary({ teamData }: TeamSummaryProps) {
   const totalEarn = teamData.reduce((sum, item) => sum + item.final_earn, 0);
   const totalUSD = teamData.reduce((sum, item) => sum + item.storage_usd, 0);
   const totalUSDT = teamData.reduce((sum, item) => sum + item.storage_usdt, 0);
+  const totalUSDTEarn = totalUSDT * 0.7;
 
   const summaryBoxes = [
     {
@@ -62,6 +63,12 @@ export function TeamSummary({ teamData }: TeamSummaryProps) {
       value: formatCurrency(totalUSDT, 'USDT'),
       bgColor: 'bg-red-50',
       textColor: 'text-red-600'
+    },
+    {
+      title: 'USDT Earn',
+      value: formatCurrency(totalUSDTEarn, 'USDT'),
+      bgColor: 'bg-emerald-50',
+      textColor: 'text-emerald-600'
     }
   ];
 
