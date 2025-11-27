@@ -96,6 +96,12 @@ export function ReportsSummary({ revenueData, expenseData }: ReportsSummaryProps
       textColor: 'text-yellow-600'
     },
     {
+      title: 'USDT Earn',
+      value: formatUSDT((binanceRevenueUSDT - binanceExpenseUSDT) * 0.7),
+      bgColor: 'bg-emerald-50',
+      textColor: 'text-emerald-600'
+    },
+    {
       title: 'Tổng tiền bị nợ USDT',
       value: formatUSDT(binanceRevenueUSDTDebt),
       bgColor: 'bg-red-50',
