@@ -80,7 +80,13 @@ export function InvoiceChart() {
           (monthProjectMap[monthKey][projectId] || 0) + vndAmount;
       });
 
-      // Convert to chart data format
+      // Get all unique project IDs
+      const allProjectIds = new Set<string>();
+      Object.values(monthProjectMap).forEach(monthData => {
+        Object.keys(monthData).forEach(projectId => allProjectIds.add(projectId));
+      });
+
+      // Convert to chart data format with all projects in all months
       const chartDataArray: ChartData[] = Object.keys(monthProjectMap)
         .sort((a, b) => {
           const [monthA, yearA] = a.split('/');
@@ -90,10 +96,14 @@ export function InvoiceChart() {
         })
         .map(monthKey => {
           const dataPoint: ChartData = { monthYear: monthKey };
-          Object.keys(monthProjectMap[monthKey]).forEach(projectId => {
+          
+          // Add all projects to this month (with 0 if no data)
+          allProjectIds.forEach(projectId => {
             const projectName = projectMap[projectId] || 'Không có dự án';
-            dataPoint[projectName] = Math.round(monthProjectMap[monthKey][projectId]);
+            const amount = monthProjectMap[monthKey][projectId] || 0;
+            dataPoint[projectName] = Math.round(amount);
           });
+          
           return dataPoint;
         });
 
