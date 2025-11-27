@@ -173,7 +173,14 @@ export function InvoiceTable({ invoices, onViewDetail, onExportPDF, onEdit, onDe
               <TableCell>{formatAmount(invoice.total_amount, invoice.payment_unit)}</TableCell>
               <TableCell>{invoice.payment_unit}</TableCell>
               <TableCell>
-                {invoice.vnd_exchange_rate ? new Intl.NumberFormat('vi-VN').format(invoice.vnd_exchange_rate) : '-'}
+                {(() => {
+                  if (invoice.payment_unit === 'VND') {
+                    return new Intl.NumberFormat('vi-VN').format(invoice.total_amount) + ' VND';
+                  } else if (invoice.payment_unit === 'USD' && invoice.vnd_exchange_rate) {
+                    return new Intl.NumberFormat('vi-VN').format(invoice.total_amount * invoice.vnd_exchange_rate) + ' VND';
+                  }
+                  return '-';
+                })()}
               </TableCell>
               <TableCell>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${
