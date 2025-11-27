@@ -103,6 +103,7 @@ export function TeamTable({ data, onViewDetail, onEdit, onDelete }: TeamTablePro
               <SortableHeader field="final_earn">Final Earn</SortableHeader>
               <SortableHeader field="storage_usd">Lưu trữ USD</SortableHeader>
               <SortableHeader field="storage_usdt">Lưu trữ USDT</SortableHeader>
+              <TableHead>USDT Earn</TableHead>
               <TableHead>Chú thích</TableHead>
               <TableHead className="w-40">Action</TableHead>
             </TableRow>
@@ -120,6 +121,7 @@ export function TeamTable({ data, onViewDetail, onEdit, onDelete }: TeamTablePro
                 <TableCell>{formatCurrency(item.final_earn)}</TableCell>
                 <TableCell>{formatCurrency(item.storage_usd)}</TableCell>
                 <TableCell>{formatCurrency(item.storage_usdt)}</TableCell>
+                <TableCell>{formatCurrency(item.storage_usdt * 0.7)}</TableCell>
                 <TableCell className="max-w-32 truncate">
                   {item.notes || '-'}
                 </TableCell>
