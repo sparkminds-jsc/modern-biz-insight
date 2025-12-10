@@ -1,0 +1,1 @@
+INSERT INTO expense_types (name) VALUES ('Bảo Hiểm');
