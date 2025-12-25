@@ -107,6 +107,7 @@ export function TeamReportDetailTable({ data, onEdit, onDelete, onToggleLock }: 
             <SortableHeader field="converted_vnd">Qui đổi VND</SortableHeader>
             <SortableHeader field="package_vnd">Trọn gói VND</SortableHeader>
             <SortableHeader field="has_salary">Có tính lương</SortableHeader>
+            <SortableHeader field="gross_salary">Lương Gross</SortableHeader>
             <SortableHeader field="company_payment">Công ty chi trả</SortableHeader>
             <SortableHeader field="salary_13">Tăng ca</SortableHeader>
             <SortableHeader field="total_payment">Tổng chi trả</SortableHeader>
@@ -132,6 +133,7 @@ export function TeamReportDetailTable({ data, onEdit, onDelete, onToggleLock }: 
               <TableCell>{formatCurrency(item.converted_vnd)}</TableCell>
               <TableCell>{formatCurrency(item.package_vnd)}</TableCell>
               <TableCell>{item.has_salary ? 'Có' : 'Không'}</TableCell>
+              <TableCell>{formatCurrency(item.gross_salary)}</TableCell>
               <TableCell>{formatCurrency(item.company_payment)}</TableCell>
               <TableCell>{formatCurrency(item.salary_13)}</TableCell>
               <TableCell>{formatCurrency(item.total_payment)}</TableCell>
