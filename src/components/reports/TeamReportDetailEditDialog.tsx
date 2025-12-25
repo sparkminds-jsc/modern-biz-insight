@@ -36,6 +36,7 @@ export function TeamReportDetailEditDialog({
     percentage: '',
     package_vnd: '',
     has_salary: false,
+    gross_salary: '',
     company_payment: '',
     salary_13: '',
     storage_usd: '',
@@ -86,6 +87,7 @@ export function TeamReportDetailEditDialog({
         percentage: detail.percentage?.toString() || '',
         package_vnd: detail.package_vnd?.toString() || '',
         has_salary: detail.has_salary || false,
+        gross_salary: detail.gross_salary?.toString() || '',
         company_payment: detail.company_payment?.toString() || '',
         salary_13: detail.salary_13?.toString() || '',
         storage_usd: detail.storage_usd?.toString() || '',
@@ -192,6 +194,7 @@ export function TeamReportDetailEditDialog({
           percentage: parseFloat(formData.percentage) || 0,
           package_vnd: parseFloat(formData.package_vnd) || 0,
           has_salary: formData.has_salary,
+          gross_salary: parseFloat(formData.gross_salary) || 0,
           company_payment: parseFloat(formData.company_payment) || 0,
           salary_13: parseFloat(formData.salary_13) || 0,
           storage_usd: parseFloat(formData.storage_usd) || 0,
@@ -375,7 +378,17 @@ export function TeamReportDetailEditDialog({
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="gross_salary">Lương Gross</Label>
+              <Input
+                id="gross_salary"
+                type="number"
+                step="0.01"
+                value={formData.gross_salary}
+                onChange={(e) => handleInputChange('gross_salary', e.target.value)}
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="company_payment">Công ty chi trả</Label>
               <Input

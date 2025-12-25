@@ -961,6 +961,7 @@ export type Database = {
           employee_code: string
           employee_name: string
           fx_rate: number
+          gross_salary: number
           has_salary: boolean
           id: string
           is_locked: boolean | null
@@ -987,6 +988,7 @@ export type Database = {
           employee_code: string
           employee_name: string
           fx_rate?: number
+          gross_salary?: number
           has_salary?: boolean
           id?: string
           is_locked?: boolean | null
@@ -1013,6 +1015,7 @@ export type Database = {
           employee_code?: string
           employee_name?: string
           fx_rate?: number
+          gross_salary?: number
           has_salary?: boolean
           id?: string
           is_locked?: boolean | null
