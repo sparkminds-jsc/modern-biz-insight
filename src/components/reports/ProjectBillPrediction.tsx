@@ -34,6 +34,8 @@ interface ProjectBillData {
   billVnd: number;
   billUsd: number;
   billUsdt: number;
+  earnVnd: number;
+  earnUsdt: number;
 }
 
 interface ProjectBillPredictionProps {
@@ -86,7 +88,7 @@ export function ProjectBillPrediction({
     return cols;
   }, [selectedMonths, selectedYears]);
 
-  // Calculate initial predictions based on 30% of revenue
+  // Calculate initial predictions based on Earn VND + (Earn USDT * exchangeRate)
   const calculateInitialPredictions = useMemo(() => {
     const preds: PredictionData = {};
     
@@ -107,13 +109,12 @@ export function ProjectBillPrediction({
         );
         
         if (matchingData.length > 0) {
-          // Calculate total revenue: Bill VND + (Bill USDT * exchangeRate)
-          const totalRevenue = matchingData.reduce((sum, item) => {
-            return sum + item.billVnd + (item.billUsdt * exchangeRate);
+          // Calculate total: Earn VND + (Earn USDT * exchangeRate)
+          const totalEarn = matchingData.reduce((sum, item) => {
+            return sum + (item.earnVnd || 0) + ((item.earnUsdt || 0) * exchangeRate);
           }, 0);
           
-          // 30% of revenue
-          preds[projectName][col.key] = Math.round(totalRevenue * 0.3);
+          preds[projectName][col.key] = Math.round(totalEarn);
         } else {
           preds[projectName][col.key] = 0;
         }
@@ -196,7 +197,7 @@ export function ProjectBillPrediction({
       <CardHeader>
         <CardTitle>Dự đoán tương lai</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Giá trị mặc định = 30% × (Bill VND + Bill USDT × Tỷ giá). Có thể chỉnh sửa trực tiếp.
+          Giá trị mặc định = Earn VND + (Earn USDT × Tỷ giá). Có thể chỉnh sửa trực tiếp.
         </p>
       </CardHeader>
       <CardContent>
