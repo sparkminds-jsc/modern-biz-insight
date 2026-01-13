@@ -16,6 +16,8 @@ interface ProjectBillData {
   billVnd: number;
   billUsd: number;
   billUsdt: number;
+  earnVnd: number;
+  earnUsdt: number;
   usdEquivalent?: number;
 }
 
@@ -49,12 +51,14 @@ export function ProjectBillTable({ data, exchangeRate = 25000 }: ProjectBillTabl
               <TableHead className="text-right">USD Tương đương</TableHead>
               <TableHead className="text-right">Bill USD</TableHead>
               <TableHead className="text-right">Bill USDT</TableHead>
+              <TableHead className="text-right">Earn VND</TableHead>
+              <TableHead className="text-right">Earn USDT</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={11} className="text-center py-8 text-gray-500">
                   Không có dữ liệu
                 </TableCell>
               </TableRow>
@@ -77,6 +81,12 @@ export function ProjectBillTable({ data, exchangeRate = 25000 }: ProjectBillTabl
                   </TableCell>
                   <TableCell className="text-right font-medium">
                     {formatCurrency(item.billUsdt, 'USDT')}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {formatCurrency(item.earnVnd, 'VND')}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {formatCurrency(item.earnUsdt, 'USDT')}
                   </TableCell>
                 </TableRow>
               ))
