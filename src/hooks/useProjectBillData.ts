@@ -9,6 +9,8 @@ interface ProjectBillData {
   billVnd: number;
   billUsd: number;
   billUsdt: number;
+  earnVnd: number;
+  earnUsdt: number;
 }
 
 interface ProjectBillFilters {
@@ -53,18 +55,38 @@ export function useProjectBillData() {
 
       if (error) throw error;
 
+      // Fetch team reports to get final_earn and storage_usdt
+      const { data: teamReports, error: teamReportsError } = await supabase
+        .from('team_reports')
+        .select('team, year, month, final_earn, storage_usdt');
+
+      if (teamReportsError) throw teamReportsError;
+
+      // Create a map of team reports for quick lookup
+      const teamReportMap = new Map<string, { final_earn: number; storage_usdt: number }>();
+      teamReports?.forEach((report: any) => {
+        const key = `${report.team}-${report.year}-${report.month}`;
+        teamReportMap.set(key, {
+          final_earn: report.final_earn || 0,
+          storage_usdt: report.storage_usdt || 0,
+        });
+      });
+
       // Group and aggregate data
       const groupedData = new Map<string, ProjectBillData>();
 
       teamReportDetails?.forEach((detail: any) => {
         const projectName = detail.projects?.name || 'Không có dự án';
         const key = `${projectName}-${detail.year}-${detail.month}-${detail.team}`;
+        const teamReportKey = `${detail.team}-${detail.year}-${detail.month}`;
+        const teamReportData = teamReportMap.get(teamReportKey);
         
         if (groupedData.has(key)) {
           const existing = groupedData.get(key)!;
           existing.billVnd += (detail.converted_vnd || 0) + (detail.package_vnd || 0);
           existing.billUsd += (detail.storage_usd || 0) * 10 / 7;
           existing.billUsdt += (detail.storage_usdt || 0) * 10 / 7;
+          // earnVnd and earnUsdt are from team_reports, already set
         } else {
           groupedData.set(key, {
             projectName,
@@ -74,6 +96,8 @@ export function useProjectBillData() {
             billVnd: (detail.converted_vnd || 0) + (detail.package_vnd || 0),
             billUsd: (detail.storage_usd || 0) * 10 / 7,
             billUsdt: (detail.storage_usdt || 0) * 10 / 7,
+            earnVnd: teamReportData?.final_earn || 0,
+            earnUsdt: (teamReportData?.storage_usdt || 0) * 0.7,
           });
         }
       });
