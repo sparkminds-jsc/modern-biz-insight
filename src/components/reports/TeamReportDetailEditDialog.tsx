@@ -180,7 +180,7 @@ export function TeamReportDetailEditDialog({
     const convertedVnd = calculateConvertedVnd();
     const packageVnd = parseFloat(formData.package_vnd) || 0;
     const totalPayment = calculateTotalPayment();
-    return convertedVnd + packageVnd - totalPayment;
+    return (convertedVnd + packageVnd) * 0.7 - totalPayment;
   };
 
   const calculateEarnUsdt = () => {
