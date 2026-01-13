@@ -23,8 +23,10 @@ export function useProjectBillData() {
   const [data, setData] = useState<ProjectBillData[]>([]);
   const [filteredData, setFilteredData] = useState<ProjectBillData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<{ id: string; name: string }[]>([]);
   const [exchangeRate, setExchangeRate] = useState<number>(25000);
+  const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
+  const [selectedYears, setSelectedYears] = useState<number[]>([]);
 
   const fetchData = async () => {
     try {
@@ -89,6 +91,10 @@ export function useProjectBillData() {
   const handleFilter = (filters: ProjectBillFilters) => {
     let filtered = [...data];
 
+    // Store selected months and years
+    setSelectedMonths(filters.months);
+    setSelectedYears(filters.years);
+
     // Filter by project
     if (filters.projectId) {
       const selectedProject = projects.find(p => p.id === filters.projectId);
@@ -131,5 +137,8 @@ export function useProjectBillData() {
     fetchData,
     handleFilter,
     exchangeRate,
+    projects,
+    selectedMonths,
+    selectedYears,
   };
 }
