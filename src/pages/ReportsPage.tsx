@@ -23,6 +23,7 @@ import { useProjectBillData } from '../hooks/useProjectBillData';
 import { ProjectBillFilters } from '../components/reports/ProjectBillFilters';
 import { ProjectBillSummary } from '../components/reports/ProjectBillSummary';
 import { ProjectBillTable } from '../components/reports/ProjectBillTable';
+import { ProjectBillPrediction } from '../components/reports/ProjectBillPrediction';
 import { exportTeamReportToPDF } from '../utils/pdfExport';
 import { exportTeamReportsToCSV } from '../utils/excelExport';
 import { toast } from 'sonner';
@@ -127,10 +128,14 @@ const ReportsPage = () => {
   } = useRevenueExpenseOperations();
 
   const {
+    data: projectBillAllData,
     filteredData: projectBillData,
     loading: projectBillLoading,
     handleFilter: handleProjectBillFilter,
-    exchangeRate
+    exchangeRate,
+    projects: projectsList,
+    selectedMonths: projectBillSelectedMonths,
+    selectedYears: projectBillSelectedYears,
   } = useProjectBillData();
 
   if (loading) {
@@ -226,6 +231,15 @@ const ReportsPage = () => {
 
             {/* Project Bill Table */}
             <ProjectBillTable data={projectBillData} exchangeRate={exchangeRate} />
+
+            {/* Project Bill Prediction */}
+            <ProjectBillPrediction
+              data={projectBillAllData}
+              selectedMonths={projectBillSelectedMonths}
+              selectedYears={projectBillSelectedYears}
+              exchangeRate={exchangeRate}
+              projects={projectsList}
+            />
           </TabsContent>
         </Tabs>
 
