@@ -958,6 +958,8 @@ export type Database = {
           company_payment: number
           converted_vnd: number | null
           created_at: string
+          earn_usdt: number | null
+          earn_vnd: number | null
           employee_code: string
           employee_name: string
           fx_rate: number
@@ -985,6 +987,8 @@ export type Database = {
           company_payment?: number
           converted_vnd?: number | null
           created_at?: string
+          earn_usdt?: number | null
+          earn_vnd?: number | null
           employee_code: string
           employee_name: string
           fx_rate?: number
@@ -1012,6 +1016,8 @@ export type Database = {
           company_payment?: number
           converted_vnd?: number | null
           created_at?: string
+          earn_usdt?: number | null
+          earn_vnd?: number | null
           employee_code?: string
           employee_name?: string
           fx_rate?: number

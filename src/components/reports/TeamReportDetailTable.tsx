@@ -113,6 +113,8 @@ export function TeamReportDetailTable({ data, onEdit, onDelete, onToggleLock }: 
             <SortableHeader field="total_payment">Tổng chi trả</SortableHeader>
             <SortableHeader field="storage_usd">Lưu trữ USD</SortableHeader>
             <SortableHeader field="storage_usdt">Lưu trữ USDT</SortableHeader>
+            <SortableHeader field="earn_vnd">Earn VND</SortableHeader>
+            <SortableHeader field="earn_usdt">Earn USDT</SortableHeader>
             <TableHead>Chú thích</TableHead>
             <TableHead className="w-32">Action</TableHead>
           </TableRow>
@@ -139,6 +141,8 @@ export function TeamReportDetailTable({ data, onEdit, onDelete, onToggleLock }: 
               <TableCell>{formatCurrency(item.total_payment)}</TableCell>
               <TableCell>{formatCurrency(item.storage_usd)}</TableCell>
               <TableCell>{formatCurrency(item.storage_usdt)}</TableCell>
+              <TableCell>{formatCurrency(item.earn_vnd)}</TableCell>
+              <TableCell>{formatCurrency(item.earn_usdt)}</TableCell>
               <TableCell className="max-w-32 truncate">
                 {item.notes || '-'}
               </TableCell>
