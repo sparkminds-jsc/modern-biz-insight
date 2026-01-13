@@ -133,6 +133,33 @@ export function ProjectBillPrediction({
     return Array.from(names).sort();
   }, [data, projects]);
 
+  // Calculate row totals (sum of all months for each project)
+  const rowTotals = useMemo(() => {
+    const totals: { [projectName: string]: number } = {};
+    projectNames.forEach(projectName => {
+      totals[projectName] = columns.reduce((sum, col) => {
+        return sum + (predictions[projectName]?.[col.key] || 0);
+      }, 0);
+    });
+    return totals;
+  }, [predictions, projectNames, columns]);
+
+  // Calculate column totals (sum of all projects for each month)
+  const columnTotals = useMemo(() => {
+    const totals: { [key: string]: number } = {};
+    columns.forEach(col => {
+      totals[col.key] = projectNames.reduce((sum, projectName) => {
+        return sum + (predictions[projectName]?.[col.key] || 0);
+      }, 0);
+    });
+    return totals;
+  }, [predictions, projectNames, columns]);
+
+  // Calculate grand total
+  const grandTotal = useMemo(() => {
+    return Object.values(rowTotals).reduce((sum, val) => sum + val, 0);
+  }, [rowTotals]);
+
   if (columns.length === 0) {
     return (
       <Card className="mt-6">
@@ -164,6 +191,9 @@ export function ProjectBillPrediction({
                 <TableHead className="sticky left-0 bg-background z-10 min-w-[200px]">
                   Dự án
                 </TableHead>
+                <TableHead className="min-w-[150px] text-center font-bold">
+                  Tổng
+                </TableHead>
                 {columns.map(col => (
                   <TableHead key={col.key} className="min-w-[150px] text-center">
                     {col.label}
@@ -174,28 +204,47 @@ export function ProjectBillPrediction({
             <TableBody>
               {projectNames.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={columns.length + 1} className="text-center text-muted-foreground">
+                  <TableCell colSpan={columns.length + 2} className="text-center text-muted-foreground">
                     Không có dự án nào
                   </TableCell>
                 </TableRow>
               ) : (
-                projectNames.map(projectName => (
-                  <TableRow key={projectName}>
-                    <TableCell className="sticky left-0 bg-background z-10 font-medium">
-                      {projectName}
+                <>
+                  {projectNames.map(projectName => (
+                    <TableRow key={projectName}>
+                      <TableCell className="sticky left-0 bg-background z-10 font-medium">
+                        {projectName}
+                      </TableCell>
+                      <TableCell className="text-right font-semibold bg-muted/50">
+                        {formatCurrency(rowTotals[projectName] || 0)}
+                      </TableCell>
+                      {columns.map(col => (
+                        <TableCell key={col.key} className="p-1">
+                          <Input
+                            type="text"
+                            value={formatCurrency(predictions[projectName]?.[col.key] || 0)}
+                            onChange={(e) => handlePredictionChange(projectName, col.key, e.target.value)}
+                            className="text-right h-8"
+                          />
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                  {/* Total Row */}
+                  <TableRow className="bg-muted/50 font-bold">
+                    <TableCell className="sticky left-0 bg-muted/50 z-10 font-bold">
+                      Tổng
+                    </TableCell>
+                    <TableCell className="text-right font-bold">
+                      {formatCurrency(grandTotal)}
                     </TableCell>
                     {columns.map(col => (
-                      <TableCell key={col.key} className="p-1">
-                        <Input
-                          type="text"
-                          value={formatCurrency(predictions[projectName]?.[col.key] || 0)}
-                          onChange={(e) => handlePredictionChange(projectName, col.key, e.target.value)}
-                          className="text-right h-8"
-                        />
+                      <TableCell key={col.key} className="text-right font-bold">
+                        {formatCurrency(columnTotals[col.key] || 0)}
                       </TableCell>
                     ))}
                   </TableRow>
-                ))
+                </>
               )}
             </TableBody>
           </Table>
