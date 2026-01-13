@@ -55,56 +55,20 @@ export function useProjectBillData() {
 
       if (error) throw error;
 
-      // Calculate final_earn and storage_usdt for each team/year/month from team_report_details
-      // Group by team-year-month first to calculate aggregated values
-      const teamAggregates = new Map<string, { 
-        final_bill: number; 
-        final_pay: number; 
-        storage_usdt: number;
-      }>();
-
-      teamReportDetails?.forEach((detail: any) => {
-        const key = `${detail.team}-${detail.year}-${detail.month}`;
-        if (teamAggregates.has(key)) {
-          const existing = teamAggregates.get(key)!;
-          existing.final_bill += (detail.converted_vnd || 0) + (detail.package_vnd || 0);
-          existing.final_pay += (detail.total_payment || 0);
-          existing.storage_usdt += (detail.storage_usdt || 0);
-        } else {
-          teamAggregates.set(key, {
-            final_bill: (detail.converted_vnd || 0) + (detail.package_vnd || 0),
-            final_pay: (detail.total_payment || 0),
-            storage_usdt: (detail.storage_usdt || 0),
-          });
-        }
-      });
-
-      // Calculate final_earn for each team: Bill - Pay - Save (30% of Bill)
-      const teamReportMap = new Map<string, { final_earn: number; storage_usdt: number }>();
-      teamAggregates.forEach((values, key) => {
-        const final_save = values.final_bill * 0.3;
-        const final_earn = values.final_bill - values.final_pay - final_save;
-        teamReportMap.set(key, {
-          final_earn,
-          storage_usdt: values.storage_usdt,
-        });
-      });
-
-      // Group and aggregate data by project
+      // Group and aggregate data by project, using earn_vnd and earn_usdt from team_report_details
       const groupedData = new Map<string, ProjectBillData>();
 
       teamReportDetails?.forEach((detail: any) => {
         const projectName = detail.projects?.name || 'Không có dự án';
         const key = `${projectName}-${detail.year}-${detail.month}-${detail.team}`;
-        const teamReportKey = `${detail.team}-${detail.year}-${detail.month}`;
-        const teamReportData = teamReportMap.get(teamReportKey);
         
         if (groupedData.has(key)) {
           const existing = groupedData.get(key)!;
           existing.billVnd += (detail.converted_vnd || 0) + (detail.package_vnd || 0);
           existing.billUsd += (detail.storage_usd || 0) * 10 / 7;
           existing.billUsdt += (detail.storage_usdt || 0) * 10 / 7;
-          // earnVnd and earnUsdt are calculated per team/year/month, already set
+          existing.earnVnd += (detail.earn_vnd || 0);
+          existing.earnUsdt += (detail.earn_usdt || 0);
         } else {
           groupedData.set(key, {
             projectName,
@@ -114,8 +78,8 @@ export function useProjectBillData() {
             billVnd: (detail.converted_vnd || 0) + (detail.package_vnd || 0),
             billUsd: (detail.storage_usd || 0) * 10 / 7,
             billUsdt: (detail.storage_usdt || 0) * 10 / 7,
-            earnVnd: teamReportData?.final_earn || 0,
-            earnUsdt: (teamReportData?.storage_usdt || 0) * 0.7,
+            earnVnd: (detail.earn_vnd || 0),
+            earnUsdt: (detail.earn_usdt || 0),
           });
         }
       });
