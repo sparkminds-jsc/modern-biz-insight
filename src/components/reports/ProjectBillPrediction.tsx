@@ -9,7 +9,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatCurrency } from "@/utils/numberFormat";
+// Format number without currency unit
+const formatNumber = (value: number): string => {
+  if (isNaN(value)) return '0';
+  return new Intl.NumberFormat('vi-VN').format(value);
+};
+
+// Parse Vietnamese number format (e.g., "2.400.000" -> 2400000)
+const parseVietnameseNumber = (value: string): number => {
+  // Remove all dots (thousand separators in Vietnamese format)
+  // Replace comma with dot for decimal (if any)
+  const cleaned = value
+    .replace(/\./g, '')  // Remove thousand separators
+    .replace(/,/g, '.')  // Convert decimal separator
+    .replace(/[^\d.-]/g, ''); // Remove non-numeric chars
+  return parseFloat(cleaned) || 0;
+};
 
 interface ProjectBillData {
   projectName: string;
@@ -114,7 +129,8 @@ export function ProjectBillPrediction({
   }, [calculateInitialPredictions]);
 
   const handlePredictionChange = (projectName: string, key: string, value: string) => {
-    const numValue = parseFloat(value.replace(/[^\d.-]/g, '')) || 0;
+    // Parse Vietnamese number format correctly
+    const numValue = parseVietnameseNumber(value);
     
     setPredictions(prev => ({
       ...prev,
@@ -216,13 +232,13 @@ export function ProjectBillPrediction({
                         {projectName}
                       </TableCell>
                       <TableCell className="text-right font-semibold bg-muted/50">
-                        {formatCurrency(rowTotals[projectName] || 0)}
+                        {formatNumber(rowTotals[projectName] || 0)}
                       </TableCell>
                       {columns.map(col => (
                         <TableCell key={col.key} className="p-1">
                           <Input
                             type="text"
-                            value={formatCurrency(predictions[projectName]?.[col.key] || 0)}
+                            value={formatNumber(predictions[projectName]?.[col.key] || 0)}
                             onChange={(e) => handlePredictionChange(projectName, col.key, e.target.value)}
                             className="text-right h-8"
                           />
@@ -236,11 +252,11 @@ export function ProjectBillPrediction({
                       Tổng
                     </TableCell>
                     <TableCell className="text-right font-bold">
-                      {formatCurrency(grandTotal)}
+                      {formatNumber(grandTotal)}
                     </TableCell>
                     {columns.map(col => (
                       <TableCell key={col.key} className="text-right font-bold">
-                        {formatCurrency(columnTotals[col.key] || 0)}
+                        {formatNumber(columnTotals[col.key] || 0)}
                       </TableCell>
                     ))}
                   </TableRow>
