@@ -55,24 +55,42 @@ export function useProjectBillData() {
 
       if (error) throw error;
 
-      // Fetch team reports to get final_earn and storage_usdt
-      const { data: teamReports, error: teamReportsError } = await supabase
-        .from('team_reports')
-        .select('team, year, month, final_earn, storage_usdt');
+      // Calculate final_earn and storage_usdt for each team/year/month from team_report_details
+      // Group by team-year-month first to calculate aggregated values
+      const teamAggregates = new Map<string, { 
+        final_bill: number; 
+        final_pay: number; 
+        storage_usdt: number;
+      }>();
 
-      if (teamReportsError) throw teamReportsError;
+      teamReportDetails?.forEach((detail: any) => {
+        const key = `${detail.team}-${detail.year}-${detail.month}`;
+        if (teamAggregates.has(key)) {
+          const existing = teamAggregates.get(key)!;
+          existing.final_bill += (detail.converted_vnd || 0) + (detail.package_vnd || 0);
+          existing.final_pay += (detail.total_payment || 0);
+          existing.storage_usdt += (detail.storage_usdt || 0);
+        } else {
+          teamAggregates.set(key, {
+            final_bill: (detail.converted_vnd || 0) + (detail.package_vnd || 0),
+            final_pay: (detail.total_payment || 0),
+            storage_usdt: (detail.storage_usdt || 0),
+          });
+        }
+      });
 
-      // Create a map of team reports for quick lookup
+      // Calculate final_earn for each team: Bill - Pay - Save (30% of Bill)
       const teamReportMap = new Map<string, { final_earn: number; storage_usdt: number }>();
-      teamReports?.forEach((report: any) => {
-        const key = `${report.team}-${report.year}-${report.month}`;
+      teamAggregates.forEach((values, key) => {
+        const final_save = values.final_bill * 0.3;
+        const final_earn = values.final_bill - values.final_pay - final_save;
         teamReportMap.set(key, {
-          final_earn: report.final_earn || 0,
-          storage_usdt: report.storage_usdt || 0,
+          final_earn,
+          storage_usdt: values.storage_usdt,
         });
       });
 
-      // Group and aggregate data
+      // Group and aggregate data by project
       const groupedData = new Map<string, ProjectBillData>();
 
       teamReportDetails?.forEach((detail: any) => {
@@ -86,7 +104,7 @@ export function useProjectBillData() {
           existing.billVnd += (detail.converted_vnd || 0) + (detail.package_vnd || 0);
           existing.billUsd += (detail.storage_usd || 0) * 10 / 7;
           existing.billUsdt += (detail.storage_usdt || 0) * 10 / 7;
-          // earnVnd and earnUsdt are from team_reports, already set
+          // earnVnd and earnUsdt are calculated per team/year/month, already set
         } else {
           groupedData.set(key, {
             projectName,
