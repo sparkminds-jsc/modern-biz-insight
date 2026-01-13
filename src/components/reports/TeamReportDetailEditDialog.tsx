@@ -176,6 +176,18 @@ export function TeamReportDetailEditDialog({
     return total === 0 ? 0 : (totalPayment / total) * 100;
   };
 
+  const calculateEarnVnd = () => {
+    const convertedVnd = calculateConvertedVnd();
+    const packageVnd = parseFloat(formData.package_vnd) || 0;
+    const totalPayment = calculateTotalPayment();
+    return convertedVnd + packageVnd - totalPayment;
+  };
+
+  const calculateEarnUsdt = () => {
+    const storageUsdt = parseFloat(formData.storage_usdt) || 0;
+    return storageUsdt * 0.7;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!detail) return;
@@ -199,6 +211,8 @@ export function TeamReportDetailEditDialog({
           salary_13: parseFloat(formData.salary_13) || 0,
           storage_usd: parseFloat(formData.storage_usd) || 0,
           storage_usdt: parseFloat(formData.storage_usdt) || 0,
+          earn_vnd: calculateEarnVnd(),
+          earn_usdt: calculateEarnUsdt(),
           notes: formData.notes,
           updated_at: new Date().toISOString()
         })
@@ -439,6 +453,25 @@ export function TeamReportDetailEditDialog({
                 step="0.01"
                 value={formData.storage_usdt}
                 onChange={(e) => handleInputChange('storage_usdt', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Earn VND</Label>
+              <Input
+                value={Math.round(calculateEarnVnd()).toLocaleString('vi-VN')}
+                readOnly
+                className="bg-gray-100"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Earn USDT</Label>
+              <Input
+                value={Math.round(calculateEarnUsdt()).toLocaleString('vi-VN')}
+                readOnly
+                className="bg-gray-100"
               />
             </div>
           </div>
