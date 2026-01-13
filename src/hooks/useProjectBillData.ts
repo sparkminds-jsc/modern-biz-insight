@@ -90,6 +90,15 @@ export function useProjectBillData() {
         });
       });
 
+      // First pass: group by project-year-month-team to calculate billVnd for each
+      const projectBillMap = new Map<string, number>();
+      teamReportDetails?.forEach((detail: any) => {
+        const projectName = detail.projects?.name || 'Không có dự án';
+        const key = `${projectName}-${detail.year}-${detail.month}-${detail.team}`;
+        const billVnd = (detail.converted_vnd || 0) + (detail.package_vnd || 0);
+        projectBillMap.set(key, (projectBillMap.get(key) || 0) + billVnd);
+      });
+
       // Group and aggregate data by project
       const groupedData = new Map<string, ProjectBillData>();
 
@@ -98,13 +107,23 @@ export function useProjectBillData() {
         const key = `${projectName}-${detail.year}-${detail.month}-${detail.team}`;
         const teamReportKey = `${detail.team}-${detail.year}-${detail.month}`;
         const teamReportData = teamReportMap.get(teamReportKey);
+        const teamAggregate = teamAggregates.get(teamReportKey);
+        
+        // Calculate proportion of this project's billVnd relative to team total
+        const projectBillVnd = projectBillMap.get(key) || 0;
+        const teamTotalBill = teamAggregate?.final_bill || 0;
+        const proportion = teamTotalBill > 0 ? projectBillVnd / teamTotalBill : 0;
+        
+        // Proportionally allocate earnVnd and earnUsdt based on project's contribution
+        const earnVnd = (teamReportData?.final_earn || 0) * proportion;
+        const earnUsdt = (teamReportData?.storage_usdt || 0) * 0.7 * proportion;
         
         if (groupedData.has(key)) {
           const existing = groupedData.get(key)!;
           existing.billVnd += (detail.converted_vnd || 0) + (detail.package_vnd || 0);
           existing.billUsd += (detail.storage_usd || 0) * 10 / 7;
           existing.billUsdt += (detail.storage_usdt || 0) * 10 / 7;
-          // earnVnd and earnUsdt are calculated per team/year/month, already set
+          // earnVnd and earnUsdt are already calculated based on proportion
         } else {
           groupedData.set(key, {
             projectName,
@@ -114,8 +133,8 @@ export function useProjectBillData() {
             billVnd: (detail.converted_vnd || 0) + (detail.package_vnd || 0),
             billUsd: (detail.storage_usd || 0) * 10 / 7,
             billUsdt: (detail.storage_usdt || 0) * 10 / 7,
-            earnVnd: teamReportData?.final_earn || 0,
-            earnUsdt: (teamReportData?.storage_usdt || 0) * 0.7,
+            earnVnd,
+            earnUsdt,
           });
         }
       });
