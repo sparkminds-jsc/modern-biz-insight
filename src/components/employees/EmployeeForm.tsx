@@ -83,7 +83,7 @@ export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: Emp
   useEffect(() => {
     if (employee) {
       setFormData(employee);
-    } else {
+    } else if (isOpen) {
       setFormData({
         employee_code: '',
         full_name: '',
@@ -96,7 +96,7 @@ export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: Emp
         status: 'Đang làm'
       });
     }
-  }, [employee, isOpen, teams]);
+  }, [employee, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
