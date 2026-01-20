@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -66,6 +68,7 @@ export function ProjectBillPrediction({
   projects
 }: ProjectBillPredictionProps) {
   const [predictions, setPredictions] = useState<PredictionData>({});
+  const [hideZeroRevenueProjects, setHideZeroRevenueProjects] = useState(false);
 
   // Generate column headers based on selected months and years
   const columns = useMemo(() => {
@@ -150,27 +153,42 @@ export function ProjectBillPrediction({
     return Array.from(names).sort();
   }, [data, projects]);
 
+  // Filter projects based on hideZeroRevenueProjects checkbox
+  const filteredProjectNames = useMemo(() => {
+    if (!hideZeroRevenueProjects) {
+      return projectNames;
+    }
+    
+    return projectNames.filter(projectName => {
+      // Check if any month has revenue > 0
+      const projectPredictions = predictions[projectName];
+      if (!projectPredictions) return false;
+      
+      return columns.some(col => (projectPredictions[col.key] || 0) > 0);
+    });
+  }, [projectNames, predictions, columns, hideZeroRevenueProjects]);
+
   // Calculate row totals (sum of all months for each project)
   const rowTotals = useMemo(() => {
     const totals: { [projectName: string]: number } = {};
-    projectNames.forEach(projectName => {
+    filteredProjectNames.forEach(projectName => {
       totals[projectName] = columns.reduce((sum, col) => {
         return sum + (predictions[projectName]?.[col.key] || 0);
       }, 0);
     });
     return totals;
-  }, [predictions, projectNames, columns]);
+  }, [predictions, filteredProjectNames, columns]);
 
   // Calculate column totals (sum of all projects for each month)
   const columnTotals = useMemo(() => {
     const totals: { [key: string]: number } = {};
     columns.forEach(col => {
-      totals[col.key] = projectNames.reduce((sum, projectName) => {
+      totals[col.key] = filteredProjectNames.reduce((sum, projectName) => {
         return sum + (predictions[projectName]?.[col.key] || 0);
       }, 0);
     });
     return totals;
-  }, [predictions, projectNames, columns]);
+  }, [predictions, filteredProjectNames, columns]);
 
   // Calculate grand total
   const grandTotal = useMemo(() => {
@@ -195,7 +213,19 @@ export function ProjectBillPrediction({
   return (
     <Card className="mt-6">
       <CardHeader>
-        <CardTitle>Dự đoán tương lai</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle>Dự đoán tương lai</CardTitle>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="hideZeroRevenue"
+              checked={hideZeroRevenueProjects}
+              onCheckedChange={(checked) => setHideZeroRevenueProjects(checked === true)}
+            />
+            <Label htmlFor="hideZeroRevenue" className="text-sm font-normal cursor-pointer">
+              Ẩn dự án không có doanh thu
+            </Label>
+          </div>
+        </div>
         <p className="text-sm text-muted-foreground">
           Giá trị mặc định = Earn VND + (Earn USDT × Tỷ giá). Có thể chỉnh sửa trực tiếp.
         </p>
@@ -219,15 +249,15 @@ export function ProjectBillPrediction({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {projectNames.length === 0 ? (
+              {filteredProjectNames.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={columns.length + 2} className="text-center text-muted-foreground">
-                    Không có dự án nào
+                    {hideZeroRevenueProjects ? 'Không có dự án nào có doanh thu' : 'Không có dự án nào'}
                   </TableCell>
                 </TableRow>
               ) : (
                 <>
-                  {projectNames.map(projectName => (
+                  {filteredProjectNames.map(projectName => (
                     <TableRow key={projectName}>
                       <TableCell className="sticky left-0 bg-background z-10 font-medium">
                         {projectName}
