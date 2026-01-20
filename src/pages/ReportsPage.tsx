@@ -234,7 +234,7 @@ const ReportsPage = () => {
 
             {/* Project Bill Prediction */}
             <ProjectBillPrediction
-              data={projectBillAllData}
+              data={projectBillData}
               selectedMonths={projectBillSelectedMonths}
               selectedYears={projectBillSelectedYears}
               exchangeRate={exchangeRate}
