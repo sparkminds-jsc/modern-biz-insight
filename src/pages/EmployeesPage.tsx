@@ -130,13 +130,20 @@ const EmployeesPage = () => {
   // Update employee
   const updateEmployeeMutation = useMutation({
     mutationFn: async (employee: Employee) => {
+      if (!employee?.id) {
+        throw new Error('Thiếu ID nhân viên, vui lòng tải lại và thử lại');
+      }
+
+      // Only update editable fields (avoid sending id/created_at/updated_at)
+      const { id, created_at, updated_at, ...updates } = employee;
+
       const { data, error } = await supabase
         .from('employees')
-        .update(employee)
-        .eq('id', employee.id)
+        .update(updates)
+        .eq('id', id)
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     },
