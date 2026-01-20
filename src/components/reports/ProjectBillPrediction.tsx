@@ -145,13 +145,12 @@ export function ProjectBillPrediction({
     }));
   };
 
-  // Get all project names to display
+  // Get project names only from filtered data (not from all projects)
   const projectNames = useMemo(() => {
     const names = new Set<string>();
     data.forEach(item => names.add(item.projectName));
-    projects.forEach(p => names.add(p.name));
     return Array.from(names).sort();
-  }, [data, projects]);
+  }, [data]);
 
   // Filter projects based on hideZeroRevenueProjects checkbox
   const filteredProjectNames = useMemo(() => {
