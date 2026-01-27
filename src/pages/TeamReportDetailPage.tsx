@@ -244,7 +244,14 @@ const TeamReportDetailPage = () => {
   };
 
   const handleBackToReports = () => {
-    navigate('/reports');
+    // Restore previous filter state from sessionStorage
+    const returnParams = sessionStorage.getItem('teamReportsReturnParams');
+    if (returnParams) {
+      navigate(`/reports?${returnParams}`);
+    } else {
+      // Fallback to just the team tab
+      navigate('/reports?tab=team');
+    }
   };
 
   const handleExportPDF = () => {

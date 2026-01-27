@@ -43,6 +43,22 @@ export function TeamTable({ data, onViewDetail, onEdit, onDelete }: TeamTablePro
   };
 
   const handleViewDetail = (report: any) => {
+    // Preserve current URL params when navigating to detail page
+    const currentParams = new URLSearchParams(window.location.search);
+    const teamParam = currentParams.get('team');
+    const monthsParam = currentParams.get('months');
+    const yearsParam = currentParams.get('years');
+    
+    // Build return URL params
+    const returnParams = new URLSearchParams();
+    returnParams.set('tab', 'team');
+    if (teamParam) returnParams.set('team', teamParam);
+    if (monthsParam) returnParams.set('months', monthsParam);
+    if (yearsParam) returnParams.set('years', yearsParam);
+    
+    // Store return params in sessionStorage for restoration
+    sessionStorage.setItem('teamReportsReturnParams', returnParams.toString());
+    
     navigate(`/reports/team/${report.id}`);
   };
 

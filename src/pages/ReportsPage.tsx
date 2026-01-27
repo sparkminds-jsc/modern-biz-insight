@@ -14,7 +14,8 @@ import { CreateTeamDialog } from '../components/reports/CreateTeamDialog';
 import { RevenueDetailDialog } from '../components/revenue/RevenueDetailDialog';
 import { ExpenseDetailDialog } from '../components/expenses/ExpenseDetailDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useReportsData } from '../hooks/useReportsData';
 import { useReportsFilters } from '../hooks/useReportsFilters';
 import { useTeamReportOperations } from '../hooks/useTeamReportOperations';
@@ -45,10 +46,43 @@ const ReportsPage = () => {
     setFilteredTeamReports
   } = useReportsData();
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'revenue-expense');
   const [currentFilters, setCurrentFilters] = useState<any>({});
   const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
   const [selectedYears, setSelectedYears] = useState<number[]>([]);
   const [currentTeamFilters, setCurrentTeamFilters] = useState<any>({});
+
+  // Restore team filters from URL params on mount
+  useEffect(() => {
+    const teamParam = searchParams.get('team');
+    const monthsParam = searchParams.get('months');
+    const yearsParam = searchParams.get('years');
+
+    if (teamParam || monthsParam || yearsParam) {
+      const months = monthsParam ? monthsParam.split(',').map(Number) : [];
+      const years = yearsParam ? yearsParam.split(',').map(Number) : [];
+      
+      setSelectedMonths(months);
+      setSelectedYears(years);
+      
+      const filters = {
+        months,
+        years,
+        team: teamParam || undefined
+      };
+      setCurrentTeamFilters(filters);
+      handleTeamFilter(filters);
+    }
+  }, []);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // Update URL with current tab
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('tab', value);
+    setSearchParams(newParams, { replace: true });
+  };
 
   const { handleFilter, handleTeamFilter } = useReportsFilters(
     revenues,
@@ -72,6 +106,26 @@ const ReportsPage = () => {
   const handleTeamFilterWithStorage = (filters: any) => {
     setCurrentTeamFilters(filters);
     handleTeamFilter(filters);
+    
+    // Store filters in URL params for restoration after navigation
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('tab', 'team');
+    if (filters.team) {
+      newParams.set('team', filters.team);
+    } else {
+      newParams.delete('team');
+    }
+    if (filters.months?.length > 0) {
+      newParams.set('months', filters.months.join(','));
+    } else {
+      newParams.delete('months');
+    }
+    if (filters.years?.length > 0) {
+      newParams.set('years', filters.years.join(','));
+    } else {
+      newParams.delete('years');
+    }
+    setSearchParams(newParams, { replace: true });
   };
 
   const handleExportPDF = () => {
@@ -159,7 +213,7 @@ const ReportsPage = () => {
           <p className="text-gray-600">Báo cáo thu chi và hiệu suất team</p>
         </div>
 
-        <Tabs defaultValue="revenue-expense" className="w-full">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="revenue-expense">Thu Chi</TabsTrigger>
             <TabsTrigger value="team">Team</TabsTrigger>
