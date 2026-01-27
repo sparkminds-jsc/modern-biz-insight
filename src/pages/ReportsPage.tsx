@@ -72,6 +72,7 @@ const ReportsPage = () => {
     const yearsParam = searchParams.get('years');
 
     // Only apply filters when on team tab with filter params
+    // Note: include teamReports in deps so filters are re-applied after data loads.
     if (tabParam === 'team' && (teamParam || monthsParam || yearsParam)) {
       const months = monthsParam ? monthsParam.split(',').map(Number) : [];
       const years = yearsParam ? yearsParam.split(',').map(Number) : [];
@@ -87,7 +88,7 @@ const ReportsPage = () => {
       setCurrentTeamFilters(filters);
       handleTeamFilter(filters);
     }
-  }, [searchParams]);
+  }, [searchParams, teamReports]);
 
   const handleTabChange = (value: string) => {
     // Update URL with current tab
