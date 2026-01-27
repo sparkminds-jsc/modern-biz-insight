@@ -1,5 +1,6 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -21,9 +22,19 @@ interface TeamFiltersProps {
 }
 
 export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreateTeam, onExportCSV, teams }: TeamFiltersProps) {
-  const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
-  const [selectedYears, setSelectedYears] = useState<number[]>([]);
-  const [selectedTeam, setSelectedTeam] = useState<string>('all');
+  const [searchParams] = useSearchParams();
+  
+  const [selectedMonths, setSelectedMonths] = useState<number[]>(() => {
+    const monthsParam = searchParams.get('months');
+    return monthsParam ? monthsParam.split(',').map(Number) : [];
+  });
+  const [selectedYears, setSelectedYears] = useState<number[]>(() => {
+    const yearsParam = searchParams.get('years');
+    return yearsParam ? yearsParam.split(',').map(Number) : [];
+  });
+  const [selectedTeam, setSelectedTeam] = useState<string>(() => {
+    return searchParams.get('team') || 'all';
+  });
 
   const months = [
     { value: 1, label: '01' },
