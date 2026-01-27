@@ -47,19 +47,32 @@ const ReportsPage = () => {
   } = useReportsData();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'revenue-expense');
   const [currentFilters, setCurrentFilters] = useState<any>({});
   const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
   const [selectedYears, setSelectedYears] = useState<number[]>([]);
   const [currentTeamFilters, setCurrentTeamFilters] = useState<any>({});
 
-  // Restore team filters from URL params on mount
+  const { handleFilter, handleTeamFilter } = useReportsFilters(
+    revenues,
+    expenses,
+    teamReports,
+    setFilteredRevenues,
+    setFilteredExpenses,
+    setFilteredTeamReports
+  );
+
+  // Get active tab from URL params - update when searchParams change
+  const activeTab = searchParams.get('tab') || 'revenue-expense';
+
+  // Restore team filters from URL params when navigating back
   useEffect(() => {
+    const tabParam = searchParams.get('tab');
     const teamParam = searchParams.get('team');
     const monthsParam = searchParams.get('months');
     const yearsParam = searchParams.get('years');
 
-    if (teamParam || monthsParam || yearsParam) {
+    // Only apply filters when on team tab with filter params
+    if (tabParam === 'team' && (teamParam || monthsParam || yearsParam)) {
       const months = monthsParam ? monthsParam.split(',').map(Number) : [];
       const years = yearsParam ? yearsParam.split(',').map(Number) : [];
       
@@ -74,24 +87,14 @@ const ReportsPage = () => {
       setCurrentTeamFilters(filters);
       handleTeamFilter(filters);
     }
-  }, []);
+  }, [searchParams]);
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
     // Update URL with current tab
     const newParams = new URLSearchParams(searchParams);
     newParams.set('tab', value);
     setSearchParams(newParams, { replace: true });
   };
-
-  const { handleFilter, handleTeamFilter } = useReportsFilters(
-    revenues,
-    expenses,
-    teamReports,
-    setFilteredRevenues,
-    setFilteredExpenses,
-    setFilteredTeamReports
-  );
 
   const handleReportsFilter = (filters: any) => {
     setCurrentFilters(filters);
