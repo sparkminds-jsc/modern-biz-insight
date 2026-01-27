@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -17,13 +18,30 @@ interface ProjectBillFiltersProps {
 }
 
 export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
-  const [selectedProject, setSelectedProject] = useState<string>('all');
-  const [selectedMonths, setSelectedMonths] = useState<number[]>([]);
-  const [selectedYears, setSelectedYears] = useState<number[]>([]);
-  const [selectedTeam, setSelectedTeam] = useState<string>('all');
-  const [selectedExchangeRate, setSelectedExchangeRate] = useState<number>(25000);
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Initialize state from URL params
+  const [selectedProject, setSelectedProject] = useState<string>(() => {
+    return searchParams.get('billProject') || 'all';
+  });
+  const [selectedMonths, setSelectedMonths] = useState<number[]>(() => {
+    const monthsParam = searchParams.get('billMonths');
+    return monthsParam ? monthsParam.split(',').map(Number) : [];
+  });
+  const [selectedYears, setSelectedYears] = useState<number[]>(() => {
+    const yearsParam = searchParams.get('billYears');
+    return yearsParam ? yearsParam.split(',').map(Number) : [];
+  });
+  const [selectedTeam, setSelectedTeam] = useState<string>(() => {
+    return searchParams.get('billTeam') || 'all';
+  });
+  const [selectedExchangeRate, setSelectedExchangeRate] = useState<number>(() => {
+    const rateParam = searchParams.get('billRate');
+    return rateParam ? Number(rateParam) : 25000;
+  });
   const [projects, setProjects] = useState<any[]>([]);
   const [teams, setTeams] = useState<any[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const months = [
     { value: 1, label: 'Tháng 01' },
@@ -63,6 +81,8 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
         
         if (teamsError) throw teamsError;
         setTeams(teamsData || []);
+        
+        setIsInitialized(true);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -70,6 +90,26 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
 
     fetchData();
   }, []);
+
+  // Auto-apply filters from URL params after data is loaded
+  useEffect(() => {
+    if (!isInitialized) return;
+    
+    const hasFilters = searchParams.get('billProject') || 
+                       searchParams.get('billMonths') || 
+                       searchParams.get('billYears') || 
+                       searchParams.get('billTeam');
+    
+    if (hasFilters) {
+      onFilter({
+        projectId: selectedProject === 'all' ? undefined : selectedProject,
+        months: selectedMonths,
+        years: selectedYears,
+        team: selectedTeam === 'all' ? undefined : selectedTeam,
+        exchangeRate: selectedExchangeRate,
+      });
+    }
+  }, [isInitialized]);
 
   const handleMonthToggle = (month: number) => {
     setSelectedMonths(prev => 
@@ -88,6 +128,34 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
   };
 
   const handleSearch = () => {
+    // Store filters in URL params
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('tab', 'project-bills');
+    
+    if (selectedProject !== 'all') {
+      newParams.set('billProject', selectedProject);
+    } else {
+      newParams.delete('billProject');
+    }
+    if (selectedMonths.length > 0) {
+      newParams.set('billMonths', selectedMonths.join(','));
+    } else {
+      newParams.delete('billMonths');
+    }
+    if (selectedYears.length > 0) {
+      newParams.set('billYears', selectedYears.join(','));
+    } else {
+      newParams.delete('billYears');
+    }
+    if (selectedTeam !== 'all') {
+      newParams.set('billTeam', selectedTeam);
+    } else {
+      newParams.delete('billTeam');
+    }
+    newParams.set('billRate', selectedExchangeRate.toString());
+    
+    setSearchParams(newParams, { replace: true });
+    
     onFilter({
       projectId: selectedProject === 'all' ? undefined : selectedProject,
       months: selectedMonths,
