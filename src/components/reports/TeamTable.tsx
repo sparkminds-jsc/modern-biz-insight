@@ -56,10 +56,8 @@ export function TeamTable({ data, onViewDetail, onEdit, onDelete }: TeamTablePro
     if (monthsParam) returnParams.set('months', monthsParam);
     if (yearsParam) returnParams.set('years', yearsParam);
     
-    // Store return params in sessionStorage for restoration
-    sessionStorage.setItem('teamReportsReturnParams', returnParams.toString());
-    
-    navigate(`/reports/team/${report.id}`);
+    // Pass return params on the detail URL itself (more reliable than sessionStorage)
+    navigate(`/reports/team/${report.id}?${returnParams.toString()}`);
   };
 
   const handleDeleteClick = (report: any) => {

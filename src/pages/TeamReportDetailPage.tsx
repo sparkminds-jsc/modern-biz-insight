@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { TeamReportDetailFilters } from '../components/reports/TeamReportDetailFilters';
 import { TeamReportDetailSummary } from '../components/reports/TeamReportDetailSummary';
@@ -17,6 +17,7 @@ import { exportTeamDetailToCSV } from '@/utils/excelExport';
 const TeamReportDetailPage = () => {
   const { teamReportId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   
   // State for team report
   const [teamReport, setTeamReport] = useState<any>(null);
@@ -244,14 +245,15 @@ const TeamReportDetailPage = () => {
   };
 
   const handleBackToReports = () => {
-    // Restore previous filter state from sessionStorage
-    const returnParams = sessionStorage.getItem('teamReportsReturnParams');
-    if (returnParams) {
-      navigate(`/reports?${returnParams}`);
-    } else {
-      // Fallback to just the team tab
-      navigate('/reports?tab=team');
+    // If detail URL contains params (tab/team/months/years), return using them.
+    const params = new URLSearchParams(location.search);
+    if (params.get('tab') === 'team') {
+      navigate(`/reports?${params.toString()}`);
+      return;
     }
+
+    // Fallback to just the team tab
+    navigate('/reports?tab=team');
   };
 
   const handleExportPDF = () => {
