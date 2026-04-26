@@ -89,6 +89,14 @@ export function TeamReportDetailTable({ data, onEdit, onDelete, onToggleLock }: 
     </TableHead>
   );
 
+  const getRowClassName = (item: any) => {
+    if (!item.has_salary) {
+      return item.is_locked ? 'bg-[rgb(239_246_255)]' : 'bg-[rgb(254_252_232)]';
+    }
+
+    return item.is_locked ? 'bg-green-100' : '';
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <Table>
@@ -121,7 +129,7 @@ export function TeamReportDetailTable({ data, onEdit, onDelete, onToggleLock }: 
         </TableHeader>
         <TableBody>
           {sortedData.map((item, index) => (
-            <TableRow key={item.id} className={item.is_locked ? "bg-green-100" : ""}>
+            <TableRow key={item.id} className={getRowClassName(item)}>
               <TableCell>{index + 1}</TableCell>
               <TableCell>{item.employee_code}</TableCell>
               <TableCell>{item.employee_name}</TableCell>
