@@ -95,7 +95,7 @@ export function ReportsTable({ data, onViewRevenue, onViewExpense }: ReportsTabl
               <TableCell>
                 {format(new Date(item.created_date), 'dd/MM/yyyy', { locale: vi })}
               </TableCell>
-              <TableCell className="max-w-48 truncate">{item.content}</TableCell>
+              <TableCell className="max-w-96 whitespace-normal break-words">{item.content}</TableCell>
               <TableCell>
                 <Badge variant={item.type === 'revenue' ? 'default' : 'destructive'}>
                   {item.type === 'revenue' ? 'Doanh Thu' : 'Chi Phí'}
