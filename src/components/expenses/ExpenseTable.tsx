@@ -86,7 +86,7 @@ export function ExpenseTable({ data, onViewDetail, onEdit, onFinalize }: Expense
               <TableCell>
                 {format(new Date(expense.created_date), 'dd/MM/yyyy', { locale: vi })}
               </TableCell>
-              <TableCell className="max-w-48 truncate">{expense.content}</TableCell>
+              <TableCell className="max-w-96 whitespace-normal break-words">{expense.content}</TableCell>
               <TableCell>
                 <Badge variant="secondary">{expense.expense_type}</Badge>
               </TableCell>

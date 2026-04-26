@@ -108,7 +108,7 @@ export function RevenueTable({ data, onViewDetail, onEdit, onFinalize }: Revenue
               <TableCell>
                 {format(new Date(revenue.created_date), 'dd/MM/yyyy', { locale: vi })}
               </TableCell>
-              <TableCell className="max-w-48 truncate">{revenue.content}</TableCell>
+              <TableCell className="max-w-96 whitespace-normal break-words">{revenue.content}</TableCell>
               <TableCell>
                 <Badge variant={revenue.revenue_type === 'Invoice' ? 'default' : 'secondary'}>
                   {revenue.revenue_type}
