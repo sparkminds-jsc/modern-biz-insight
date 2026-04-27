@@ -231,37 +231,27 @@ export function SalaryDetailEditForm({
       taxable_income = Math.max(0, total_income - total_deduction);
       
       if (taxable_income > 0) {
-        // 5% bracket (0-5M)
-        tax_5_percent = Math.min(taxable_income, 5000000) * 0.05;
+        // 5% bracket (0-10M)
+        tax_5_percent = Math.min(taxable_income, 10000000) * 0.05;
         
-        // 10% bracket (5M-10M)
-        if (taxable_income > 5000000) {
-          tax_10_percent = Math.min(taxable_income - 5000000, 5000000) * 0.10;
-        }
-        
-        // 15% bracket (10M-18M)
+        // 10% bracket (10M-30M)
         if (taxable_income > 10000000) {
-          tax_15_percent = Math.min(taxable_income - 10000000, 8000000) * 0.15;
+          tax_10_percent = Math.min(taxable_income - 10000000, 20000000) * 0.10;
         }
         
-        // 20% bracket (18M-32M)
-        if (taxable_income > 18000000) {
-          tax_20_percent = Math.min(taxable_income - 18000000, 14000000) * 0.20;
+        // 20% bracket (30M-60M)
+        if (taxable_income > 30000000) {
+          tax_20_percent = Math.min(taxable_income - 30000000, 30000000) * 0.20;
         }
         
-        // 25% bracket (32M-52M)
-        if (taxable_income > 32000000) {
-          tax_25_percent = Math.min(taxable_income - 32000000, 20000000) * 0.25;
+        // 30% bracket (60M-100M)
+        if (taxable_income > 60000000) {
+          tax_30_percent = Math.min(taxable_income - 60000000, 40000000) * 0.30;
         }
         
-        // 30% bracket (52M-80M)
-        if (taxable_income > 52000000) {
-          tax_30_percent = Math.min(taxable_income - 52000000, 28000000) * 0.30;
-        }
-        
-        // 35% bracket (>80M)
-        if (taxable_income > 80000000) {
-          tax_35_percent = (taxable_income - 80000000) * 0.35;
+        // 35% bracket (>100M)
+        if (taxable_income > 100000000) {
+          tax_35_percent = (taxable_income - 100000000) * 0.35;
         }
       }
       

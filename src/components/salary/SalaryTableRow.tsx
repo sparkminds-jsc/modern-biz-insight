@@ -65,9 +65,7 @@ export function SalaryTableRow({ detail, index, onViewDetail, onEdit, onDelete, 
       <TableCell className="text-right">{formatCurrency(detail.taxable_income)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.tax_5_percent)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.tax_10_percent)}</TableCell>
-      <TableCell className="text-right">{formatCurrency(detail.tax_15_percent)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.tax_20_percent)}</TableCell>
-      <TableCell className="text-right">{formatCurrency(detail.tax_25_percent)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.tax_30_percent)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.tax_35_percent)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.total_personal_income_tax)}</TableCell>
