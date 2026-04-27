@@ -79,7 +79,7 @@ export function SalaryDetailEditForm({
     bhnld_bhyt: 0,
     bhnld_bhtn: 0,
     total_bhnld: 0,
-    personal_deduction: 11000000,
+    personal_deduction: 15500000,
     dependent_deduction: 0,
     insurance_deduction: 0,
     total_deduction: 0,
@@ -209,7 +209,7 @@ export function SalaryDetailEditForm({
     // Giảm trừ calculations
     const dependent_deduction = values.dependent_count * 4400000;
     const insurance_deduction = total_bhnld;
-    const total_deduction = 11000000 + dependent_deduction + insurance_deduction; // 11tr là giảm trừ bản thân
+    const total_deduction = 15500000 + dependent_deduction + insurance_deduction; // 15.5tr là giảm trừ bản thân
     
     // Thu nhập chịu thuế - Đặc biệt cho Lương thời vụ
     let taxable_income;
@@ -278,7 +278,7 @@ export function SalaryDetailEditForm({
       bhnld_bhyt,
       bhnld_bhtn,
       total_bhnld,
-      personal_deduction: 11000000,
+      personal_deduction: 15500000,
       dependent_deduction,
       insurance_deduction,
       total_deduction,
