@@ -85,6 +85,7 @@ export const useSalaryOperations = () => {
           workdays: detail.working_days.toString(),
           gross_salary: `${detail.gross_salary.toLocaleString()} VND`,
           gross_for_workdays: `${detail.daily_salary.toLocaleString()} VND`,
+          total_income: `${detail.total_income.toLocaleString()} VND`,
           kpi: `${detail.kpi_bonus.toLocaleString()} VND`,
           BHXH: `${detail.bhnld_bhxh.toLocaleString()} VND`,
           BHYT: `${detail.bhnld_bhyt.toLocaleString()} VND`,
