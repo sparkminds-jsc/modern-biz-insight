@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { BD_ALLOWED_PATH, getCurrentUserRoles, isBdUser } from '@/utils/authRoles';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -29,11 +30,13 @@ export function LoginForm() {
           variant: "destructive",
         });
       } else {
+        const roles = await getCurrentUserRoles();
+
         toast({
           title: "Đăng nhập thành công!",
           description: "Chào mừng bạn trở lại.",
         });
-        navigate('/dashboard');
+        navigate(isBdUser(roles) ? BD_ALLOWED_PATH : '/dashboard');
       }
     } catch (error) {
       toast({
