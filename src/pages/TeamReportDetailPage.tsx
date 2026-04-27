@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { exportTeamDetailToPDF } from '@/utils/pdfExport';
 import { exportTeamDetailToCSV } from '@/utils/excelExport';
+import { buildTeamReportRowsFromCsv } from '@/utils/teamReportCsvImport';
 
 const TeamReportDetailPage = () => {
   const { teamReportId } = useParams();
@@ -292,6 +293,43 @@ const TeamReportDetailPage = () => {
     }
   };
 
+  const handleImportCSV = async (file: File) => {
+    if (!teamReport) return;
+
+    try {
+      const csvText = await file.text();
+      const { rows, matchedCount, missingEmployees } = buildTeamReportRowsFromCsv({
+        csvText,
+        team: teamReport.team,
+        month: teamReport.month,
+        year: teamReport.year,
+        employees,
+      });
+
+      if (matchedCount === 0) {
+        toast.error(`Không tìm thấy nhân viên thuộc ${teamReport.team} trong file CSV`);
+        return;
+      }
+
+      if (rows.length === 0) {
+        toast.error('Không có nhân viên nào trong file CSV khớp với dữ liệu nhân viên hiện tại');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('team_report_details')
+        .insert(rows);
+
+      if (error) throw error;
+
+      toast.success(`Import thành công ${rows.length} nhân viên${missingEmployees.length ? `, bỏ qua ${missingEmployees.length} mã NV không tồn tại` : ''}`);
+      fetchData();
+    } catch (error) {
+      console.error('Error importing CSV:', error);
+      toast.error('Có lỗi xảy ra khi import CSV');
+    }
+  };
+
   if (loading) {
     return (
       <AppLayout>
@@ -346,6 +384,7 @@ const TeamReportDetailPage = () => {
           onCreateBill={() => setShowCreateDialog(true)}
           onCopyReport={() => setShowCopyDialog(true)}
           onExportCSV={handleExportCSV}
+          onImportCSV={handleImportCSV}
         />
 
         {/* Summary */}
