@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Plus, Copy, FileText } from 'lucide-react';
+import { Search, Plus, Copy, FileText, Upload } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface TeamReportDetailFiltersProps {
@@ -13,6 +13,7 @@ interface TeamReportDetailFiltersProps {
   onCreateBill: () => void;
   onCopyReport: () => void;
   onExportCSV: () => void;
+  onImportCSV: (file: File) => void;
 }
 
 export function TeamReportDetailFilters({ 
@@ -20,7 +21,8 @@ export function TeamReportDetailFilters({
   onFilter, 
   onCreateBill, 
   onCopyReport,
-  onExportCSV 
+  onExportCSV,
+  onImportCSV 
 }: TeamReportDetailFiltersProps) {
   const [selectedEmployee, setSelectedEmployee] = useState<string>('all');
   const [selectedProject, setSelectedProject] = useState<string>('all');
@@ -48,6 +50,12 @@ export function TeamReportDetailFilters({
 
   const handleSearch = () => {
     onFilter(selectedEmployee, notesFilter, selectedProject);
+  };
+
+  const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) onImportCSV(file);
+    event.target.value = '';
   };
 
   return (
@@ -122,6 +130,14 @@ export function TeamReportDetailFilters({
         <Button onClick={onExportCSV} variant="outline" className="w-full">
           <FileText className="mr-2 h-4 w-4" />
           Export CSV
+        </Button>
+
+        <Button asChild variant="outline" className="w-full cursor-pointer">
+          <Label>
+            <Upload className="mr-2 h-4 w-4" />
+            Import CSV
+            <Input type="file" accept=".csv,text/csv" onChange={handleImportCSV} className="hidden" />
+          </Label>
         </Button>
       </div>
     </div>
