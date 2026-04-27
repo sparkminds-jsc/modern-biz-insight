@@ -2,6 +2,7 @@ import { Bell, Search, User, LogOut, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { ChangePasswordDialog } from '@/components/settings/ChangePasswordDialog';
+import { supabase } from '@/integrations/supabase/client';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +20,8 @@ export function Header({ onMenuClick }: HeaderProps) {
   const navigate = useNavigate();
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     localStorage.removeItem('isAuthenticated');
     navigate('/');
   };
