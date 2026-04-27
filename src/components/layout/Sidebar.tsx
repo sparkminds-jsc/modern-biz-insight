@@ -16,9 +16,7 @@ import {
   Lightbulb,
   Building2
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { getCurrentUserRoles, isBdUser } from '@/utils/authRoles';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -43,15 +41,6 @@ const menuItems = [
 
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const location = useLocation();
-  const [bdUser, setBdUser] = useState(false);
-
-  useEffect(() => {
-    getCurrentUserRoles().then((roles) => setBdUser(isBdUser(roles)));
-  }, []);
-
-  const visibleMenuItems = bdUser
-    ? menuItems.filter((item) => item.path === '/customers')
-    : menuItems;
 
   return (
     <div className={`fixed left-0 top-0 h-full bg-white shadow-xl z-50 transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
@@ -70,7 +59,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       </div>
       
       <nav className="mt-6">
-        {visibleMenuItems.map((item) => {
+        {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
           

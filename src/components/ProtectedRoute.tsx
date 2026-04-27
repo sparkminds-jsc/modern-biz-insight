@@ -1,9 +1,8 @@
 
 import { ReactNode, useEffect, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
-import { BD_ALLOWED_PATH, getCurrentUserRoles, isBdUser } from '@/utils/authRoles';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -11,27 +10,23 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const [user, setUser] = useState<User | null>(null);
-  const [roles, setRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const location = useLocation();
 
   useEffect(() => {
-    const applySession = async (sessionUser: User | null) => {
-      setUser(sessionUser);
-      setRoles(sessionUser ? await getCurrentUserRoles() : []);
-      setLoading(false);
-    };
-
+    // Get initial session
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      await applySession(session?.user ?? null);
+      setUser(session?.user ?? null);
+      setLoading(false);
     };
 
     getSession();
 
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        applySession(session?.user ?? null);
+        setUser(session?.user ?? null);
+        setLoading(false);
       }
     );
 
@@ -48,10 +43,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (!user) {
     return <Navigate to="/" replace />;
-  }
-
-  if (isBdUser(roles) && location.pathname !== BD_ALLOWED_PATH) {
-    return <Navigate to={BD_ALLOWED_PATH} replace />;
   }
 
   return <>{children}</>;
