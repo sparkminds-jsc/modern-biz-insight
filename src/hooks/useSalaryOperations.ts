@@ -110,7 +110,7 @@ export const useSalaryOperations = () => {
       console.log('Sending email data to webhook:', validEmailData);
 
       // Send to webhook
-      const response = await fetch('https://n8n.sparkminds.net/webhook/send_salary_mail', {
+      const response = await fetch('https://auto.sparkminds.net/webhook/send_salary_mail', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
