@@ -207,7 +207,7 @@ export function SalaryDetailEditForm({
     const total_bhnld = bhnld_bhxh + bhnld_bhyt + bhnld_bhtn;
     
     // Giảm trừ calculations
-    const dependent_deduction = values.dependent_count * 4400000;
+    const dependent_deduction = values.dependent_count * 6200000;
     const insurance_deduction = total_bhnld;
     const total_deduction = 15500000 + dependent_deduction + insurance_deduction; // 15.5tr là giảm trừ bản thân
     
