@@ -68,9 +68,7 @@ export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit, onDelet
               <TableHead>Thu nhập chịu thuế</TableHead>
               <TableHead>Thuế 5%</TableHead>
               <TableHead>Thuế 10%</TableHead>
-              <TableHead>Thuế 15%</TableHead>
               <TableHead>Thuế 20%</TableHead>
-              <TableHead>Thuế 25%</TableHead>
               <TableHead>Thuế 30%</TableHead>
               <TableHead>Thuế 35%</TableHead>
               <TableHead>Tổng thuế TNCN</TableHead>
