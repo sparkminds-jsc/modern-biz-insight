@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { ChevronUp, ChevronDown, Eye, FileText, Edit, Trash2 } from 'lucide-react';
+import { ChevronUp, ChevronDown, Eye, Copy, Edit, Trash2 } from 'lucide-react';
 import { Invoice } from '@/types/invoice';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,7 +11,7 @@ import { Project } from '@/types/project';
 interface InvoiceTableProps {
   invoices: Invoice[];
   onViewDetail: (invoice: Invoice) => void;
-  onExportPDF: (invoice: Invoice) => void;
+  onCopy: (invoice: Invoice) => void;
   onEdit: (invoice: Invoice) => void;
   onDelete: (id: string) => void;
 }
@@ -19,7 +19,7 @@ interface InvoiceTableProps {
 type SortField = keyof Invoice;
 type SortDirection = 'asc' | 'desc';
 
-export function InvoiceTable({ invoices, onViewDetail, onExportPDF, onEdit, onDelete }: InvoiceTableProps) {
+export function InvoiceTable({ invoices, onViewDetail, onCopy, onEdit, onDelete }: InvoiceTableProps) {
   const [sortField, setSortField] = useState<SortField>('created_date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
@@ -210,9 +210,10 @@ export function InvoiceTable({ invoices, onViewDetail, onExportPDF, onEdit, onDe
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => onExportPDF(invoice)}
+                    onClick={() => onCopy(invoice)}
+                    title="Sao chép"
                   >
-                    <FileText className="w-4 h-4" />
+                    <Copy className="w-4 h-4" />
                   </Button>
                   <Button
                     size="sm"

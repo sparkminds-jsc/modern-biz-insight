@@ -230,11 +230,43 @@ const InvoicePage = () => {
     setShowDetail(true);
   };
 
-  const handleExportPDF = (invoice: Invoice) => {
-    toast({
-      title: "Thông báo",
-      description: "Tính năng xuất PDF đang được phát triển."
-    });
+  const handleCopy = async (invoice: Invoice) => {
+    try {
+      const { id, created_at, updated_at, ...invoiceData } = invoice;
+      const { data: newInvoice, error: invoiceError } = await supabase
+        .from('invoices')
+        .insert({
+          ...invoiceData,
+          invoice_name: `${invoice.invoice_name} (Copy)`,
+          created_date: new Date().toISOString().split('T')[0],
+        })
+        .select()
+        .single();
+      if (invoiceError) throw invoiceError;
+
+      const { data: items, error: itemsFetchError } = await supabase
+        .from('invoice_items')
+        .select('*')
+        .eq('invoice_id', invoice.id);
+      if (itemsFetchError) throw itemsFetchError;
+
+      if (items && items.length > 0) {
+        const newItems = items.map(({ id, created_at, updated_at, invoice_id, ...rest }) => ({
+          ...rest,
+          invoice_id: newInvoice.id,
+        }));
+        const { error: insertItemsError } = await supabase
+          .from('invoice_items')
+          .insert(newItems);
+        if (insertItemsError) throw insertItemsError;
+      }
+
+      toast({ title: "Thành công", description: "Đã sao chép invoice." });
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+    } catch (err) {
+      console.error('Error copying invoice:', err);
+      toast({ title: "Lỗi", description: "Có lỗi khi sao chép invoice.", variant: "destructive" });
+    }
   };
 
   const handleEdit = (invoice: Invoice) => {
@@ -287,7 +319,7 @@ const InvoicePage = () => {
           <InvoiceTable
             invoices={invoices}
             onViewDetail={handleViewDetail}
-            onExportPDF={handleExportPDF}
+            onCopy={handleCopy}
             onEdit={handleEdit}
             onDelete={handleDelete}
           />
