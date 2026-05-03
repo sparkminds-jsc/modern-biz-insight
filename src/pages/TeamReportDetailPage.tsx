@@ -8,7 +8,7 @@ import { TeamReportDetailEditDialog } from '../components/reports/TeamReportDeta
 import { CreateTeamReportDetailDialog } from '../components/reports/CreateTeamReportDetailDialog';
 import { CopyTeamReportDialog } from '../components/reports/CopyTeamReportDialog';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Eraser } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { exportTeamDetailToPDF } from '@/utils/pdfExport';
@@ -292,6 +292,30 @@ const TeamReportDetailPage = () => {
     }
   };
 
+  const handleClearOvertime = async () => {
+    if (filteredDetails.length === 0) {
+      toast.error('Không có dữ liệu để xóa tăng ca');
+      return;
+    }
+    if (!confirm(`Bạn có chắc chắn muốn xóa tăng ca của ${filteredDetails.length} record trong bảng?`)) return;
+
+    try {
+      const ids = filteredDetails.map((d) => d.id);
+      const { error } = await supabase
+        .from('team_report_details')
+        .update({ salary_13: 0 })
+        .in('id', ids);
+
+      if (error) throw error;
+
+      toast.success('Đã xóa tăng ca của tất cả record');
+      fetchData();
+    } catch (error) {
+      console.error('Error clearing overtime:', error);
+      toast.error('Có lỗi xảy ra khi xóa tăng ca');
+    }
+  };
+
   if (loading) {
     return (
       <AppLayout>
@@ -328,6 +352,15 @@ const TeamReportDetailPage = () => {
           >
             <ArrowLeft className="h-4 w-4" />
             Quay lại
+          </Button>
+          <Button
+            onClick={handleClearOvertime}
+            variant="destructive"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <Eraser className="h-4 w-4" />
+            Xóa tăng ca
           </Button>
         </div>
 
