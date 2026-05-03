@@ -44,6 +44,17 @@ export function ProjectBillTable({ data, exchangeRate = 25000 }: ProjectBillTabl
   const endIndex = startIndex + itemsPerPage;
   const paginatedData = data.slice(startIndex, endIndex);
 
+  const totals = data.reduce(
+    (acc, item) => ({
+      billVnd: acc.billVnd + (item.billVnd || 0),
+      billUsd: acc.billUsd + (item.billUsd || 0),
+      billUsdt: acc.billUsdt + (item.billUsdt || 0),
+      earnVnd: acc.earnVnd + (item.earnVnd || 0),
+      earnUsdt: acc.earnUsdt + (item.earnUsdt || 0),
+    }),
+    { billVnd: 0, billUsd: 0, billUsdt: 0, earnVnd: 0, earnUsdt: 0 }
+  );
+
   const getMonthName = (month: number) => {
     const months = [
       'Tháng 01', 'Tháng 02', 'Tháng 03', 'Tháng 04',
@@ -137,6 +148,17 @@ export function ProjectBillTable({ data, exchangeRate = 25000 }: ProjectBillTabl
                   </TableCell>
                 </TableRow>
               ))
+            )}
+            {data.length > 0 && (
+              <TableRow className="bg-gray-100 font-bold">
+                <TableCell colSpan={5} className="font-bold">Tổng</TableCell>
+                <TableCell className="text-right font-bold">{formatCurrency(totals.billVnd, 'VND')}</TableCell>
+                <TableCell className="text-right font-bold">{formatCurrency(totals.billVnd / exchangeRate, 'USD')}</TableCell>
+                <TableCell className="text-right font-bold">{formatCurrency(totals.billUsd, 'USD')}</TableCell>
+                <TableCell className="text-right font-bold">{formatCurrency(totals.billUsdt, 'USDT')}</TableCell>
+                <TableCell className="text-right font-bold">{formatCurrency(totals.earnVnd, 'VND')}</TableCell>
+                <TableCell className="text-right font-bold">{formatCurrency(totals.earnUsdt, 'USDT')}</TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
