@@ -353,15 +353,6 @@ const TeamReportDetailPage = () => {
             <ArrowLeft className="h-4 w-4" />
             Quay lại
           </Button>
-          <Button
-            onClick={handleClearOvertime}
-            variant="destructive"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Eraser className="h-4 w-4" />
-            Xóa tăng ca
-          </Button>
         </div>
 
         {/* Header */}
@@ -379,6 +370,7 @@ const TeamReportDetailPage = () => {
           onCreateBill={() => setShowCreateDialog(true)}
           onCopyReport={() => setShowCopyDialog(true)}
           onExportCSV={handleExportCSV}
+          onClearOvertime={handleClearOvertime}
         />
 
         {/* Summary */}
