@@ -232,6 +232,30 @@ export function InvoiceTable({ invoices, onViewDetail, onExportPDF, onEdit, onDe
               </TableCell>
             </TableRow>
           ))}
+          {sortedInvoices.length > 0 && (() => {
+            const totalsByUnit: Record<string, { total: number; remaining: number }> = {};
+            sortedInvoices.forEach((inv) => {
+              const unit = inv.payment_unit || '';
+              if (!totalsByUnit[unit]) totalsByUnit[unit] = { total: 0, remaining: 0 };
+              totalsByUnit[unit].total += Number(inv.total_amount) || 0;
+              totalsByUnit[unit].remaining += Number(inv.remaining_amount) || 0;
+            });
+            const totalText = Object.entries(totalsByUnit)
+              .map(([unit, v]) => formatAmount(v.total, unit))
+              .join(' | ');
+            const remainingText = Object.entries(totalsByUnit)
+              .map(([unit, v]) => formatAmount(v.remaining, unit))
+              .join(' | ');
+            return (
+              <TableRow className="bg-gray-100 font-bold">
+                <TableCell colSpan={6} className="font-bold">Tổng ({sortedInvoices.length})</TableCell>
+                <TableCell className="font-bold">{totalText}</TableCell>
+                <TableCell colSpan={4}></TableCell>
+                <TableCell className="font-bold">{remainingText}</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            );
+          })()}
         </TableBody>
       </Table>
       
