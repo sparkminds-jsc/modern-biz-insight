@@ -234,11 +234,18 @@ export function InvoiceTable({ invoices, onViewDetail, onExportPDF, onEdit, onDe
           ))}
           {sortedInvoices.length > 0 && (() => {
             const totalsByUnit: Record<string, { total: number; remaining: number }> = {};
+            let totalVnd = 0;
             sortedInvoices.forEach((inv) => {
               const unit = inv.payment_unit || '';
               if (!totalsByUnit[unit]) totalsByUnit[unit] = { total: 0, remaining: 0 };
               totalsByUnit[unit].total += Number(inv.total_amount) || 0;
               totalsByUnit[unit].remaining += Number(inv.remaining_amount) || 0;
+              const amt = Number(inv.total_amount) || 0;
+              if (unit === 'VND') {
+                totalVnd += amt;
+              } else {
+                totalVnd += amt * (Number(inv.vnd_exchange_rate) || 0);
+              }
             });
             const totalText = Object.entries(totalsByUnit)
               .map(([unit, v]) => formatAmount(v.total, unit))
@@ -250,7 +257,9 @@ export function InvoiceTable({ invoices, onViewDetail, onExportPDF, onEdit, onDe
               <TableRow className="bg-gray-100 font-bold">
                 <TableCell colSpan={6} className="font-bold">Tổng ({sortedInvoices.length})</TableCell>
                 <TableCell className="font-bold">{totalText}</TableCell>
-                <TableCell colSpan={4}></TableCell>
+                <TableCell></TableCell>
+                <TableCell className="font-bold">{formatAmount(totalVnd, 'VND')}</TableCell>
+                <TableCell colSpan={2}></TableCell>
                 <TableCell className="font-bold">{remainingText}</TableCell>
                 <TableCell></TableCell>
               </TableRow>
