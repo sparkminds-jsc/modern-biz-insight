@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { StatsCards } from './StatsCards';
 import { RevenueChart } from './RevenueChart';
 import { EmployeeTable } from './EmployeeTable';
+import { SalaryHistoryChart } from './SalaryHistoryChart';
 
 export function Dashboard() {
   const [fromDate, setFromDate] = useState('');
@@ -32,6 +33,7 @@ export function Dashboard() {
         onToDateChange={setToDate} 
       />
       <RevenueChart fromDate={fromDate} toDate={toDate} />
+      <SalaryHistoryChart />
       <EmployeeTable />
     </div>
   );
