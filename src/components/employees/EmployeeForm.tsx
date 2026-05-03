@@ -18,6 +18,8 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
+import { Plus, Trash2 } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 
 interface Employee {
   id?: string;
@@ -42,6 +44,22 @@ interface EmployeeFormProps {
 
 const CONTRACT_TYPES = ['Fresher', 'Thử việc', 'Một năm', 'Ba năm', 'Vĩnh viễn', 'Thời vụ'];
 const STATUSES = ['Đang làm', 'Đã nghỉ'];
+const SALARY_YEARS = Array.from({ length: 11 }, (_, i) => 2021 + i);
+
+interface SalaryHistory {
+  id?: string;
+  year: number;
+  gross_salary: number;
+  company_payment: number;
+  _isNew?: boolean;
+}
+
+const formatVN = (n: number) => (isNaN(n) || n === 0 ? '' : new Intl.NumberFormat('vi-VN').format(n));
+const parseVN = (s: string) => {
+  const cleaned = s.replace(/\./g, '').replace(/,/g, '.');
+  const n = parseFloat(cleaned);
+  return isNaN(n) ? 0 : n;
+};
 
 export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: EmployeeFormProps) {
   const [formData, setFormData] = useState<Employee>({
@@ -56,6 +74,8 @@ export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: Emp
     status: 'Đang làm'
   });
   const [teams, setTeams] = useState<string[]>([]);
+  const [salaryHistory, setSalaryHistory] = useState<SalaryHistory[]>([]);
+  const [deletedHistoryIds, setDeletedHistoryIds] = useState<string[]>([]);
 
   // Fetch teams from database
   useEffect(() => {
@@ -98,9 +118,87 @@ export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: Emp
     }
   }, [employee, isOpen, teams]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Fetch salary history when editing
+  useEffect(() => {
+    const fetchHistory = async () => {
+      if (!employee?.id || !isOpen) {
+        setSalaryHistory([]);
+        setDeletedHistoryIds([]);
+        return;
+      }
+      const { data, error } = await supabase
+        .from('salary_increase_history')
+        .select('*')
+        .eq('employee_id', employee.id)
+        .order('year', { ascending: true });
+      if (!error && data) {
+        setSalaryHistory(data.map((d: any) => ({
+          id: d.id,
+          year: d.year,
+          gross_salary: Number(d.gross_salary),
+          company_payment: Number(d.company_payment),
+        })));
+      }
+      setDeletedHistoryIds([]);
+    };
+    fetchHistory();
+  }, [employee?.id, isOpen]);
+
+  const persistSalaryHistory = async (employeeId: string) => {
+    // Delete removed
+    if (deletedHistoryIds.length > 0) {
+      await supabase.from('salary_increase_history').delete().in('id', deletedHistoryIds);
+    }
+    // Upsert each
+    for (const h of salaryHistory) {
+      if (h.id && !h._isNew) {
+        await supabase.from('salary_increase_history').update({
+          year: h.year,
+          gross_salary: h.gross_salary,
+          company_payment: h.company_payment,
+        }).eq('id', h.id);
+      } else {
+        await supabase.from('salary_increase_history').insert({
+          employee_id: employeeId,
+          year: h.year,
+          gross_salary: h.gross_salary,
+          company_payment: h.company_payment,
+        });
+      }
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    try {
+      if (employee?.id) {
+        await persistSalaryHistory(employee.id);
+      }
+    } catch (err: any) {
+      toast({ title: 'Lỗi', description: err.message || 'Không thể lưu lịch sử tăng lương', variant: 'destructive' });
+      return;
+    }
+    onSubmit({ ...formData, _pendingSalaryHistory: employee?.id ? undefined : salaryHistory } as any);
+  };
+
+  const addHistoryRow = () => {
+    const lastYear = salaryHistory.length > 0 ? salaryHistory[salaryHistory.length - 1].year + 1 : new Date().getFullYear();
+    const year = Math.min(Math.max(lastYear, 2021), 2031);
+    setSalaryHistory(prev => [...prev, { year, gross_salary: 0, company_payment: 0, _isNew: true }]);
+  };
+
+  const updateHistoryRow = (idx: number, field: keyof SalaryHistory, value: any) => {
+    setSalaryHistory(prev => prev.map((h, i) => i === idx ? { ...h, [field]: value } : h));
+  };
+
+  const removeHistoryRow = (idx: number) => {
+    setSalaryHistory(prev => {
+      const row = prev[idx];
+      if (row.id && !row._isNew) {
+        setDeletedHistoryIds(d => [...d, row.id!]);
+      }
+      return prev.filter((_, i) => i !== idx);
+    });
   };
 
   const handleChange = (field: keyof Employee, value: string) => {
@@ -109,7 +207,7 @@ export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: Emp
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
@@ -221,6 +319,76 @@ export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: Emp
               </Select>
             </div>
           </div>
+
+          {employee?.id && (
+            <div className="border-t pt-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-semibold">Lịch sử tăng lương</Label>
+                <Button type="button" variant="outline" size="sm" onClick={addHistoryRow}>
+                  <Plus className="h-4 w-4 mr-1" /> Thêm lịch sử
+                </Button>
+              </div>
+              {salaryHistory.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Chưa có lịch sử tăng lương</p>
+              ) : (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-12 gap-2 text-xs font-medium text-muted-foreground px-1">
+                    <div className="col-span-2">Năm</div>
+                    <div className="col-span-3">Lương gross</div>
+                    <div className="col-span-3">Công ty chi trả</div>
+                    <div className="col-span-3">Tỷ lệ % tăng</div>
+                    <div className="col-span-1"></div>
+                  </div>
+                  {salaryHistory.map((h, idx) => {
+                    const prev = idx > 0 ? salaryHistory[idx - 1] : null;
+                    const pct = prev && prev.company_payment > 0
+                      ? ((h.company_payment - prev.company_payment) / prev.company_payment) * 100
+                      : null;
+                    return (
+                      <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+                        <div className="col-span-2">
+                          <Select value={String(h.year)} onValueChange={(v) => updateHistoryRow(idx, 'year', parseInt(v))}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {SALARY_YEARS.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="col-span-3">
+                          <Input
+                            value={formatVN(h.gross_salary)}
+                            onChange={(e) => updateHistoryRow(idx, 'gross_salary', parseVN(e.target.value))}
+                            placeholder="0"
+                          />
+                        </div>
+                        <div className="col-span-3">
+                          <Input
+                            value={formatVN(h.company_payment)}
+                            onChange={(e) => updateHistoryRow(idx, 'company_payment', parseVN(e.target.value))}
+                            placeholder="0"
+                          />
+                        </div>
+                        <div className="col-span-3 text-sm">
+                          {pct === null ? (
+                            <span className="text-muted-foreground">—</span>
+                          ) : (
+                            <span className={pct > 0 ? 'text-green-600 font-medium' : pct < 0 ? 'text-red-600 font-medium' : ''}>
+                              {pct > 0 ? '+' : ''}{pct.toFixed(2)}%
+                            </span>
+                          )}
+                        </div>
+                        <div className="col-span-1">
+                          <Button type="button" variant="ghost" size="icon" onClick={() => removeHistoryRow(idx)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>

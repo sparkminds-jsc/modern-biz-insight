@@ -883,6 +883,36 @@ export type Database = {
           },
         ]
       }
+      salary_increase_history: {
+        Row: {
+          company_payment: number
+          created_at: string
+          employee_id: string
+          gross_salary: number
+          id: string
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          company_payment?: number
+          created_at?: string
+          employee_id: string
+          gross_salary?: number
+          id?: string
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          company_payment?: number
+          created_at?: string
+          employee_id?: string
+          gross_salary?: number
+          id?: string
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
       salary_sheets: {
         Row: {
           created_at: string
