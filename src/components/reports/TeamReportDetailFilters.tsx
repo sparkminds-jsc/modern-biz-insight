@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Plus, Copy, FileText } from 'lucide-react';
+import { Search, Plus, Copy, FileText, Eraser } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface TeamReportDetailFiltersProps {
@@ -13,6 +13,7 @@ interface TeamReportDetailFiltersProps {
   onCreateBill: () => void;
   onCopyReport: () => void;
   onExportCSV: () => void;
+  onClearOvertime: () => void;
 }
 
 export function TeamReportDetailFilters({ 
@@ -20,7 +21,8 @@ export function TeamReportDetailFilters({
   onFilter, 
   onCreateBill, 
   onCopyReport,
-  onExportCSV 
+  onExportCSV,
+  onClearOvertime,
 }: TeamReportDetailFiltersProps) {
   const [selectedEmployee, setSelectedEmployee] = useState<string>('all');
   const [selectedProject, setSelectedProject] = useState<string>('all');
@@ -52,7 +54,7 @@ export function TeamReportDetailFilters({
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4 items-end">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-9 gap-4 items-end">
         {/* Employee Code */}
         <div className="space-y-2">
           <Label>Mã nhân viên</Label>
@@ -122,6 +124,11 @@ export function TeamReportDetailFilters({
         <Button onClick={onExportCSV} variant="outline" className="w-full">
           <FileText className="mr-2 h-4 w-4" />
           Export CSV
+        </Button>
+
+        <Button onClick={onClearOvertime} variant="destructive" className="w-full">
+          <Eraser className="mr-2 h-4 w-4" />
+          Xóa tăng ca
         </Button>
       </div>
     </div>
