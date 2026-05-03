@@ -250,9 +250,9 @@ export function InvoiceTable({ invoices, onViewDetail, onExportPDF, onEdit, onDe
               <TableRow className="bg-gray-100 font-bold">
                 <TableCell colSpan={6} className="font-bold">Tổng ({sortedInvoices.length})</TableCell>
                 <TableCell className="font-bold">{totalText}</TableCell>
-                <TableCell colSpan={3}></TableCell>
+                <TableCell colSpan={4}></TableCell>
                 <TableCell className="font-bold">{remainingText}</TableCell>
-                <TableCell colSpan={2}></TableCell>
+                <TableCell></TableCell>
               </TableRow>
             );
           })()}
