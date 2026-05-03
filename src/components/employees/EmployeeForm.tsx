@@ -344,6 +344,10 @@ export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: Emp
                     const pct = prev && prev.company_payment > 0
                       ? ((h.company_payment - prev.company_payment) / prev.company_payment) * 100
                       : null;
+                    const first = salaryHistory[0];
+                    const pctFirst = idx > 0 && first && first.company_payment > 0
+                      ? ((h.company_payment - first.company_payment) / first.company_payment) * 100
+                      : null;
                     return (
                       <div key={idx} className="grid grid-cols-12 gap-2 items-center">
                         <div className="col-span-2">
@@ -372,9 +376,16 @@ export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: Emp
                           {pct === null ? (
                             <span className="text-muted-foreground">—</span>
                           ) : (
-                            <span className={pct > 0 ? 'text-green-600 font-medium' : pct < 0 ? 'text-red-600 font-medium' : ''}>
-                              {pct > 0 ? '+' : ''}{pct.toFixed(2)}%
-                            </span>
+                            <>
+                              <span className={pct > 0 ? 'text-green-600 font-medium' : pct < 0 ? 'text-red-600 font-medium' : ''}>
+                                {pct > 0 ? '+' : ''}{pct.toFixed(2)}%
+                              </span>
+                              {pctFirst !== null && (
+                                <span className="text-blue-600 font-medium ml-1">
+                                  ({pctFirst > 0 ? '+' : ''}{pctFirst.toFixed(2)}%)
+                                </span>
+                              )}
+                            </>
                           )}
                         </div>
                         <div className="col-span-1">
