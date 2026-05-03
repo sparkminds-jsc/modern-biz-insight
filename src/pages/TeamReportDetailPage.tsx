@@ -8,7 +8,7 @@ import { TeamReportDetailEditDialog } from '../components/reports/TeamReportDeta
 import { CreateTeamReportDetailDialog } from '../components/reports/CreateTeamReportDetailDialog';
 import { CopyTeamReportDialog } from '../components/reports/CopyTeamReportDialog';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Eraser } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { exportTeamDetailToPDF } from '@/utils/pdfExport';
