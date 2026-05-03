@@ -320,6 +320,76 @@ export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: Emp
             </div>
           </div>
 
+          {employee?.id && (
+            <div className="border-t pt-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-base font-semibold">Lịch sử tăng lương</Label>
+                <Button type="button" variant="outline" size="sm" onClick={addHistoryRow}>
+                  <Plus className="h-4 w-4 mr-1" /> Thêm lịch sử
+                </Button>
+              </div>
+              {salaryHistory.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Chưa có lịch sử tăng lương</p>
+              ) : (
+                <div className="space-y-2">
+                  <div className="grid grid-cols-12 gap-2 text-xs font-medium text-muted-foreground px-1">
+                    <div className="col-span-2">Năm</div>
+                    <div className="col-span-3">Lương gross</div>
+                    <div className="col-span-3">Công ty chi trả</div>
+                    <div className="col-span-3">Tỷ lệ % tăng</div>
+                    <div className="col-span-1"></div>
+                  </div>
+                  {salaryHistory.map((h, idx) => {
+                    const prev = idx > 0 ? salaryHistory[idx - 1] : null;
+                    const pct = prev && prev.company_payment > 0
+                      ? ((h.company_payment - prev.company_payment) / prev.company_payment) * 100
+                      : null;
+                    return (
+                      <div key={idx} className="grid grid-cols-12 gap-2 items-center">
+                        <div className="col-span-2">
+                          <Select value={String(h.year)} onValueChange={(v) => updateHistoryRow(idx, 'year', parseInt(v))}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {SALARY_YEARS.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="col-span-3">
+                          <Input
+                            value={formatVN(h.gross_salary)}
+                            onChange={(e) => updateHistoryRow(idx, 'gross_salary', parseVN(e.target.value))}
+                            placeholder="0"
+                          />
+                        </div>
+                        <div className="col-span-3">
+                          <Input
+                            value={formatVN(h.company_payment)}
+                            onChange={(e) => updateHistoryRow(idx, 'company_payment', parseVN(e.target.value))}
+                            placeholder="0"
+                          />
+                        </div>
+                        <div className="col-span-3 text-sm">
+                          {pct === null ? (
+                            <span className="text-muted-foreground">—</span>
+                          ) : (
+                            <span className={pct > 0 ? 'text-green-600 font-medium' : pct < 0 ? 'text-red-600 font-medium' : ''}>
+                              {pct > 0 ? '+' : ''}{pct.toFixed(2)}%
+                            </span>
+                          )}
+                        </div>
+                        <div className="col-span-1">
+                          <Button type="button" variant="ghost" size="icon" onClick={() => removeHistoryRow(idx)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Hủy
