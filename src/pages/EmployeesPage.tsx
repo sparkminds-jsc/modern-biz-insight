@@ -9,6 +9,47 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { Employee, SortConfig } from '@/types/employee';
 
+const exportSalaryHistoryCSV = async () => {
+  const { data: emps, error: e1 } = await supabase
+    .from('employees')
+    .select('id, employee_code, full_name, team')
+    .order('employee_code');
+  if (e1) throw e1;
+  const { data: hist, error: e2 } = await supabase
+    .from('salary_increase_history')
+    .select('employee_id, year, gross_salary, company_payment')
+    .order('year');
+  if (e2) throw e2;
+
+  const empMap = new Map((emps || []).map((e: any) => [e.id, e]));
+  const rows = [['Mã nhân viên', 'Tên nhân viên', 'Team', 'Năm', 'Lương gross', 'Công ty chi trả']];
+  (hist || []).forEach((h: any) => {
+    const emp: any = empMap.get(h.employee_id);
+    if (!emp) return;
+    rows.push([
+      emp.employee_code,
+      emp.full_name,
+      emp.team,
+      String(h.year),
+      String(h.gross_salary),
+      String(h.company_payment),
+    ]);
+  });
+
+  const csv = '\uFEFF' + rows
+    .map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `lich-su-tang-luong-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
 const EmployeesPage = () => {
   const [filters, setFilters] = useState({
     name: '',
@@ -222,6 +263,15 @@ const EmployeesPage = () => {
     }
   };
 
+  const handleExportSalaryHistory = async () => {
+    try {
+      await exportSalaryHistoryCSV();
+      toast({ title: 'Thành công', description: 'Đã export lịch sử tăng lương' });
+    } catch (err: any) {
+      toast({ title: 'Lỗi', description: err.message || 'Không thể export', variant: 'destructive' });
+    }
+  };
+
   if (isLoading) {
     return (
       <AppLayout>
@@ -245,6 +295,7 @@ const EmployeesPage = () => {
           onFiltersChange={setFilters}
           onSearch={handleSearch}
           onAddEmployee={handleAddEmployee}
+          onExportSalaryHistory={handleExportSalaryHistory}
         />
 
         <EmployeeTable
