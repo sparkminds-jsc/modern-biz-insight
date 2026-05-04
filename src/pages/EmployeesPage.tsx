@@ -22,18 +22,38 @@ const exportSalaryHistoryCSV = async () => {
   if (e2) throw e2;
 
   const empMap = new Map((emps || []).map((e: any) => [e.id, e]));
-  const rows = [['Mã nhân viên', 'Tên nhân viên', 'Team', 'Năm', 'Lương gross', 'Công ty chi trả']];
+  const rows = [['Mã nhân viên', 'Tên nhân viên', 'Team', 'Năm', 'Lương gross', 'Công ty chi trả', '% tăng so với năm trước', '% tăng so với năm đầu']];
+  // Group history by employee
+  const byEmp = new Map<string, any[]>();
   (hist || []).forEach((h: any) => {
-    const emp: any = empMap.get(h.employee_id);
+    if (!byEmp.has(h.employee_id)) byEmp.set(h.employee_id, []);
+    byEmp.get(h.employee_id)!.push(h);
+  });
+  const fmtPct = (n: number | null) => n === null ? '' : `${n > 0 ? '+' : ''}${n.toFixed(2)}%`;
+  byEmp.forEach((list, empId) => {
+    const emp: any = empMap.get(empId);
     if (!emp) return;
-    rows.push([
-      emp.employee_code,
-      emp.full_name,
-      emp.team,
-      String(h.year),
-      String(h.gross_salary),
-      String(h.company_payment),
-    ]);
+    list.sort((a, b) => a.year - b.year);
+    const first = list[0];
+    list.forEach((h, idx) => {
+      const prev = idx > 0 ? list[idx - 1] : null;
+      const pctPrev = prev && prev.company_payment > 0
+        ? ((h.company_payment - prev.company_payment) / prev.company_payment) * 100
+        : null;
+      const pctFirst = idx > 0 && first.company_payment > 0
+        ? ((h.company_payment - first.company_payment) / first.company_payment) * 100
+        : null;
+      rows.push([
+        emp.employee_code,
+        emp.full_name,
+        emp.team,
+        String(h.year),
+        String(h.gross_salary),
+        String(h.company_payment),
+        fmtPct(pctPrev),
+        fmtPct(pctFirst),
+      ]);
+    });
   });
 
   const csv = '\uFEFF' + rows
