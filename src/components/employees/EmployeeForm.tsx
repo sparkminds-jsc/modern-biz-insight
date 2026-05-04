@@ -37,7 +37,7 @@ interface Employee {
 interface EmployeeFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (employee: Employee) => void;
+  onSubmit: (employee: Employee & { _pendingSalaryHistory?: SalaryHistory[] }) => void;
   employee?: Employee;
   title: string;
 }
@@ -59,6 +59,11 @@ const parseVN = (s: string) => {
   const cleaned = s.replace(/\./g, '').replace(/,/g, '.');
   const n = parseFloat(cleaned);
   return isNaN(n) ? 0 : n;
+};
+
+const createEmployeePayload = (employee: Employee, pendingSalaryHistory?: SalaryHistory[]) => {
+  if (!pendingSalaryHistory?.length) return employee;
+  return { ...employee, _pendingSalaryHistory: pendingSalaryHistory };
 };
 
 export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: EmployeeFormProps) {
@@ -178,7 +183,7 @@ export function EmployeeForm({ isOpen, onClose, onSubmit, employee, title }: Emp
       toast({ title: 'Lỗi', description: err.message || 'Không thể lưu lịch sử tăng lương', variant: 'destructive' });
       return;
     }
-    onSubmit({ ...formData, _pendingSalaryHistory: employee?.id ? undefined : salaryHistory } as any);
+    onSubmit(createEmployeePayload(formData, employee?.id ? undefined : salaryHistory));
   };
 
   const addHistoryRow = () => {
