@@ -70,6 +70,11 @@ const exportSalaryHistoryCSV = async () => {
   URL.revokeObjectURL(url);
 };
 
+const sanitizeEmployeePayload = (employee: Partial<Employee> & { _pendingSalaryHistory?: any[] }) => {
+  const { _pendingSalaryHistory, id, created_at, updated_at, ...payload } = employee as any;
+  return payload;
+};
+
 const EmployeesPage = () => {
   const [filters, setFilters] = useState({
     name: '',
@@ -161,10 +166,11 @@ const EmployeesPage = () => {
 
   // Create employee
   const createEmployeeMutation = useMutation({
-    mutationFn: async (employee: Omit<Employee, 'id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (employee: Omit<Employee, 'id' | 'created_at' | 'updated_at'> & { _pendingSalaryHistory?: any[] }) => {
+      const newEmployee = sanitizeEmployeePayload(employee);
       const { data, error } = await supabase
         .from('employees')
-        .insert([employee])
+        .insert([newEmployee])
         .select()
         .single();
       
@@ -191,9 +197,10 @@ const EmployeesPage = () => {
   // Update employee
   const updateEmployeeMutation = useMutation({
     mutationFn: async (employee: Employee) => {
+      const employeePayload = sanitizeEmployeePayload(employee);
       const { data, error } = await supabase
         .from('employees')
-        .update(employee)
+        .update(employeePayload)
         .eq('id', employee.id)
         .select()
         .single();
