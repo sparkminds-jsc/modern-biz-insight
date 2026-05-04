@@ -1,5 +1,5 @@
 
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -20,9 +20,10 @@ interface EmployeeFiltersProps {
   onFiltersChange: (filters: { name: string; team: string; email: string; status: string }) => void;
   onSearch: () => void;
   onAddEmployee: () => void;
+  onExportSalaryHistory?: () => void;
 }
 
-export function EmployeeFilters({ filters, onFiltersChange, onSearch, onAddEmployee }: EmployeeFiltersProps) {
+export function EmployeeFilters({ filters, onFiltersChange, onSearch, onAddEmployee, onExportSalaryHistory }: EmployeeFiltersProps) {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Bộ lọc tìm kiếm</h2>
@@ -88,6 +89,12 @@ export function EmployeeFilters({ filters, onFiltersChange, onSearch, onAddEmplo
               <Plus className="w-4 h-4 mr-2" />
               Thêm nhân viên
             </Button>
+            {onExportSalaryHistory && (
+              <Button onClick={onExportSalaryHistory} variant="outline">
+                <Download className="w-4 h-4 mr-2" />
+                Export Lịch sử tăng lương
+              </Button>
+            )}
           </div>
         </div>
       </div>
