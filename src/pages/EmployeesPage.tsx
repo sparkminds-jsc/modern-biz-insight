@@ -274,12 +274,34 @@ const EmployeesPage = () => {
     }
   };
 
-  const handleFormSubmit = (employee: Employee) => {
+  const handleFormSubmit = async (employee: Employee & { _pendingSalaryHistory?: any[] }) => {
+    const { _pendingSalaryHistory, ...rest } = employee as any;
     if (formMode === 'add') {
-      const { id, created_at, updated_at, ...newEmployee } = employee;
-      createEmployeeMutation.mutate(newEmployee);
+      const { id, created_at, updated_at, ...newEmployee } = rest;
+      try {
+        const { data, error } = await supabase
+          .from('employees')
+          .insert([newEmployee])
+          .select()
+          .single();
+        if (error) throw error;
+        if (_pendingSalaryHistory && _pendingSalaryHistory.length > 0 && data?.id) {
+          const rows = _pendingSalaryHistory.map((h: any) => ({
+            employee_id: data.id,
+            year: h.year,
+            gross_salary: h.gross_salary,
+            company_payment: h.company_payment,
+          }));
+          await supabase.from('salary_increase_history').insert(rows);
+        }
+        queryClient.invalidateQueries({ queryKey: ['employees'] });
+        toast({ title: 'Thành công', description: 'Thêm nhân viên mới thành công!' });
+        setIsFormOpen(false);
+      } catch (err: any) {
+        toast({ title: 'Lỗi', description: err.message || 'Có lỗi xảy ra khi thêm nhân viên', variant: 'destructive' });
+      }
     } else {
-      updateEmployeeMutation.mutate(employee);
+      updateEmployeeMutation.mutate(rest as Employee);
     }
   };
 
