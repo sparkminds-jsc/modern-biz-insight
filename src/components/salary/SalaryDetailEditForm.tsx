@@ -223,9 +223,9 @@ export function SalaryDetailEditForm({
     let tax_35_percent = 0;
     
     if (values.salary_type === 'Lương thời vụ') {
-      // Với Lương thời vụ: Thu nhập chịu thuế = 0, Thuế TNCN = 10% * Tổng thu nhập
       taxable_income = 0;
-      total_personal_income_tax = total_income * 0.10;
+      // Lương thời vụ: chỉ tính thuế 10% khi Tổng thu nhập >= 15.500.000
+      total_personal_income_tax = total_income >= 15500000 ? total_income * 0.10 : 0;
     } else {
       // Logic thuế bình thường cho Lương có BH
       taxable_income = Math.max(0, total_income - total_deduction);
