@@ -129,7 +129,7 @@ export function SalaryDetailEditForm({
         employee_name: salaryDetail.employee_name,
         team: salaryDetail.team,
         gross_salary: salaryDetail.gross_salary,
-        salary_type: 'Lương có BH', // Default value
+        salary_type: salaryDetail.insurance_base_amount > 0 ? 'Lương có BH' : 'Lương thời vụ',
         working_days: salaryDetail.working_days,
         kpi_bonus: salaryDetail.kpi_bonus,
         overtime_1_5: salaryDetail.overtime_1_5,
