@@ -14,7 +14,8 @@ import {
   FolderOpen,
   UserCog,
   Lightbulb,
-  Building2
+  Building2,
+  Settings
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -43,7 +44,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const location = useLocation();
 
   return (
-    <div className={`fixed left-0 top-0 h-full bg-white shadow-xl z-50 transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'}`}>
+    <div className={`fixed left-0 top-0 h-full bg-white shadow-xl z-50 transition-all duration-300 flex flex-col ${isOpen ? 'w-64' : 'w-16'}`}>
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
         {isOpen && (
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -58,7 +59,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
         </button>
       </div>
       
-      <nav className="mt-6">
+      <nav className="mt-6 flex-1 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -81,6 +82,20 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           );
         })}
       </nav>
+
+      <div className="border-t border-gray-200 py-2">
+        <Link
+          to="/settings"
+          className={`flex items-center px-4 py-3 mx-2 rounded-xl transition-all duration-200 group ${
+            location.pathname === '/settings'
+              ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+              : 'text-gray-600 hover:bg-gray-100 hover:text-blue-600'
+          }`}
+        >
+          <Settings className={`w-5 h-5 ${location.pathname === '/settings' ? 'text-white' : 'text-gray-500 group-hover:text-blue-600'}`} />
+          {isOpen && <span className="ml-3 font-medium">Cài đặt</span>}
+        </Link>
+      </div>
     </div>
   );
 }
