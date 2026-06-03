@@ -104,7 +104,7 @@ export function EmployeeTable({
                 <TableCell className="font-medium">{employee.employee_code}</TableCell>
                 <TableCell>{employee.full_name}</TableCell>
                 <TableCell>{employee.email}</TableCell>
-                <TableCell>{formatDate(employee.birth_date)}</TableCell>
+                <TableCell className={isCurrentMonth(employee.birth_date) ? 'text-red-600 font-semibold' : ''}>{formatDate(employee.birth_date)}</TableCell>
                 <TableCell>{employee.contract_type}</TableCell>
                 <TableCell>{formatDate(employee.contract_end_date)}</TableCell>
                 <TableCell>{employee.position}</TableCell>
