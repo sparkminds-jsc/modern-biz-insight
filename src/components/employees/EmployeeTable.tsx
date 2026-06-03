@@ -10,6 +10,13 @@ import {
 } from '@/components/ui/table';
 import { Employee, SortConfig } from '@/types/employee';
 
+const isCurrentMonth = (dateString: string | null) => {
+  if (!dateString) return false;
+  const date = new Date(dateString);
+  const now = new Date();
+  return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+};
+
 interface EmployeeTableProps {
   employees: Employee[];
   onViewDetail: (employee: Employee) => void;
