@@ -10,6 +10,13 @@ import {
 } from '@/components/ui/table';
 import { Employee, SortConfig } from '@/types/employee';
 
+const isCurrentMonth = (dateString: string | null) => {
+  if (!dateString) return false;
+  const date = new Date(dateString);
+  const now = new Date();
+  return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+};
+
 interface EmployeeTableProps {
   employees: Employee[];
   onViewDetail: (employee: Employee) => void;
@@ -97,9 +104,9 @@ export function EmployeeTable({
                 <TableCell className="font-medium">{employee.employee_code}</TableCell>
                 <TableCell>{employee.full_name}</TableCell>
                 <TableCell>{employee.email}</TableCell>
-                <TableCell>{formatDate(employee.birth_date)}</TableCell>
+                <TableCell className={isCurrentMonth(employee.birth_date) ? 'text-red-600 font-semibold' : ''}>{formatDate(employee.birth_date)}</TableCell>
                 <TableCell>{employee.contract_type}</TableCell>
-                <TableCell>{formatDate(employee.contract_end_date)}</TableCell>
+                <TableCell className={isCurrentMonth(employee.contract_end_date) ? 'text-red-600 font-semibold' : ''}>{formatDate(employee.contract_end_date)}</TableCell>
                 <TableCell>{employee.position}</TableCell>
                 <TableCell>{employee.team}</TableCell>
                 <TableCell>{getStatusBadge(employee.status)}</TableCell>
