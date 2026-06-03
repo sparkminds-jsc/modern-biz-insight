@@ -14,7 +14,7 @@ const isCurrentMonth = (dateString: string | null) => {
   if (!dateString) return false;
   const date = new Date(dateString);
   const now = new Date();
-  return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  return date.getMonth() === now.getMonth();
 };
 
 interface EmployeeTableProps {
