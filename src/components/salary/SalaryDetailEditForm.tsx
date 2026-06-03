@@ -65,6 +65,10 @@ export function SalaryDetailEditForm({
 }: SalaryDetailEditFormProps) {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(false);
+  const [deductionSettings, setDeductionSettings] = useState({
+    personal_deduction: 15500000,
+    dependent_deduction: 6200000,
+  });
   const [calculatedValues, setCalculatedValues] = useState({
     daily_rate: 0,
     daily_salary: 0,
@@ -119,6 +123,7 @@ export function SalaryDetailEditForm({
   useEffect(() => {
     if (isOpen) {
       fetchEmployees();
+      fetchDeductionSettings();
     }
   }, [isOpen]);
 
@@ -144,7 +149,7 @@ export function SalaryDetailEditForm({
 
   useEffect(() => {
     calculateValues();
-  }, [watchedValues]);
+  }, [watchedValues, deductionSettings]);
 
   const fetchEmployees = async () => {
     try {
@@ -163,6 +168,23 @@ export function SalaryDetailEditForm({
         description: 'Không thể tải danh sách nhân viên',
         variant: 'destructive',
       });
+    }
+  };
+
+  const fetchDeductionSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('app_settings')
+        .select('key, value')
+        .in('key', ['personal_deduction', 'dependent_deduction']);
+      if (error) throw error;
+      const map = new Map((data || []).map((r: any) => [r.key, Number(r.value)]));
+      setDeductionSettings({
+        personal_deduction: map.get('personal_deduction') ?? 15500000,
+        dependent_deduction: map.get('dependent_deduction') ?? 6200000,
+      });
+    } catch (err) {
+      console.error('Error fetching deduction settings:', err);
     }
   };
 
