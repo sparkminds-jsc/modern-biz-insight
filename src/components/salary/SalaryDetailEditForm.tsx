@@ -228,10 +228,12 @@ export function SalaryDetailEditForm({
     const bhnld_bhtn = isSalaryWithInsurance ? values.gross_salary * 0.01 : 0;
     const total_bhnld = bhnld_bhxh + bhnld_bhyt + bhnld_bhtn;
     
-    // Giảm trừ calculations
-    const dependent_deduction = values.dependent_count * 6200000;
+    // Giảm trừ calculations (lấy từ Cài đặt)
+    const personalDeductionAmt = deductionSettings.personal_deduction;
+    const dependentDeductionUnit = deductionSettings.dependent_deduction;
+    const dependent_deduction = values.dependent_count * dependentDeductionUnit;
     const insurance_deduction = total_bhnld;
-    const total_deduction = 15500000 + dependent_deduction + insurance_deduction; // 15.5tr là giảm trừ bản thân
+    const total_deduction = personalDeductionAmt + dependent_deduction + insurance_deduction;
     
     // Thu nhập chịu thuế - Đặc biệt cho Lương thời vụ
     let taxable_income;
@@ -246,8 +248,8 @@ export function SalaryDetailEditForm({
     
     if (values.salary_type === 'Lương thời vụ') {
       taxable_income = 0;
-      // Lương thời vụ: chỉ tính thuế 10% khi Tổng thu nhập >= 15.500.000
-      total_personal_income_tax = total_income >= 15500000 ? total_income * 0.10 : 0;
+      // Lương thời vụ: chỉ tính thuế 10% khi Tổng thu nhập >= mức giảm trừ gia cảnh (Cài đặt)
+      total_personal_income_tax = total_income >= personalDeductionAmt ? total_income * 0.10 : 0;
     } else {
       // Logic thuế bình thường cho Lương có BH
       taxable_income = Math.max(0, total_income - total_deduction);
@@ -300,7 +302,7 @@ export function SalaryDetailEditForm({
       bhnld_bhyt,
       bhnld_bhtn,
       total_bhnld,
-      personal_deduction: 15500000,
+      personal_deduction: personalDeductionAmt,
       dependent_deduction,
       insurance_deduction,
       total_deduction,
