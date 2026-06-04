@@ -232,8 +232,15 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
                         </Button>
                       </div>
                     </TableCell>
-                    <TableCell className={earn >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                      {maskValue(earn, team.name)}
+                    <TableCell>
+                      <Input
+                        type="text"
+                        placeholder="Nhập earn"
+                        value={visible ? formatVN(earn) : (earn ? '***' : '')}
+                        onChange={(e) => setCurrentEarn(prev => ({ ...prev, [team.name]: parseVN(e.target.value) }))}
+                        className="max-w-xs"
+                        readOnly={!visible && !!earn}
+                      />
                     </TableCell>
                     <TableCell>
                       <Input
