@@ -22,10 +22,24 @@ interface AverageCostsSectionProps {
   onSave?: () => void;
 }
 
+const parseVN = (s: string): number => {
+  if (!s) return 0;
+  const n = parseFloat(String(s).replace(/[.\s]/g, '').replace(',', '.'));
+  return isNaN(n) ? 0 : n;
+};
+
+const formatVN = (n: number): string => {
+  if (!n) return '';
+  return new Intl.NumberFormat('vi-VN').format(n);
+};
+
 export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
   const [teams, setTeams] = useState<Team[]>([]);
   const [costs, setCosts] = useState<Record<string, TeamAverageCost>>({});
   const [localCosts, setLocalCosts] = useState<Record<string, TeamAverageCost>>({});
+  const [currentEarn, setCurrentEarn] = useState<Record<string, number>>({});
+  const [remainingMonths, setRemainingMonths] = useState<Record<string, number>>({});
+  const [fixedRevenue, setFixedRevenue] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [visibleTeams, setVisibleTeams] = useState<Set<string>>(new Set());
@@ -37,14 +51,20 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
   const fetchData = async () => {
     try {
       setLoading(true);
-      
-      const [teamsRes, costsRes] = await Promise.all([
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1;
+      const defaultRemaining = Math.max(0, 12 - currentMonth);
+
+      const [teamsRes, costsRes, reportsRes] = await Promise.all([
         supabase.from('teams').select('*').order('name'),
-        supabase.from('team_average_costs').select('*')
+        supabase.from('team_average_costs').select('*'),
+        supabase.from('team_reports').select('team, final_earn, year').eq('year', currentYear)
       ]);
 
       if (teamsRes.error) throw teamsRes.error;
       if (costsRes.error) throw costsRes.error;
+      if (reportsRes.error) throw reportsRes.error;
 
       setTeams(teamsRes.data || []);
 
@@ -54,6 +74,21 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
       });
       setCosts(costsMap);
       setLocalCosts(costsMap);
+
+      const earnMap: Record<string, number> = {};
+      (reportsRes.data || []).forEach((r: any) => {
+        earnMap[r.team] = (earnMap[r.team] || 0) + (r.final_earn || 0);
+      });
+      setCurrentEarn(earnMap);
+
+      const remainingMap: Record<string, number> = {};
+      const fixedMap: Record<string, number> = {};
+      (teamsRes.data || []).forEach((t: any) => {
+        remainingMap[t.name] = defaultRemaining;
+        fixedMap[t.name] = 0;
+      });
+      setRemainingMonths(remainingMap);
+      setFixedRevenue(fixedMap);
     } catch (error: any) {
       toast.error('Lỗi tải dữ liệu: ' + error.message);
     } finally {
@@ -63,7 +98,7 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
 
   const updateLocalCost = (teamName: string, value: string) => {
     const currentCost = localCosts[teamName];
-    const costValue = parseFloat(value) || 0;
+    const costValue = parseVN(value);
 
     setLocalCosts(prev => ({
       ...prev,
@@ -78,10 +113,10 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
   const saveCosts = async () => {
     try {
       setSaving(true);
-      
+
       for (const [teamName, localCost] of Object.entries(localCosts)) {
         const originalCost = costs[teamName];
-        
+
         if (originalCost) {
           const { error } = await supabase
             .from('team_average_costs')
@@ -123,11 +158,10 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
     });
   };
 
-  const formatCostValue = (value: number | undefined, teamName: string) => {
-    if (visibleTeams.has(teamName)) {
-      return value || '';
-    }
-    return value ? '***' : '';
+  const maskValue = (value: number, teamName: string): string => {
+    if (!value) return '0';
+    if (visibleTeams.has(teamName)) return formatVN(value);
+    return '***';
   };
 
   if (loading) {
@@ -156,48 +190,86 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
           <TableHeader>
             <TableRow>
               <TableHead>Team</TableHead>
+              <TableHead>Earn hiện tại</TableHead>
               <TableHead>Chi phí trung bình tháng</TableHead>
+              <TableHead>Số tháng còn lại</TableHead>
+              <TableHead>Doanh thu fixed price</TableHead>
+              <TableHead>Earn ước tính</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {teams.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={2} className="text-center text-muted-foreground">
+                <TableCell colSpan={6} className="text-center text-muted-foreground">
                   Chưa có team nào
                 </TableCell>
               </TableRow>
             ) : (
-              teams.map((team) => (
-                <TableRow key={team.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <span>{team.name}</span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => toggleTeamVisibility(team.name)}
-                      >
-                        {visibleTeams.has(team.name) ? (
-                          <Eye className="h-4 w-4" />
-                        ) : (
-                          <EyeOff className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Input
-                      type={visibleTeams.has(team.name) ? "number" : "text"}
-                      placeholder="Nhập chi phí"
-                      value={formatCostValue(localCosts[team.name]?.average_monthly_cost, team.name)}
-                      onChange={(e) => updateLocalCost(team.name, e.target.value)}
-                      className="max-w-xs"
-                      readOnly={!visibleTeams.has(team.name) && !!localCosts[team.name]?.average_monthly_cost}
-                    />
-                  </TableCell>
-                </TableRow>
-              ))
+              teams.map((team) => {
+                const visible = visibleTeams.has(team.name);
+                const earn = currentEarn[team.name] || 0;
+                const avgCost = localCosts[team.name]?.average_monthly_cost || 0;
+                const months = remainingMonths[team.name] ?? 0;
+                const fixed = fixedRevenue[team.name] || 0;
+                const estimated = earn + avgCost * months + fixed;
+
+                return (
+                  <TableRow key={team.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        <span>{team.name}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={() => toggleTeamVisibility(team.name)}
+                        >
+                          {visible ? (
+                            <Eye className="h-4 w-4" />
+                          ) : (
+                            <EyeOff className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </TableCell>
+                    <TableCell className={earn >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                      {maskValue(earn, team.name)}
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="text"
+                        placeholder="Nhập chi phí"
+                        value={visible ? formatVN(avgCost) : (avgCost ? '***' : '')}
+                        onChange={(e) => updateLocalCost(team.name, e.target.value)}
+                        className="max-w-xs"
+                        readOnly={!visible && !!avgCost}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={months}
+                        onChange={(e) => setRemainingMonths(prev => ({ ...prev, [team.name]: parseInt(e.target.value) || 0 }))}
+                        className="w-24"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="text"
+                        placeholder="Nhập doanh thu"
+                        value={visible ? formatVN(fixed) : (fixed ? '***' : '')}
+                        onChange={(e) => setFixedRevenue(prev => ({ ...prev, [team.name]: parseVN(e.target.value) }))}
+                        className="max-w-xs"
+                        readOnly={!visible && !!fixed}
+                      />
+                    </TableCell>
+                    <TableCell className={estimated >= 0 ? 'font-semibold text-green-600 dark:text-green-400' : 'font-semibold text-red-600 dark:text-red-400'}>
+                      {maskValue(estimated, team.name)}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
