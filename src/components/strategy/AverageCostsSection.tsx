@@ -38,6 +38,8 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
   const [costs, setCosts] = useState<Record<string, TeamAverageCost>>({});
   const [localCosts, setLocalCosts] = useState<Record<string, TeamAverageCost>>({});
   const [currentEarn, setCurrentEarn] = useState<Record<string, number>>({});
+  const [currentEarnInputs, setCurrentEarnInputs] = useState<Record<string, string>>({});
+  const [averageCostInputs, setAverageCostInputs] = useState<Record<string, string>>({});
   const [remainingMonths, setRemainingMonths] = useState<Record<string, number>>({});
   const [fixedRevenue, setFixedRevenue] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -74,12 +76,22 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
       });
       setCosts(costsMap);
       setLocalCosts(costsMap);
+      setAverageCostInputs(
+        Object.fromEntries(
+          Object.entries(costsMap).map(([teamName, cost]) => [teamName, formatVN(cost.average_monthly_cost)])
+        )
+      );
 
       const earnMap: Record<string, number> = {};
       (reportsRes.data || []).forEach((r: any) => {
         earnMap[r.team] = (earnMap[r.team] || 0) + (r.final_earn || 0);
       });
       setCurrentEarn(earnMap);
+      setCurrentEarnInputs(
+        Object.fromEntries(
+          Object.entries(earnMap).map(([teamName, earn]) => [teamName, formatVN(earn)])
+        )
+      );
 
       const remainingMap: Record<string, number> = {};
       const fixedMap: Record<string, number> = {};
@@ -100,6 +112,11 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
     const currentCost = localCosts[teamName];
     const costValue = parseVN(value);
 
+    setAverageCostInputs(prev => ({
+      ...prev,
+      [teamName]: value
+    }));
+
     setLocalCosts(prev => ({
       ...prev,
       [teamName]: {
@@ -107,6 +124,18 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
         team: teamName,
         average_monthly_cost: costValue
       } as TeamAverageCost
+    }));
+  };
+
+  const updateCurrentEarn = (teamName: string, value: string) => {
+    setCurrentEarnInputs(prev => ({
+      ...prev,
+      [teamName]: value
+    }));
+
+    setCurrentEarn(prev => ({
+      ...prev,
+      [teamName]: parseVN(value)
     }));
   };
 
@@ -168,7 +197,7 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Chi phí trung bình tháng</CardTitle>
+          <CardTitle>Earn trung bình tháng</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">Đang tải...</p>
@@ -180,7 +209,7 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Chi phí trung bình tháng</CardTitle>
+        <CardTitle>Earn trung bình tháng</CardTitle>
         <Button onClick={saveCosts} disabled={saving}>
           {saving ? 'Đang lưu...' : 'Lưu'}
         </Button>
@@ -191,7 +220,7 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
             <TableRow>
               <TableHead>Team</TableHead>
               <TableHead>Earn hiện tại</TableHead>
-              <TableHead>Chi phí trung bình tháng</TableHead>
+              <TableHead>Earn trung bình tháng</TableHead>
               <TableHead>Số tháng còn lại</TableHead>
               <TableHead>Doanh thu fixed price</TableHead>
               <TableHead>Earn ước tính</TableHead>
@@ -236,8 +265,8 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
                       <Input
                         type="text"
                         placeholder="Nhập earn"
-                        value={visible ? formatVN(earn) : (earn ? '***' : '')}
-                        onChange={(e) => setCurrentEarn(prev => ({ ...prev, [team.name]: parseVN(e.target.value) }))}
+                        value={visible ? (currentEarnInputs[team.name] ?? '') : (earn ? '***' : '')}
+                        onChange={(e) => updateCurrentEarn(team.name, e.target.value)}
                         className="max-w-xs"
                         readOnly={!visible && !!earn}
                       />
@@ -245,8 +274,8 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
                     <TableCell>
                       <Input
                         type="text"
-                        placeholder="Nhập chi phí"
-                        value={visible ? formatVN(avgCost) : (avgCost ? '***' : '')}
+                        placeholder="Nhập earn"
+                        value={visible ? (averageCostInputs[team.name] ?? '') : (avgCost ? '***' : '')}
                         onChange={(e) => updateLocalCost(team.name, e.target.value)}
                         className="max-w-xs"
                         readOnly={!visible && !!avgCost}
