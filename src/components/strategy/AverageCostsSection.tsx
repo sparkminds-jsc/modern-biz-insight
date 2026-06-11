@@ -307,6 +307,16 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
                     </TableCell>
                     <TableCell>
                       <Input
+                        type="text"
+                        placeholder="Nhập trừ dự án"
+                        value={visible ? (projectDeductionInputs[team.name] ?? '') : (deduction ? '***' : '')}
+                        onChange={(e) => updateProjectDeduction(team.name, e.target.value)}
+                        className="max-w-xs"
+                        readOnly={!visible && !!deduction}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
                         type="number"
                         min={0}
                         value={months}
@@ -322,16 +332,6 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
                         onChange={(e) => updateFixedRevenue(team.name, e.target.value)}
                         className="max-w-xs"
                         readOnly={!visible && !!fixed}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        type="text"
-                        placeholder="Nhập trừ dự án"
-                        value={visible ? (projectDeductionInputs[team.name] ?? '') : (deduction ? '***' : '')}
-                        onChange={(e) => updateProjectDeduction(team.name, e.target.value)}
-                        className="max-w-xs"
-                        readOnly={!visible && !!deduction}
                       />
                     </TableCell>
                     <TableCell className={estimated >= 0 ? 'font-semibold text-green-600 dark:text-green-400' : 'font-semibold text-red-600 dark:text-red-400'}>
