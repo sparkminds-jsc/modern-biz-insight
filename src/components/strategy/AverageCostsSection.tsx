@@ -42,6 +42,9 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
   const [averageCostInputs, setAverageCostInputs] = useState<Record<string, string>>({});
   const [remainingMonths, setRemainingMonths] = useState<Record<string, number>>({});
   const [fixedRevenue, setFixedRevenue] = useState<Record<string, number>>({});
+  const [fixedRevenueInputs, setFixedRevenueInputs] = useState<Record<string, string>>({});
+  const [projectDeduction, setProjectDeduction] = useState<Record<string, number>>({});
+  const [projectDeductionInputs, setProjectDeductionInputs] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [visibleTeams, setVisibleTeams] = useState<Set<string>>(new Set());
@@ -95,12 +98,17 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
 
       const remainingMap: Record<string, number> = {};
       const fixedMap: Record<string, number> = {};
+      const deductionMap: Record<string, number> = {};
       (teamsRes.data || []).forEach((t: any) => {
         remainingMap[t.name] = defaultRemaining;
         fixedMap[t.name] = 0;
+        deductionMap[t.name] = 0;
       });
       setRemainingMonths(remainingMap);
       setFixedRevenue(fixedMap);
+      setFixedRevenueInputs({});
+      setProjectDeduction(deductionMap);
+      setProjectDeductionInputs({});
     } catch (error: any) {
       toast.error('Lỗi tải dữ liệu: ' + error.message);
     } finally {
@@ -110,11 +118,12 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
 
   const updateLocalCost = (teamName: string, value: string) => {
     const currentCost = localCosts[teamName];
-    const costValue = parseVN(value);
+    const sanitized = value.replace(/[.,]/g, '');
+    const costValue = parseVN(sanitized);
 
     setAverageCostInputs(prev => ({
       ...prev,
-      [teamName]: value
+      [teamName]: sanitized
     }));
 
     setLocalCosts(prev => ({
@@ -128,15 +137,28 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
   };
 
   const updateCurrentEarn = (teamName: string, value: string) => {
+    const sanitized = value.replace(/[.,]/g, '');
     setCurrentEarnInputs(prev => ({
       ...prev,
-      [teamName]: value
+      [teamName]: sanitized
     }));
 
     setCurrentEarn(prev => ({
       ...prev,
-      [teamName]: parseVN(value)
+      [teamName]: parseVN(sanitized)
     }));
+  };
+
+  const updateFixedRevenue = (teamName: string, value: string) => {
+    const sanitized = value.replace(/[.,]/g, '');
+    setFixedRevenueInputs(prev => ({ ...prev, [teamName]: sanitized }));
+    setFixedRevenue(prev => ({ ...prev, [teamName]: parseVN(sanitized) }));
+  };
+
+  const updateProjectDeduction = (teamName: string, value: string) => {
+    const sanitized = value.replace(/[.,]/g, '');
+    setProjectDeductionInputs(prev => ({ ...prev, [teamName]: sanitized }));
+    setProjectDeduction(prev => ({ ...prev, [teamName]: parseVN(sanitized) }));
   };
 
   const saveCosts = async () => {
@@ -223,13 +245,14 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
               <TableHead>Earn trung bình tháng</TableHead>
               <TableHead>Số tháng còn lại</TableHead>
               <TableHead>Doanh thu fixed price</TableHead>
+              <TableHead>Trừ dự án</TableHead>
               <TableHead>Earn ước tính</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {teams.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground">
+                <TableCell colSpan={7} className="text-center text-muted-foreground">
                   Chưa có team nào
                 </TableCell>
               </TableRow>
@@ -240,7 +263,8 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
                 const avgCost = localCosts[team.name]?.average_monthly_cost || 0;
                 const months = remainingMonths[team.name] ?? 0;
                 const fixed = fixedRevenue[team.name] || 0;
-                const estimated = earn + avgCost * months + fixed;
+                const deduction = projectDeduction[team.name] || 0;
+                const estimated = earn + avgCost * months + fixed * 0.7 + deduction * 0.7;
 
                 return (
                   <TableRow key={team.id}>
@@ -294,10 +318,20 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
                       <Input
                         type="text"
                         placeholder="Nhập doanh thu"
-                        value={visible ? formatVN(fixed) : (fixed ? '***' : '')}
-                        onChange={(e) => setFixedRevenue(prev => ({ ...prev, [team.name]: parseVN(e.target.value) }))}
+                        value={visible ? (fixedRevenueInputs[team.name] ?? '') : (fixed ? '***' : '')}
+                        onChange={(e) => updateFixedRevenue(team.name, e.target.value)}
                         className="max-w-xs"
                         readOnly={!visible && !!fixed}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
+                        type="text"
+                        placeholder="Nhập trừ dự án"
+                        value={visible ? (projectDeductionInputs[team.name] ?? '') : (deduction ? '***' : '')}
+                        onChange={(e) => updateProjectDeduction(team.name, e.target.value)}
+                        className="max-w-xs"
+                        readOnly={!visible && !!deduction}
                       />
                     </TableCell>
                     <TableCell className={estimated >= 0 ? 'font-semibold text-green-600 dark:text-green-400' : 'font-semibold text-red-600 dark:text-red-400'}>
