@@ -243,9 +243,9 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
               <TableHead>Team</TableHead>
               <TableHead>Earn hiện tại</TableHead>
               <TableHead>Earn trung bình tháng</TableHead>
+              <TableHead>Trừ dự án</TableHead>
               <TableHead>Số tháng còn lại</TableHead>
               <TableHead>Doanh thu fixed price</TableHead>
-              <TableHead>Trừ dự án</TableHead>
               <TableHead>Earn ước tính</TableHead>
             </TableRow>
           </TableHeader>
@@ -264,7 +264,7 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
                 const months = remainingMonths[team.name] ?? 0;
                 const fixed = fixedRevenue[team.name] || 0;
                 const deduction = projectDeduction[team.name] || 0;
-                const estimated = earn + avgCost * months + fixed * 0.7 + deduction * 0.7;
+                const estimated = earn + ((avgCost - deduction * 0.7) * months) + (fixed * 0.7);
 
                 return (
                   <TableRow key={team.id}>
@@ -307,6 +307,16 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
                     </TableCell>
                     <TableCell>
                       <Input
+                        type="text"
+                        placeholder="Nhập trừ dự án"
+                        value={visible ? (projectDeductionInputs[team.name] ?? '') : (deduction ? '***' : '')}
+                        onChange={(e) => updateProjectDeduction(team.name, e.target.value)}
+                        className="max-w-xs"
+                        readOnly={!visible && !!deduction}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Input
                         type="number"
                         min={0}
                         value={months}
@@ -322,16 +332,6 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
                         onChange={(e) => updateFixedRevenue(team.name, e.target.value)}
                         className="max-w-xs"
                         readOnly={!visible && !!fixed}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Input
-                        type="text"
-                        placeholder="Nhập trừ dự án"
-                        value={visible ? (projectDeductionInputs[team.name] ?? '') : (deduction ? '***' : '')}
-                        onChange={(e) => updateProjectDeduction(team.name, e.target.value)}
-                        className="max-w-xs"
-                        readOnly={!visible && !!deduction}
                       />
                     </TableCell>
                     <TableCell className={estimated >= 0 ? 'font-semibold text-green-600 dark:text-green-400' : 'font-semibold text-red-600 dark:text-red-400'}>
