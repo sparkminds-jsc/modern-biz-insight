@@ -243,9 +243,9 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
               <TableHead>Team</TableHead>
               <TableHead>Earn hiện tại</TableHead>
               <TableHead>Earn trung bình tháng</TableHead>
+              <TableHead>Trừ dự án</TableHead>
               <TableHead>Số tháng còn lại</TableHead>
               <TableHead>Doanh thu fixed price</TableHead>
-              <TableHead>Trừ dự án</TableHead>
               <TableHead>Earn ước tính</TableHead>
             </TableRow>
           </TableHeader>
