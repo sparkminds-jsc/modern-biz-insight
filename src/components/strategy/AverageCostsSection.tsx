@@ -264,7 +264,7 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
                 const months = remainingMonths[team.name] ?? 0;
                 const fixed = fixedRevenue[team.name] || 0;
                 const deduction = projectDeduction[team.name] || 0;
-                const estimated = earn + avgCost * months + fixed * 0.7 + deduction * 0.7;
+                const estimated = earn + ((avgCost - deduction * 0.7) * months) + (fixed * 0.7);
 
                 return (
                   <TableRow key={team.id}>
