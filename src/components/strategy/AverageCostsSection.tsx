@@ -81,7 +81,7 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
       setLocalCosts(costsMap);
       setAverageCostInputs(
         Object.fromEntries(
-          Object.entries(costsMap).map(([teamName, cost]) => [teamName, formatVN(cost.average_monthly_cost)])
+          Object.entries(costsMap).map(([teamName, cost]) => [teamName, cost.average_monthly_cost ? String(cost.average_monthly_cost) : ''])
         )
       );
 
