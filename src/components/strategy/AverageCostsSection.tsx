@@ -81,11 +81,6 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
       });
       setCosts(costsMap);
       setLocalCosts(costsMap);
-      setAverageCostInputs(
-        Object.fromEntries(
-          Object.entries(costsMap).map(([teamName, cost]) => [teamName, cost.average_monthly_cost ? String(cost.average_monthly_cost) : ''])
-        )
-      );
 
       const earnMap: Record<string, number> = {};
       (reportsRes.data || []).forEach((r: any) => {
