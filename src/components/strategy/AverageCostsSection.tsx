@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Eye, EyeOff } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface Team {
   id: string;
@@ -43,8 +44,9 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
   const [remainingMonths, setRemainingMonths] = useState<Record<string, number>>({});
   const [fixedRevenue, setFixedRevenue] = useState<Record<string, number>>({});
   const [fixedRevenueInputs, setFixedRevenueInputs] = useState<Record<string, string>>({});
-  const [projectDeduction, setProjectDeduction] = useState<Record<string, number>>({});
-  const [projectDeductionInputs, setProjectDeductionInputs] = useState<Record<string, string>>({});
+  const [projectDeductions, setProjectDeductions] = useState<Record<string, number[]>>({});
+  const [projectDeductionInputs, setProjectDeductionInputs] = useState<Record<string, string[]>>({});
+  const [projectDeductionEnabled, setProjectDeductionEnabled] = useState<Record<string, boolean[]>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [visibleTeams, setVisibleTeams] = useState<Set<string>>(new Set());
@@ -98,17 +100,22 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
 
       const remainingMap: Record<string, number> = {};
       const fixedMap: Record<string, number> = {};
-      const deductionMap: Record<string, number> = {};
+      const deductionsMap: Record<string, number[]> = {};
+      const deductionInputsMap: Record<string, string[]> = {};
+      const deductionEnabledMap: Record<string, boolean[]> = {};
       (teamsRes.data || []).forEach((t: any) => {
         remainingMap[t.name] = defaultRemaining;
         fixedMap[t.name] = 0;
-        deductionMap[t.name] = 0;
+        deductionsMap[t.name] = [0, 0, 0, 0];
+        deductionInputsMap[t.name] = ['', '', '', ''];
+        deductionEnabledMap[t.name] = [true, true, true, true];
       });
       setRemainingMonths(remainingMap);
       setFixedRevenue(fixedMap);
       setFixedRevenueInputs({});
-      setProjectDeduction(deductionMap);
-      setProjectDeductionInputs({});
+      setProjectDeductions(deductionsMap);
+      setProjectDeductionInputs(deductionInputsMap);
+      setProjectDeductionEnabled(deductionEnabledMap);
     } catch (error: any) {
       toast.error('Lỗi tải dữ liệu: ' + error.message);
     } finally {
@@ -155,10 +162,26 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
     setFixedRevenue(prev => ({ ...prev, [teamName]: parseVN(sanitized) }));
   };
 
-  const updateProjectDeduction = (teamName: string, value: string) => {
+  const updateProjectDeduction = (teamName: string, idx: number, value: string) => {
     const sanitized = value.replace(/[.,]/g, '');
-    setProjectDeductionInputs(prev => ({ ...prev, [teamName]: sanitized }));
-    setProjectDeduction(prev => ({ ...prev, [teamName]: parseVN(sanitized) }));
+    setProjectDeductionInputs(prev => {
+      const arr = [...(prev[teamName] ?? ['', '', '', ''])];
+      arr[idx] = sanitized;
+      return { ...prev, [teamName]: arr };
+    });
+    setProjectDeductions(prev => {
+      const arr = [...(prev[teamName] ?? [0, 0, 0, 0])];
+      arr[idx] = parseVN(sanitized);
+      return { ...prev, [teamName]: arr };
+    });
+  };
+
+  const toggleDeductionEnabled = (teamName: string, idx: number) => {
+    setProjectDeductionEnabled(prev => {
+      const arr = [...(prev[teamName] ?? [true, true, true, true])];
+      arr[idx] = !arr[idx];
+      return { ...prev, [teamName]: arr };
+    });
   };
 
   const saveCosts = async () => {
@@ -243,7 +266,10 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
               <TableHead>Team</TableHead>
               <TableHead>Earn hiện tại</TableHead>
               <TableHead>Earn trung bình tháng</TableHead>
-              <TableHead>Trừ dự án</TableHead>
+              <TableHead>Trừ dự án 1</TableHead>
+              <TableHead>Trừ dự án 2</TableHead>
+              <TableHead>Trừ dự án 3</TableHead>
+              <TableHead>Trừ dự án 4</TableHead>
               <TableHead>Số tháng còn lại</TableHead>
               <TableHead>Doanh thu fixed price</TableHead>
               <TableHead>Earn ước tính</TableHead>
@@ -252,7 +278,7 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
           <TableBody>
             {teams.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground">
+                <TableCell colSpan={10} className="text-center text-muted-foreground">
                   Chưa có team nào
                 </TableCell>
               </TableRow>
@@ -263,8 +289,11 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
                 const avgCost = localCosts[team.name]?.average_monthly_cost || 0;
                 const months = remainingMonths[team.name] ?? 0;
                 const fixed = fixedRevenue[team.name] || 0;
-                const deduction = projectDeduction[team.name] || 0;
-                const estimated = earn + ((avgCost - deduction * 0.7) * months) + (fixed * 0.7);
+                const deductions = projectDeductions[team.name] ?? [0, 0, 0, 0];
+                const enabled = projectDeductionEnabled[team.name] ?? [true, true, true, true];
+                const deductionInputs = projectDeductionInputs[team.name] ?? ['', '', '', ''];
+                const totalDeduction = deductions.reduce((sum, d, i) => sum + (enabled[i] ? d : 0), 0);
+                const estimated = earn + ((avgCost - totalDeduction * 0.7) * months) + (fixed * 0.7);
 
                 return (
                   <TableRow key={team.id}>
@@ -305,16 +334,24 @@ export function AverageCostsSection({ onSave }: AverageCostsSectionProps) {
                         readOnly={!visible && !!avgCost}
                       />
                     </TableCell>
-                    <TableCell>
-                      <Input
-                        type="text"
-                        placeholder="Nhập trừ dự án"
-                        value={visible ? (projectDeductionInputs[team.name] ?? '') : (deduction ? '***' : '')}
-                        onChange={(e) => updateProjectDeduction(team.name, e.target.value)}
-                        className="max-w-xs"
-                        readOnly={!visible && !!deduction}
-                      />
-                    </TableCell>
+                    {[0, 1, 2, 3].map((idx) => (
+                      <TableCell key={idx}>
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            checked={enabled[idx]}
+                            onCheckedChange={() => toggleDeductionEnabled(team.name, idx)}
+                          />
+                          <Input
+                            type="text"
+                            placeholder="Nhập trừ dự án"
+                            value={visible ? (deductionInputs[idx] ?? '') : (deductions[idx] ? '***' : '')}
+                            onChange={(e) => updateProjectDeduction(team.name, idx, e.target.value)}
+                            className="max-w-xs"
+                            readOnly={!visible && !!deductions[idx]}
+                          />
+                        </div>
+                      </TableCell>
+                    ))}
                     <TableCell>
                       <Input
                         type="number"
