@@ -141,7 +141,7 @@ export function ProjectBillTable({ data, exchangeRate = 25000 }: ProjectBillTabl
                     {formatCurrency(item.billUsdt, 'USDT')}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    {formatCurrency(item.earnVnd, 'VND')}
+                    {formatCurrency((item.billVnd || 0) * 0.7, 'VND')}
                   </TableCell>
                   <TableCell className="text-right font-medium">
                     {formatCurrency(item.earnUsdt, 'USDT')}
