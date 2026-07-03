@@ -156,7 +156,7 @@ export function ProjectBillTable({ data, exchangeRate = 25000 }: ProjectBillTabl
                 <TableCell className="text-right font-bold">{formatCurrency(totals.billVnd / exchangeRate, 'USD')}</TableCell>
                 <TableCell className="text-right font-bold">{formatCurrency(totals.billUsd, 'USD')}</TableCell>
                 <TableCell className="text-right font-bold">{formatCurrency(totals.billUsdt, 'USDT')}</TableCell>
-                <TableCell className="text-right font-bold">{formatCurrency(totals.earnVnd, 'VND')}</TableCell>
+                <TableCell className="text-right font-bold">{formatCurrency(totals.afterSaveVnd, 'VND')}</TableCell>
                 <TableCell className="text-right font-bold">{formatCurrency(totals.earnUsdt, 'USDT')}</TableCell>
               </TableRow>
             )}
