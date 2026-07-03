@@ -49,10 +49,10 @@ export function ProjectBillTable({ data, exchangeRate = 25000 }: ProjectBillTabl
       billVnd: acc.billVnd + (item.billVnd || 0),
       billUsd: acc.billUsd + (item.billUsd || 0),
       billUsdt: acc.billUsdt + (item.billUsdt || 0),
-      earnVnd: acc.earnVnd + (item.earnVnd || 0),
+      afterSaveVnd: acc.afterSaveVnd + ((item.billVnd || 0) * 0.7),
       earnUsdt: acc.earnUsdt + (item.earnUsdt || 0),
     }),
-    { billVnd: 0, billUsd: 0, billUsdt: 0, earnVnd: 0, earnUsdt: 0 }
+    { billVnd: 0, billUsd: 0, billUsdt: 0, afterSaveVnd: 0, earnUsdt: 0 }
   );
 
   const getMonthName = (month: number) => {
