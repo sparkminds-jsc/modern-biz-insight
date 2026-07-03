@@ -109,8 +109,8 @@ export function ProjectBillTable({ data, exchangeRate = 25000 }: ProjectBillTabl
               <TableHead className="text-right">USD Tương đương</TableHead>
               <TableHead className="text-right">Bill USD</TableHead>
               <TableHead className="text-right">Bill USDT</TableHead>
-              <TableHead className="text-right">Earn VND</TableHead>
-              <TableHead className="text-right">Earn USDT</TableHead>
+              <TableHead className="text-right">After Save VND</TableHead>
+              <TableHead className="text-right">After Save USDT</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
