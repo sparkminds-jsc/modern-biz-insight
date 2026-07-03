@@ -49,10 +49,10 @@ export function ProjectBillTable({ data, exchangeRate = 25000 }: ProjectBillTabl
       billVnd: acc.billVnd + (item.billVnd || 0),
       billUsd: acc.billUsd + (item.billUsd || 0),
       billUsdt: acc.billUsdt + (item.billUsdt || 0),
-      earnVnd: acc.earnVnd + (item.earnVnd || 0),
+      afterSaveVnd: acc.afterSaveVnd + ((item.billVnd || 0) * 0.7),
       earnUsdt: acc.earnUsdt + (item.earnUsdt || 0),
     }),
-    { billVnd: 0, billUsd: 0, billUsdt: 0, earnVnd: 0, earnUsdt: 0 }
+    { billVnd: 0, billUsd: 0, billUsdt: 0, afterSaveVnd: 0, earnUsdt: 0 }
   );
 
   const getMonthName = (month: number) => {
@@ -109,8 +109,8 @@ export function ProjectBillTable({ data, exchangeRate = 25000 }: ProjectBillTabl
               <TableHead className="text-right">USD Tương đương</TableHead>
               <TableHead className="text-right">Bill USD</TableHead>
               <TableHead className="text-right">Bill USDT</TableHead>
-              <TableHead className="text-right">Earn VND</TableHead>
-              <TableHead className="text-right">Earn USDT</TableHead>
+              <TableHead className="text-right">After Save VND</TableHead>
+              <TableHead className="text-right">After Save USDT</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -141,7 +141,7 @@ export function ProjectBillTable({ data, exchangeRate = 25000 }: ProjectBillTabl
                     {formatCurrency(item.billUsdt, 'USDT')}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    {formatCurrency(item.earnVnd, 'VND')}
+                    {formatCurrency((item.billVnd || 0) * 0.7, 'VND')}
                   </TableCell>
                   <TableCell className="text-right font-medium">
                     {formatCurrency(item.earnUsdt, 'USDT')}
@@ -156,7 +156,7 @@ export function ProjectBillTable({ data, exchangeRate = 25000 }: ProjectBillTabl
                 <TableCell className="text-right font-bold">{formatCurrency(totals.billVnd / exchangeRate, 'USD')}</TableCell>
                 <TableCell className="text-right font-bold">{formatCurrency(totals.billUsd, 'USD')}</TableCell>
                 <TableCell className="text-right font-bold">{formatCurrency(totals.billUsdt, 'USDT')}</TableCell>
-                <TableCell className="text-right font-bold">{formatCurrency(totals.earnVnd, 'VND')}</TableCell>
+                <TableCell className="text-right font-bold">{formatCurrency(totals.afterSaveVnd, 'VND')}</TableCell>
                 <TableCell className="text-right font-bold">{formatCurrency(totals.earnUsdt, 'USDT')}</TableCell>
               </TableRow>
             )}
