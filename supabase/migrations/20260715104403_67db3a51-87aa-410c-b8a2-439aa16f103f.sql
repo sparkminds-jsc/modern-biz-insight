@@ -1,0 +1,1 @@
+ALTER TABLE public.team_reports ADD COLUMN IF NOT EXISTS check_file_luong_total numeric DEFAULT 0;
