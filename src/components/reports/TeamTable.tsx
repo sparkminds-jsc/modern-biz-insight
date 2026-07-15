@@ -114,6 +114,7 @@ export function TeamTable({ data, onViewDetail, onEdit, onDelete }: TeamTablePro
               <SortableHeader field="final_bill">Final Bill</SortableHeader>
               <SortableHeader field="final_pay">Final Pay</SortableHeader>
               <SortableHeader field="total_internal_team_cost">Tổng chi team</SortableHeader>
+              <TableHead>Check file lương</TableHead>
               <SortableHeader field="final_save">Final Save</SortableHeader>
               <SortableHeader field="final_earn">Final Earn</SortableHeader>
               <SortableHeader field="storage_usd">Lưu trữ USD</SortableHeader>
@@ -133,6 +134,7 @@ export function TeamTable({ data, onViewDetail, onEdit, onDelete }: TeamTablePro
                 <TableCell>{formatCurrency(item.final_bill)}</TableCell>
                 <TableCell>{formatCurrency(item.final_pay)}</TableCell>
                 <TableCell>{formatCurrency(item.total_internal_team_cost || 0)}</TableCell>
+                <TableCell>-</TableCell>
                 <TableCell>{formatCurrency(item.final_save)}</TableCell>
                 <TableCell>{formatCurrency(item.final_earn)}</TableCell>
                 <TableCell>{formatCurrency(item.storage_usd)}</TableCell>
