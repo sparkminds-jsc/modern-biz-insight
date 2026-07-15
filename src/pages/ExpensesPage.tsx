@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 const ExpensesPage = () => {
   const [expenses, setExpenses] = useState<any[]>([]);
   const [filteredExpenses, setFilteredExpenses] = useState<any[]>([]);
+  const [expenseTypes, setExpenseTypes] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<any>(null);
@@ -40,8 +41,14 @@ const ExpensesPage = () => {
     }
   };
 
+  const fetchExpenseTypes = async () => {
+    const { data } = await supabase.from('expense_types').select('name').order('name');
+    setExpenseTypes((data || []).map((r: any) => r.name));
+  };
+
   useEffect(() => {
     fetchExpenses();
+    fetchExpenseTypes();
   }, []);
 
   const handleFilter = (filters: any) => {
@@ -163,6 +170,23 @@ const ExpensesPage = () => {
           onViewDetail={handleViewDetail}
           onEdit={handleEditExpense}
           onFinalize={handleFinalizeExpense}
+          expenseTypes={expenseTypes}
+          onRefresh={fetchExpenses}
+          onFinalizeAll={async () => {
+            const ids = expenses.filter(e => !e.is_finalized).map(e => e.id);
+            if (ids.length === 0) {
+              toast.info('Không có chi phí nào cần chốt');
+              return;
+            }
+            if (!window.confirm(`Chốt tất cả ${ids.length} chi phí chưa chốt?`)) return;
+            const { error } = await supabase.from('expenses').update({ is_finalized: true }).in('id', ids);
+            if (error) {
+              toast.error('Không thể chốt');
+            } else {
+              toast.success(`Đã chốt ${ids.length} chi phí`);
+              fetchExpenses();
+            }
+          }}
         />
 
         {/* Chart */}
