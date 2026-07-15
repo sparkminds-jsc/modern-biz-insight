@@ -1106,6 +1106,7 @@ export type Database = {
       }
       team_reports: {
         Row: {
+          check_file_luong_total: number | null
           created_at: string
           final_bill: number
           final_earn: number
@@ -1121,6 +1122,7 @@ export type Database = {
           year: number
         }
         Insert: {
+          check_file_luong_total?: number | null
           created_at?: string
           final_bill?: number
           final_earn?: number
@@ -1136,6 +1138,7 @@ export type Database = {
           year: number
         }
         Update: {
+          check_file_luong_total?: number | null
           created_at?: string
           final_bill?: number
           final_earn?: number

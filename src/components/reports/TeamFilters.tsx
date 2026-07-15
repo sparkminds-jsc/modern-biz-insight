@@ -27,6 +27,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TeamFiltersProps {
   onFilter: (filters: {
@@ -39,13 +40,15 @@ interface TeamFiltersProps {
   onCreateTeam: () => void;
   onExportCSV: () => void;
   teams: string[];
+  onCheckComplete?: () => void;
 }
 
-export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreateTeam, onExportCSV, teams }: TeamFiltersProps) {
+export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreateTeam, onExportCSV, teams, onCheckComplete }: TeamFiltersProps) {
   const [searchParams] = useSearchParams();
   const [showCheckDialog, setShowCheckDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [checkFileName, setCheckFileName] = useState('');
+  const [isChecking, setIsChecking] = useState(false);
   
   const [selectedMonths, setSelectedMonths] = useState<number[]>(() => {
     const monthsParam = searchParams.get('months');
@@ -254,13 +257,50 @@ export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreate
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                toast.success(`Đang check lương cho ${checkFileName}`);
-                setCheckFileName('');
-                setShowConfirmDialog(false);
+              disabled={isChecking}
+              onClick={async (e) => {
+                e.preventDefault();
+                setIsChecking(true);
+                try {
+                  const auth = btoa('sparkminds:SparkMinds@123');
+                  const res = await fetch('https://auto.sparkminds.net/webhook/check_file_luong', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Basic ${auth}`,
+                    },
+                    body: JSON.stringify({ file_name: checkFileName }),
+                  });
+                  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                  const data = await res.json();
+                  const items = Array.isArray(data) ? data : [data];
+                  let updated = 0;
+                  for (const item of items) {
+                    const month = parseInt(String(item.month), 10);
+                    const year = parseInt(String(item.year), 10);
+                    for (const t of (item.teams || [])) {
+                      const { error } = await supabase
+                        .from('team_reports')
+                        .update({ check_file_luong_total: t.total })
+                        .eq('team', t.team)
+                        .eq('month', month)
+                        .eq('year', year);
+                      if (!error) updated++;
+                    }
+                  }
+                  toast.success(`Đã cập nhật ${updated} team từ ${checkFileName}`);
+                  setCheckFileName('');
+                  setShowConfirmDialog(false);
+                  onCheckComplete?.();
+                } catch (err: any) {
+                  console.error('Check file lương error:', err);
+                  toast.error(`Lỗi khi check file lương: ${err.message || err}`);
+                } finally {
+                  setIsChecking(false);
+                }
               }}
             >
-              Check lương
+              {isChecking ? 'Đang check...' : 'Check lương'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
