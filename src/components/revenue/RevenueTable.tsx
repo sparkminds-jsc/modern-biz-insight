@@ -18,11 +18,12 @@ interface RevenueTableProps {
   onEdit: (revenue: any) => void;
   onFinalize: (revenue: any) => void;
   onRefresh?: () => void;
+  onFinalizeAll?: () => void;
 }
 
 const REVENUE_TYPE_OPTIONS = ['Invoice', 'Lãi Ngân Hàng', 'Chưa phân loại'];
 
-export function RevenueTable({ data, onViewDetail, onEdit, onFinalize, onRefresh }: RevenueTableProps) {
+export function RevenueTable({ data, onViewDetail, onEdit, onFinalize, onRefresh, onFinalizeAll }: RevenueTableProps) {
   const [sortField, setSortField] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
@@ -120,7 +121,16 @@ export function RevenueTable({ data, onViewDetail, onEdit, onFinalize, onRefresh
             <SortableHeader field="amount_usdt">Số tiền USDT</SortableHeader>
             <SortableHeader field="wallet_type">Lưu Ví</SortableHeader>
             <SortableHeader field="needs_debt_collection">Cần Đòi Nợ</SortableHeader>
-            <TableHead className="w-32">Action</TableHead>
+            <TableHead className="w-52">
+              <div className="flex items-center justify-between gap-2">
+                <span>Action</span>
+                {onFinalizeAll && (
+                  <Button size="sm" variant="default" onClick={onFinalizeAll}>
+                    Chốt tất cả
+                  </Button>
+                )}
+              </div>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
