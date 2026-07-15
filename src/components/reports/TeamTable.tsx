@@ -127,7 +127,6 @@ export function TeamTable({ data, onViewDetail, onEdit, onDelete }: TeamTablePro
           <TableBody>
             {sortedData.map((item, index) => (
               <TableRow key={item.id}>
-                {(() => { return null; })()}
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{item.team}</TableCell>
                 <TableCell>{item.year}</TableCell>
