@@ -9,15 +9,21 @@ import { vi } from 'date-fns/locale';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Project } from '@/types/project';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'sonner';
 
 interface RevenueTableProps {
   data: any[];
   onViewDetail: (revenue: any) => void;
   onEdit: (revenue: any) => void;
   onFinalize: (revenue: any) => void;
+  onRefresh?: () => void;
+  onFinalizeAll?: () => void;
 }
 
-export function RevenueTable({ data, onViewDetail, onEdit, onFinalize }: RevenueTableProps) {
+const REVENUE_TYPE_OPTIONS = ['Invoice', 'Lãi Ngân Hàng', 'Chưa phân loại'];
+
+export function RevenueTable({ data, onViewDetail, onEdit, onFinalize, onRefresh, onFinalizeAll }: RevenueTableProps) {
   const [sortField, setSortField] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
@@ -83,6 +89,22 @@ export function RevenueTable({ data, onViewDetail, onEdit, onFinalize }: Revenue
     </TableHead>
   );
 
+  const handleTypeChange = async (revenue: any, newType: string) => {
+    if (newType === revenue.revenue_type) return;
+    try {
+      const { error } = await supabase
+        .from('revenue')
+        .update({ revenue_type: newType })
+        .eq('id', revenue.id);
+      if (error) throw error;
+      toast.success('Đã cập nhật loại doanh thu');
+      onRefresh?.();
+    } catch (e) {
+      console.error(e);
+      toast.error('Không thể cập nhật loại doanh thu');
+    }
+  };
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <Table>
@@ -90,6 +112,7 @@ export function RevenueTable({ data, onViewDetail, onEdit, onFinalize }: Revenue
           <TableRow>
             <TableHead className="w-16">Số TT</TableHead>
             <SortableHeader field="created_date">Ngày tạo doanh thu</SortableHeader>
+            <SortableHeader field="transaction_number">Số GD</SortableHeader>
             <SortableHeader field="content">Nội dung doanh thu</SortableHeader>
             <SortableHeader field="revenue_type">Loại Doanh Thu</SortableHeader>
             <TableHead>Dự án</TableHead>
@@ -98,7 +121,16 @@ export function RevenueTable({ data, onViewDetail, onEdit, onFinalize }: Revenue
             <SortableHeader field="amount_usdt">Số tiền USDT</SortableHeader>
             <SortableHeader field="wallet_type">Lưu Ví</SortableHeader>
             <SortableHeader field="needs_debt_collection">Cần Đòi Nợ</SortableHeader>
-            <TableHead className="w-32">Action</TableHead>
+            <TableHead className="w-52">
+              <div className="flex items-center justify-between gap-2">
+                <span>Action</span>
+                {onFinalizeAll && (
+                  <Button size="sm" variant="default" onClick={onFinalizeAll}>
+                    Chốt tất cả
+                  </Button>
+                )}
+              </div>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -108,11 +140,28 @@ export function RevenueTable({ data, onViewDetail, onEdit, onFinalize }: Revenue
               <TableCell>
                 {format(new Date(revenue.created_date), 'dd/MM/yyyy', { locale: vi })}
               </TableCell>
+              <TableCell className="text-sm">{revenue.transaction_number || '-'}</TableCell>
               <TableCell className="max-w-96 whitespace-normal break-words">{revenue.content}</TableCell>
               <TableCell>
-                <Badge variant={revenue.revenue_type === 'Invoice' ? 'default' : 'secondary'}>
-                  {revenue.revenue_type}
-                </Badge>
+                {revenue.is_finalized ? (
+                  <Badge variant={revenue.revenue_type === 'Invoice' ? 'default' : 'secondary'}>
+                    {revenue.revenue_type}
+                  </Badge>
+                ) : (
+                  <Select
+                    value={revenue.revenue_type}
+                    onValueChange={(v) => handleTypeChange(revenue, v)}
+                  >
+                    <SelectTrigger className="h-8 w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(REVENUE_TYPE_OPTIONS.includes(revenue.revenue_type) ? REVENUE_TYPE_OPTIONS : [revenue.revenue_type, ...REVENUE_TYPE_OPTIONS]).map((t) => (
+                        <SelectItem key={t} value={t}>{t}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </TableCell>
               <TableCell>{getProjectName(revenue.project_id)}</TableCell>
               <TableCell>{formatCurrency(revenue.amount_vnd)}</TableCell>

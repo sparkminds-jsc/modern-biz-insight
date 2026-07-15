@@ -212,6 +212,22 @@ const RevenuePage = () => {
           onViewDetail={handleViewDetail}
           onEdit={handleEditRevenue}
           onFinalize={handleFinalizeRevenue}
+          onRefresh={fetchRevenues}
+          onFinalizeAll={async () => {
+            const ids = revenues.filter(r => !r.is_finalized).map(r => r.id);
+            if (ids.length === 0) {
+              toast({ title: 'Thông báo', description: 'Không có doanh thu nào cần chốt' });
+              return;
+            }
+            if (!window.confirm(`Chốt tất cả ${ids.length} doanh thu chưa chốt?`)) return;
+            const { error } = await supabase.from('revenue').update({ is_finalized: true }).in('id', ids);
+            if (error) {
+              toast({ title: 'Lỗi', description: 'Không thể chốt', variant: 'destructive' });
+            } else {
+              toast({ title: 'Thành công', description: `Đã chốt ${ids.length} doanh thu` });
+              fetchRevenues();
+            }
+          }}
         />
 
         {/* Chart */}
