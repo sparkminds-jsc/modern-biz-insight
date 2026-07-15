@@ -297,6 +297,11 @@ export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreate
                   toast.error(`Lỗi khi check file lương: ${err.message || err}`);
                 } finally {
                   setIsChecking(false);
+                  // Radix sometimes leaves pointer-events:none on <body> when
+                  // an AlertDialog closes while async work is pending. Reset it.
+                  setTimeout(() => {
+                    document.body.style.pointerEvents = '';
+                  }, 100);
                 }
               }}
             >
