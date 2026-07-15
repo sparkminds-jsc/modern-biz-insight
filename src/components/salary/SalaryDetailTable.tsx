@@ -75,6 +75,7 @@ export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit, onDelet
               <TableHead>Lương Net</TableHead>
               <TableHead>Tạm Ứng</TableHead>
               <TableHead>Thực nhận</TableHead>
+              <TableHead>Tổng chi phí nội bộ</TableHead>
               <TableHead className="w-[100px]">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
