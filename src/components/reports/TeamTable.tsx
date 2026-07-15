@@ -137,13 +137,14 @@ export function TeamTable({ data, onViewDetail, onEdit, onDelete }: TeamTablePro
                   const tc = item.total_internal_team_cost || 0;
                   const cf = item.check_file_luong_total || 0;
                   const hasCf = !!item.check_file_luong_total;
-                  const pairs = [
-                    Math.abs(fp - tc),
-                    hasCf ? Math.abs(fp - cf) : 0,
-                    hasCf ? Math.abs(tc - cf) : 0,
-                  ];
-                  const diffCount = pairs.filter((d) => d > 10000).length;
-                  const highlight = diffCount >= 2;
+                  const values: number[] = [fp, tc];
+                  if (hasCf) values.push(cf);
+                  let highlight = false;
+                  for (let i = 0; i < values.length; i++) {
+                    for (let j = i + 1; j < values.length; j++) {
+                      if (Math.abs(values[i] - values[j]) > 10000) highlight = true;
+                    }
+                  }
                   const cls = highlight ? 'text-red-600 font-semibold' : '';
                   return (
                     <>
