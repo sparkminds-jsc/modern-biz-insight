@@ -7,7 +7,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { CalendarIcon, Search, ChevronDown } from 'lucide-react';
+import { CalendarIcon, Search, ChevronDown, Upload } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -21,9 +21,10 @@ interface ReportsFiltersProps {
     content?: string;
     selectedTypes?: string[];
   }) => void;
+  onImport?: () => void;
 }
 
-export function ReportsFilters({ onFilter }: ReportsFiltersProps) {
+export function ReportsFilters({ onFilter, onImport }: ReportsFiltersProps) {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [walletType, setWalletType] = useState<string>('all');
@@ -224,10 +225,18 @@ export function ReportsFilters({ onFilter }: ReportsFiltersProps) {
         </div>
 
         {/* Search Button */}
-        <Button onClick={handleSearch} className="w-full">
-          <Search className="mr-2 h-4 w-4" />
-          Search
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleSearch} className="flex-1">
+            <Search className="mr-2 h-4 w-4" />
+            Search
+          </Button>
+          {onImport && (
+            <Button variant="outline" onClick={onImport} title="Import từ Excel">
+              <Upload className="h-4 w-4 mr-2" />
+              Import
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

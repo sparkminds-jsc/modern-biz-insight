@@ -346,6 +346,7 @@ export type Database = {
           invoice_files: Json | null
           is_finalized: boolean
           notes: string | null
+          transaction_number: string | null
           updated_at: string
           wallet_type: string
         }
@@ -361,6 +362,7 @@ export type Database = {
           invoice_files?: Json | null
           is_finalized?: boolean
           notes?: string | null
+          transaction_number?: string | null
           updated_at?: string
           wallet_type: string
         }
@@ -376,6 +378,7 @@ export type Database = {
           invoice_files?: Json | null
           is_finalized?: boolean
           notes?: string | null
+          transaction_number?: string | null
           updated_at?: string
           wallet_type?: string
         }
@@ -706,6 +709,7 @@ export type Database = {
           needs_debt_collection: boolean
           project_id: string | null
           revenue_type: string
+          transaction_number: string | null
           updated_at: string
           wallet_type: string
         }
@@ -721,6 +725,7 @@ export type Database = {
           needs_debt_collection?: boolean
           project_id?: string | null
           revenue_type: string
+          transaction_number?: string | null
           updated_at?: string
           wallet_type: string
         }
@@ -736,6 +741,7 @@ export type Database = {
           needs_debt_collection?: boolean
           project_id?: string | null
           revenue_type?: string
+          transaction_number?: string | null
           updated_at?: string
           wallet_type?: string
         }
