@@ -39,12 +39,28 @@ export const useReportsData = () => {
       // Calculate final values from team_report_details for each team report
       const teamReportsWithCalculatedValues = await Promise.all(
         (teamReportsResult.data || []).map(async (report) => {
-          const { data: details } = await supabase
-            .from('team_report_details')
-            .select('*')
-            .eq('team', report.team)
-            .eq('month', report.month)
-            .eq('year', report.year);
+          const [{ data: details }, { data: salaryDetails }] = await Promise.all([
+            supabase
+              .from('team_report_details')
+              .select('*')
+              .eq('team', report.team)
+              .eq('month', report.month)
+              .eq('year', report.year),
+            supabase
+              .from('salary_details')
+              .select('total_company_payment, daily_salary, kpi_bonus')
+              .eq('team', report.team)
+              .eq('month', report.month)
+              .eq('year', report.year),
+          ]);
+
+          const total_internal_team_cost = (salaryDetails || []).reduce(
+            (sum, item: any) =>
+              sum +
+              (item.total_company_payment || 0) +
+              ((item.daily_salary || 0) + (item.kpi_bonus || 0)) / 12,
+            0
+          );
 
           if (details && details.length > 0) {
             const final_bill = details.reduce((sum, item) => sum + (item.converted_vnd || 0) + (item.package_vnd || 0), 0);
@@ -61,11 +77,12 @@ export const useReportsData = () => {
               final_save,
               final_earn,
               storage_usd,
-              storage_usdt
+              storage_usdt,
+              total_internal_team_cost
             };
           }
 
-          return report;
+          return { ...report, total_internal_team_cost };
         })
       );
       
