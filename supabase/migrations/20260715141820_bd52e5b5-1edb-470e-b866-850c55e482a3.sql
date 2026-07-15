@@ -1,0 +1,1 @@
+ALTER TABLE public.revenue DROP CONSTRAINT IF EXISTS revenue_revenue_type_check;
