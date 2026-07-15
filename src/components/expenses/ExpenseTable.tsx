@@ -17,9 +17,10 @@ interface ExpenseTableProps {
   onFinalize: (expense: any) => void;
   expenseTypes?: string[];
   onRefresh?: () => void;
+  onFinalizeAll?: () => void;
 }
 
-export function ExpenseTable({ data, onViewDetail, onEdit, onFinalize, expenseTypes = [], onRefresh }: ExpenseTableProps) {
+export function ExpenseTable({ data, onViewDetail, onEdit, onFinalize, expenseTypes = [], onRefresh, onFinalizeAll }: ExpenseTableProps) {
   const [sortField, setSortField] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
@@ -98,7 +99,16 @@ export function ExpenseTable({ data, onViewDetail, onEdit, onFinalize, expenseTy
             <SortableHeader field="wallet_type">Từ Ví</SortableHeader>
             <SortableHeader field="notes">Chú thích</SortableHeader>
             <TableHead>Hóa đơn</TableHead>
-            <TableHead className="w-32">Action</TableHead>
+            <TableHead className="w-52">
+              <div className="flex items-center justify-between gap-2">
+                <span>Action</span>
+                {onFinalizeAll && (
+                  <Button size="sm" variant="default" onClick={onFinalizeAll}>
+                    Chốt tất cả
+                  </Button>
+                )}
+              </div>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
