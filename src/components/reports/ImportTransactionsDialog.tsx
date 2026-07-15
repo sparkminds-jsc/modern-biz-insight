@@ -183,7 +183,7 @@ export function ImportTransactionsDialog({ open, onClose, onImported }: Props) {
 
   return (
     <>
-      <Dialog open={open} onOpenChange={(o) => !o && handleClose()}>
+      <Dialog open={open} onOpenChange={(o) => { if (!o && !confirming && !importing) handleClose(); }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Import Thu Chi từ file Excel</DialogTitle>
