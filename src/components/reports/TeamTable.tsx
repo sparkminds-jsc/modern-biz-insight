@@ -132,9 +132,27 @@ export function TeamTable({ data, onViewDetail, onEdit, onDelete }: TeamTablePro
                 <TableCell>{item.year}</TableCell>
                 <TableCell>{String(item.month).padStart(2, '0')}</TableCell>
                 <TableCell>{formatCurrency(item.final_bill)}</TableCell>
-                <TableCell>{formatCurrency(item.final_pay)}</TableCell>
-                <TableCell>{formatCurrency(item.total_internal_team_cost || 0)}</TableCell>
-                <TableCell>{item.check_file_luong_total ? formatCurrency(item.check_file_luong_total) : '-'}</TableCell>
+                {(() => {
+                  const fp = item.final_pay || 0;
+                  const tc = item.total_internal_team_cost || 0;
+                  const cf = item.check_file_luong_total || 0;
+                  const hasCf = !!item.check_file_luong_total;
+                  const pairs = [
+                    Math.abs(fp - tc),
+                    hasCf ? Math.abs(fp - cf) : 0,
+                    hasCf ? Math.abs(tc - cf) : 0,
+                  ];
+                  const diffCount = pairs.filter((d) => d > 10000).length;
+                  const highlight = diffCount >= 2;
+                  const cls = highlight ? 'text-red-600 font-semibold' : '';
+                  return (
+                    <>
+                      <TableCell className={cls}>{formatCurrency(fp)}</TableCell>
+                      <TableCell className={cls}>{formatCurrency(tc)}</TableCell>
+                      <TableCell className={cls}>{hasCf ? formatCurrency(cf) : '-'}</TableCell>
+                    </>
+                  );
+                })()}
                 <TableCell>{formatCurrency(item.final_save)}</TableCell>
                 <TableCell>{formatCurrency(item.final_earn)}</TableCell>
                 <TableCell>{formatCurrency(item.storage_usd)}</TableCell>
