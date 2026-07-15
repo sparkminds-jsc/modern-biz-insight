@@ -38,8 +38,14 @@ export function ExpenseTable({ data, onViewDetail, onEdit, onFinalize, expenseTy
   };
 
   const sortedData = [...data].sort((a, b) => {
-    if (!sortField) return 0;
-    
+    if (!sortField) {
+      const da = new Date(a.created_date).getTime();
+      const db = new Date(b.created_date).getTime();
+      if (da !== db) return da - db;
+      const ta = (a.transaction_number || '').toString();
+      const tb = (b.transaction_number || '').toString();
+      return ta.localeCompare(tb);
+    }
     let aValue = a[sortField];
     let bValue = b[sortField];
     
@@ -113,7 +119,7 @@ export function ExpenseTable({ data, onViewDetail, onEdit, onFinalize, expenseTy
         </TableHeader>
         <TableBody>
           {sortedData.map((expense, index) => (
-            <TableRow key={expense.id}>
+            <TableRow key={expense.id} className={expense.expense_type === 'Chưa phân loại' ? 'bg-red-100 hover:bg-red-200' : ''}>
               <TableCell>{index + 1}</TableCell>
               <TableCell>
                 {format(new Date(expense.created_date), 'dd/MM/yyyy', { locale: vi })}
