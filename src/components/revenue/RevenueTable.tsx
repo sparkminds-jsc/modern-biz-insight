@@ -60,8 +60,14 @@ export function RevenueTable({ data, onViewDetail, onEdit, onFinalize, onRefresh
   };
 
   const sortedData = [...data].sort((a, b) => {
-    if (!sortField) return 0;
-    
+    if (!sortField) {
+      const da = new Date(a.created_date).getTime();
+      const db = new Date(b.created_date).getTime();
+      if (da !== db) return da - db;
+      const ta = (a.transaction_number || '').toString();
+      const tb = (b.transaction_number || '').toString();
+      return ta.localeCompare(tb);
+    }
     let aValue = a[sortField];
     let bValue = b[sortField];
     
@@ -135,7 +141,7 @@ export function RevenueTable({ data, onViewDetail, onEdit, onFinalize, onRefresh
         </TableHeader>
         <TableBody>
           {sortedData.map((revenue, index) => (
-            <TableRow key={revenue.id}>
+            <TableRow key={revenue.id} className={revenue.revenue_type === 'Chưa phân loại' ? 'bg-red-100 hover:bg-red-200' : ''}>
               <TableCell>{index + 1}</TableCell>
               <TableCell>
                 {format(new Date(revenue.created_date), 'dd/MM/yyyy', { locale: vi })}
