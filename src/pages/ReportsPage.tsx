@@ -7,7 +7,6 @@ import { RevenueExpenseChart } from '../components/reports/RevenueExpenseChart';
 import { TeamFilters } from '../components/reports/TeamFilters';
 import { TeamSummary } from '../components/reports/TeamSummary';
 import { TeamTable } from '../components/reports/TeamTable';
-import TeamChart from '../components/reports/TeamChart';
 import { TeamReportEditDialog } from '../components/reports/TeamReportEditDialog';
 import { CreateTeamReportDialog } from '../components/reports/CreateTeamReportDialog';
 import { CreateTeamDialog } from '../components/reports/CreateTeamDialog';
@@ -270,13 +269,6 @@ const ReportsPage = () => {
               onViewDetail={handleViewTeamDetail}
               onEdit={handleEditTeamReport}
               onDelete={handleDeleteTeamReport}
-            />
-
-            {/* Team Chart */}
-            <TeamChart
-              teamReports={filteredTeamReports}
-              selectedMonths={selectedMonths}
-              selectedYears={selectedYears}
             />
           </TabsContent>
           
