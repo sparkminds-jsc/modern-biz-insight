@@ -77,6 +77,7 @@ export function ReportsTable({ data, onViewRevenue, onViewExpense }: ReportsTabl
           <TableRow>
             <TableHead className="w-16">Số TT</TableHead>
             <SortableHeader field="created_date">Ngày thu chi</SortableHeader>
+            <SortableHeader field="transaction_number">Số GD</SortableHeader>
             <SortableHeader field="content">Nội dung thu chi</SortableHeader>
             <SortableHeader field="type">Nhãn</SortableHeader>
             <SortableHeader field="category">Loại thu chi</SortableHeader>
@@ -95,6 +96,7 @@ export function ReportsTable({ data, onViewRevenue, onViewExpense }: ReportsTabl
               <TableCell>
                 {format(new Date(item.created_date), 'dd/MM/yyyy', { locale: vi })}
               </TableCell>
+              <TableCell className="text-sm">{item.transaction_number || '-'}</TableCell>
               <TableCell className="max-w-96 whitespace-normal break-words">{item.content}</TableCell>
               <TableCell>
                 <Badge variant={item.type === 'revenue' ? 'default' : 'destructive'}>
