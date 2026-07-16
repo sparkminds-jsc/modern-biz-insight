@@ -30,7 +30,7 @@ export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit, onDelet
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="overflow-x-auto">
-        <Table>
+        <Table className="min-w-max whitespace-nowrap">
           <TableHeader>
             <TableRow>
               <TableHead className="sticky left-0 z-20 bg-white w-[60px] min-w-[60px]">STT</TableHead>
