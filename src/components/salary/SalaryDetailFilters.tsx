@@ -179,7 +179,14 @@ export function SalaryDetailFilters({
     });
     if (!res.ok) throw new Error(`Webhook trả về lỗi ${res.status}`);
     const raw = await res.json();
-    const list: any[] = Array.isArray(raw) ? raw : (raw?.data ?? []);
+    let list: any[] = [];
+    if (Array.isArray(raw)) {
+      list = raw;
+    } else if (Array.isArray(raw?.data)) {
+      list = raw.data;
+    } else if (raw && typeof raw === 'object' && ('Mã nhân viên' in raw)) {
+      list = [raw];
+    }
     if (!Array.isArray(list) || list.length === 0) {
       throw new Error('Webhook không trả về dữ liệu nhân viên');
     }
