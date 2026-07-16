@@ -342,6 +342,7 @@ export function SalaryDetailEditForm({
     try {
       setLoading(true);
       
+      const effectiveInsuranceBase = data.salary_type === 'Lương thời vụ' ? 0 : data.insurance_base_amount;
       const salaryDetailData = {
         salary_sheet_id: salarySheetId,
         employee_code: data.employee_code,
@@ -358,7 +359,7 @@ export function SalaryDetailEditForm({
         overtime_2: data.overtime_2,
         overtime_3: data.overtime_3,
         total_income: calculatedValues.total_income,
-        insurance_base_amount: data.insurance_base_amount,
+        insurance_base_amount: effectiveInsuranceBase,
         bhdn_bhxh: calculatedValues.bhdn_bhxh,
         bhdn_tnld: calculatedValues.bhdn_tnld,
         bhdn_bhyt: calculatedValues.bhdn_bhyt,
@@ -482,7 +483,12 @@ export function SalaryDetailEditForm({
               <Label htmlFor="salary_type">Loại lương</Label>
               <Select
                 value={watchedValues.salary_type}
-                onValueChange={(value) => setValue('salary_type', value)}
+                onValueChange={(value) => {
+                  setValue('salary_type', value);
+                  if (value === 'Lương thời vụ') {
+                    setValue('insurance_base_amount', 0);
+                  }
+                }}
               >
                 <SelectTrigger>
                   <SelectValue />
