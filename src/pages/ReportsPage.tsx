@@ -261,6 +261,7 @@ const ReportsPage = () => {
               onExportCSV={handleExportCSV}
               teams={teams}
               onCheckComplete={fetchData}
+              onCheckTeamSpending={fetchData}
             />
 
             {/* Team Summary */}
