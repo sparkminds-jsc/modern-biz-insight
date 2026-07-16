@@ -48,17 +48,24 @@ export const useReportsData = () => {
               .eq('year', report.year),
             supabase
               .from('salary_details')
-              .select('total_company_payment, daily_salary, kpi_bonus')
+              .select('total_company_payment, daily_salary, kpi_bonus, insurance_base_amount, total_income')
               .eq('team', report.team)
               .eq('month', report.month)
               .eq('year', report.year),
           ]);
 
           const total_internal_team_cost = (salaryDetails || []).reduce(
-            (sum, item: any) =>
-              sum +
-              (item.total_company_payment || 0) +
-              ((item.daily_salary || 0) + (item.kpi_bonus || 0)) / 12,
+            (sum, item: any) => {
+              // Lương thời vụ (insurance_base_amount = 0): Tổng chi phí nội bộ = Tổng thu nhập
+              if (!item.insurance_base_amount) {
+                return sum + (item.total_income || 0);
+              }
+              return (
+                sum +
+                (item.total_company_payment || 0) +
+                ((item.daily_salary || 0) + (item.kpi_bonus || 0)) / 12
+              );
+            },
             0
           );
 
