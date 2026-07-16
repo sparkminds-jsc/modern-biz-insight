@@ -376,6 +376,8 @@ const SalaryDetailPage = () => {
           onCopySalarySheet={handleCopySalarySheet}
           month={salarySheet?.month}
           year={salarySheet?.year}
+          salarySheetId={salarySheetId}
+          onImported={fetchSalarySheetAndDetails}
         />
 
         {/* Phần 2: Summary boxes */}
