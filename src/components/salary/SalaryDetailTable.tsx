@@ -28,9 +28,9 @@ export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit, onDelet
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="overflow-x-auto">
-        <Table className="min-w-max whitespace-nowrap">
+    <div className="w-full max-w-full min-w-0 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="w-full max-w-full min-w-0 overflow-x-scroll overflow-y-hidden pb-2">
+        <Table className="w-max min-w-[5200px] table-fixed whitespace-nowrap">
           <TableHeader>
             <TableRow>
               <TableHead className="sticky left-0 z-20 bg-white w-[60px] min-w-[60px]">STT</TableHead>
