@@ -190,9 +190,15 @@ export function SalaryDetailFilters({
             <AlertDialogCancel>Hủy</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
-                toast.success(`Đã import ${importFileName} vào bảng lương ${month?.toString().padStart(2, '0')}/${year}`);
-                setImportFileName('');
+                const fileName = importFileName;
+                const label = `${month?.toString().padStart(2, '0')}/${year}`;
                 setShowConfirmImport(false);
+                setImportFileName('');
+                // Fix Radix pointer-events lock after nested dialogs close
+                setTimeout(() => {
+                  document.body.style.pointerEvents = '';
+                }, 100);
+                toast.success(`Đã import ${fileName} vào bảng lương ${label}`);
               }}
             >
               Xác nhận
