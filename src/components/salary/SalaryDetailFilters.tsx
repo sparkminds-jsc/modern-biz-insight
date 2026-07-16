@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Plus, Copy, Upload } from 'lucide-react';
+import { Search, Plus, Copy, Upload, Eye, EyeOff } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -51,6 +51,7 @@ export function SalaryDetailFilters({
   const [importFileName, setImportFileName] = useState('');
   const [importPassword, setImportPassword] = useState('');
   const [importing, setImporting] = useState(false);
+  const [showImportPassword, setShowImportPassword] = useState(false);
 
   const clearDialogLock = () => {
     window.setTimeout(() => {
@@ -426,13 +427,24 @@ export function SalaryDetailFilters({
                 placeholder="Nhập tên file..."
               />
               <Label htmlFor="import-password">Mật khẩu</Label>
-              <Input
-                id="import-password"
-                type="password"
-                value={importPassword}
-                onChange={(e) => setImportPassword(e.target.value)}
-                placeholder="Nhập mật khẩu..."
-              />
+              <div className="relative">
+                <Input
+                  id="import-password"
+                  type={showImportPassword ? 'text' : 'password'}
+                  value={importPassword}
+                  onChange={(e) => setImportPassword(e.target.value)}
+                  placeholder="Nhập mật khẩu..."
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowImportPassword((v) => !v)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  aria-label={showImportPassword ? 'Ẩn mật khẩu' : 'Xem mật khẩu'}
+                >
+                  {showImportPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
           )}
           <DialogFooter>
