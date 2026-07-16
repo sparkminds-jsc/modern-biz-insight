@@ -18,16 +18,6 @@ import {
   DialogFooter,
   DialogDescription,
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import type { SalaryDetailFilters } from '@/types/salary';
@@ -57,10 +47,26 @@ export function SalaryDetailFilters({
 }: SalaryDetailFiltersProps) {
   const [teams, setTeams] = useState<string[]>(['Tất cả']);
   const [showImportDialog, setShowImportDialog] = useState(false);
-  const [showConfirmImport, setShowConfirmImport] = useState(false);
+  const [importStep, setImportStep] = useState<'input' | 'confirm'>('input');
   const [importFileName, setImportFileName] = useState('');
   const [importPassword, setImportPassword] = useState('');
   const [importing, setImporting] = useState(false);
+
+  const clearDialogLock = () => {
+    window.setTimeout(() => {
+      document.body.style.pointerEvents = '';
+    }, 0);
+  };
+
+  const closeImportDialog = (resetFields = false) => {
+    setShowImportDialog(false);
+    setImportStep('input');
+    if (resetFields) {
+      setImportFileName('');
+      setImportPassword('');
+    }
+    clearDialogLock();
+  };
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -354,125 +360,122 @@ export function SalaryDetailFilters({
           <Copy className="w-4 h-4 mr-2" />
           Copy bảng lương
         </Button>
-        <Button onClick={() => setShowImportDialog(true)} variant="outline">
+        <Button
+          onClick={() => {
+            setImportStep('input');
+            setShowImportDialog(true);
+          }}
+          variant="outline"
+        >
           <Upload className="w-4 h-4 mr-2" />
           Import File Lương
         </Button>
       </div>
 
       {/* Input file name dialog */}
-      <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Import File Lương</DialogTitle>
-            <DialogDescription>Nhập tên file lương cần import</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2 py-2">
-            <Label htmlFor="import-file-name">Tên file</Label>
-            <Input
-              id="import-file-name"
-              value={importFileName}
-              onChange={(e) => setImportFileName(e.target.value)}
-              placeholder="Nhập tên file..."
-            />
-            <Label htmlFor="import-password">Mật khẩu</Label>
-            <Input
-              id="import-password"
-              type="password"
-              value={importPassword}
-              onChange={(e) => setImportPassword(e.target.value)}
-              placeholder="Nhập mật khẩu..."
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowImportDialog(false)}>Hủy</Button>
-            <Button
-              onClick={() => {
-                if (!importFileName.trim()) {
-                  toast.error('Vui lòng nhập tên file');
-                  return;
-                }
-                if (!importPassword.trim()) {
-                  toast.error('Vui lòng nhập mật khẩu');
-                  return;
-                }
-                setShowImportDialog(false);
-                setShowConfirmImport(true);
-              }}
-            >
-              Đồng ý
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Confirm import dialog */}
-      <AlertDialog
-        open={showConfirmImport}
+      <Dialog
+        open={showImportDialog}
         onOpenChange={(open) => {
-          setShowConfirmImport(open);
-          if (!open) {
-            setTimeout(() => {
-              document.body.style.pointerEvents = '';
-            }, 100);
+          if (importing) return;
+          if (open) {
+            setShowImportDialog(true);
+          } else {
+            closeImportDialog();
           }
         }}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận import</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn chắc chắn import <strong>{importFileName}</strong> vào bảng lương{' '}
-              <strong>{month?.toString().padStart(2, '0')}/{year}</strong> chứ?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              onClick={() => {
-                setTimeout(() => {
-                  document.body.style.pointerEvents = '';
-                }, 100);
-              }}
-            >
-              Hủy
-            </AlertDialogCancel>
-            <AlertDialogAction
-              disabled={importing}
-              onClick={async (e) => {
-                e.preventDefault();
-                const fileName = importFileName;
-                const password = importPassword;
-                const label = `${month?.toString().padStart(2, '0')}/${year}`;
-                setImporting(true);
-                try {
-                  await handleImportSalary({
-                    fileName,
-                    password,
-                    month: month!,
-                    year: year!,
-                    salarySheetId: salarySheetId!,
-                  });
-                  toast.success(`Đã import ${fileName} vào bảng lương ${label}`);
-                  onImported?.();
-                } catch (err: any) {
-                  console.error('Import salary error:', err);
-                  toast.error(err?.message || 'Không thể import file lương');
-                } finally {
-                  setImporting(false);
-                  setShowConfirmImport(false);
-                  setImportFileName('');
-                  setImportPassword('');
-                  setTimeout(() => {
-                    document.body.style.pointerEvents = '';
-                  }, 100);
-                }
-              }}
-            >
-              {importing ? 'Đang import...' : 'Xác nhận'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{importStep === 'input' ? 'Import File Lương' : 'Xác nhận import'}</DialogTitle>
+            <DialogDescription>
+              {importStep === 'input' ? (
+                'Nhập tên file lương cần import'
+              ) : (
+                <>
+                  Bạn chắc chắn import <strong>{importFileName}</strong> vào bảng lương{' '}
+                  <strong>{month?.toString().padStart(2, '0')}/{year}</strong> chứ?
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          {importStep === 'input' && (
+            <div className="space-y-2 py-2">
+              <Label htmlFor="import-file-name">Tên file</Label>
+              <Input
+                id="import-file-name"
+                value={importFileName}
+                onChange={(e) => setImportFileName(e.target.value)}
+                placeholder="Nhập tên file..."
+              />
+              <Label htmlFor="import-password">Mật khẩu</Label>
+              <Input
+                id="import-password"
+                type="password"
+                value={importPassword}
+                onChange={(e) => setImportPassword(e.target.value)}
+                placeholder="Nhập mật khẩu..."
+              />
+            </div>
+          )}
+          <DialogFooter>
+            {importStep === 'input' ? (
+              <>
+                <Button variant="outline" onClick={() => closeImportDialog(true)}>Hủy</Button>
+                <Button
+                  onClick={() => {
+                    if (!importFileName.trim()) {
+                      toast.error('Vui lòng nhập tên file');
+                      return;
+                    }
+                    if (!importPassword.trim()) {
+                      toast.error('Vui lòng nhập mật khẩu');
+                      return;
+                    }
+                    setImportStep('confirm');
+                  }}
+                >
+                  Đồng ý
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" disabled={importing} onClick={() => closeImportDialog()}>
+                  Hủy
+                </Button>
+                <Button
+                  disabled={importing}
+                  onClick={async () => {
+                    const fileName = importFileName;
+                    const password = importPassword;
+                    const label = `${month?.toString().padStart(2, '0')}/${year}`;
+                    setImporting(true);
+                    try {
+                      await handleImportSalary({
+                        fileName,
+                        password,
+                        month: month!,
+                        year: year!,
+                        salarySheetId: salarySheetId!,
+                      });
+                      toast.success(`Đã import ${fileName} vào bảng lương ${label}`);
+                      onImported?.();
+                      closeImportDialog(true);
+                    } catch (err: any) {
+                      console.error('Import salary error:', err);
+                      toast.error(err?.message || 'Không thể import file lương');
+                      clearDialogLock();
+                    } finally {
+                      setImporting(false);
+                    }
+                  }}
+                >
+                  {importing ? 'Đang import...' : 'Xác nhận'}
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

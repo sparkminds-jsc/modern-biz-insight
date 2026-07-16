@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -100,7 +100,7 @@ export function SalaryDetailEditForm({
     actual_payment: 0
   });
 
-  const { register, handleSubmit, watch, setValue, reset } = useForm<FormData>({
+  const { register, handleSubmit, control, setValue, reset } = useForm<FormData>({
     defaultValues: {
       employee_code: '',
       employee_name: '',
@@ -118,7 +118,7 @@ export function SalaryDetailEditForm({
     }
   });
 
-  const watchedValues = watch();
+  const watchedValues = useWatch({ control }) as FormData;
 
   useEffect(() => {
     if (isOpen) {
@@ -148,8 +148,21 @@ export function SalaryDetailEditForm({
   }, [salaryDetail, isOpen, reset]);
 
   useEffect(() => {
-    calculateValues();
-  }, [watchedValues, deductionSettings]);
+    calculateValues(watchedValues);
+  }, [
+    watchedValues.gross_salary,
+    watchedValues.salary_type,
+    watchedValues.working_days,
+    watchedValues.kpi_bonus,
+    watchedValues.overtime_1_5,
+    watchedValues.overtime_2,
+    watchedValues.overtime_3,
+    watchedValues.insurance_base_amount,
+    watchedValues.dependent_count,
+    watchedValues.advance_payment,
+    deductionSettings.personal_deduction,
+    deductionSettings.dependent_deduction,
+  ]);
 
   const fetchEmployees = async () => {
     try {
@@ -197,9 +210,7 @@ export function SalaryDetailEditForm({
     }
   };
 
-  const calculateValues = () => {
-    const values = watchedValues;
-    
+  const calculateValues = (values: FormData) => {
     // Mức lương/Ngày = Lương Gross / 22
     const daily_rate = values.gross_salary / 22;
     
