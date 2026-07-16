@@ -150,7 +150,11 @@ const SalaryDetailPage = () => {
         total_company_insurance: acc.total_company_insurance + detail.total_bhdn,
         total_personal_insurance: acc.total_personal_insurance + detail.total_bhnld,
         total_payment: acc.total_payment + (detail.net_salary + detail.total_personal_income_tax + detail.total_bhdn + detail.total_bhnld),
-        total_internal_team_cost: acc.total_internal_team_cost + (detail.total_company_payment + (detail.daily_salary + detail.kpi_bonus)/12)
+        total_internal_team_cost: acc.total_internal_team_cost + (
+          detail.insurance_base_amount > 0
+            ? (detail.total_company_payment + (detail.daily_salary + detail.kpi_bonus) / 12)
+            : detail.total_income
+        )
       }),
       {
         total_net_salary: 0,
