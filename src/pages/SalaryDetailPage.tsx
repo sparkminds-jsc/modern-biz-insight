@@ -374,6 +374,8 @@ const SalaryDetailPage = () => {
           onSearch={handleSearch}
           onAddEmployee={handleAddEmployee}
           onCopySalarySheet={handleCopySalarySheet}
+          month={salarySheet?.month}
+          year={salarySheet?.year}
         />
 
         {/* Phần 2: Summary boxes */}
