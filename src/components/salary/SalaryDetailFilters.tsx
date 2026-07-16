@@ -178,16 +178,27 @@ export function SalaryDetailFilters({
       body: JSON.stringify({ file_name: fileName }),
     });
     if (!res.ok) throw new Error(`Webhook trả về lỗi ${res.status}`);
-    const raw = await res.json();
+    const text = await res.text();
     let list: any[] = [];
-    if (Array.isArray(raw)) {
-      list = raw;
-    } else if (Array.isArray(raw?.data)) {
-      list = raw.data;
-    } else if (raw && typeof raw === 'object' && ('Mã nhân viên' in raw)) {
-      list = [raw];
+    const isEmployeeObj = (o: any) => o && typeof o === 'object' && !Array.isArray(o) && ('Mã nhân viên' in o);
+    const collect = (val: any) => {
+      if (Array.isArray(val)) val.forEach(collect);
+      else if (isEmployeeObj(val)) list.push(val);
+      else if (val && typeof val === 'object') {
+        if (Array.isArray((val as any).data)) (val as any).data.forEach(collect);
+        else Object.values(val).forEach((v) => { if (Array.isArray(v) || isEmployeeObj(v)) collect(v); });
+      }
+    };
+    try {
+      collect(JSON.parse(text));
+    } catch {
+      // Fallback: NDJSON or concatenated JSON objects
+      const matches = text.match(/\{[^{}]*\}/g) || [];
+      for (const m of matches) {
+        try { collect(JSON.parse(m)); } catch { /* ignore */ }
+      }
     }
-    if (!Array.isArray(list) || list.length === 0) {
+    if (list.length === 0) {
       throw new Error('Webhook không trả về dữ liệu nhân viên');
     }
 
