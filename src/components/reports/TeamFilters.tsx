@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, Search, FileText, FileCheck } from 'lucide-react';
+import { Plus, Search, FileText, FileCheck, Calculator } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   Dialog,
@@ -41,14 +41,16 @@ interface TeamFiltersProps {
   onExportCSV: () => void;
   teams: string[];
   onCheckComplete?: () => void;
+  onCheckTeamSpending?: () => void;
 }
 
-export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreateTeam, onExportCSV, teams, onCheckComplete }: TeamFiltersProps) {
+export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreateTeam, onExportCSV, teams, onCheckComplete, onCheckTeamSpending }: TeamFiltersProps) {
   const [searchParams] = useSearchParams();
   const [showCheckDialog, setShowCheckDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [checkFileName, setCheckFileName] = useState('');
   const [isChecking, setIsChecking] = useState(false);
+  const [isCheckingTeamSpending, setIsCheckingTeamSpending] = useState(false);
   
   const [selectedMonths, setSelectedMonths] = useState<number[]>(() => {
     const monthsParam = searchParams.get('months');
@@ -207,6 +209,22 @@ export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreate
           <Button onClick={() => setShowCheckDialog(true)} variant="outline">
             <FileCheck className="mr-2 h-4 w-4" />
             Check file lương
+          </Button>
+          <Button
+            onClick={async () => {
+              setIsCheckingTeamSpending(true);
+              try {
+                await onCheckTeamSpending?.();
+                toast.success('Đã cập nhật Tổng chi team');
+              } finally {
+                setIsCheckingTeamSpending(false);
+              }
+            }}
+            variant="outline"
+            disabled={isCheckingTeamSpending}
+          >
+            <Calculator className="mr-2 h-4 w-4" />
+            {isCheckingTeamSpending ? 'Đang cập nhật...' : 'Check chi team'}
           </Button>
         </div>
       </div>
