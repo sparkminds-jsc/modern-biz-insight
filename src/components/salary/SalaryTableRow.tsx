@@ -28,13 +28,14 @@ export function SalaryTableRow({ detail, index, onViewDetail, onEdit, onDelete, 
   const isSalaryWithInsurance = detail.insurance_base_amount > 0;
   const salaryType = isSalaryWithInsurance ? 'Lương có BH' : 'Lương thời vụ';
 
+  const stickyBg = detail.is_locked ? "bg-green-100" : "bg-white";
   return (
     <TableRow className={detail.is_locked ? "bg-green-100" : ""}>
-      <TableCell>{index + 1}</TableCell>
-      <TableCell>{detail.employee_code}</TableCell>
-      <TableCell>{detail.employee_name}</TableCell>
-      <TableCell>{detail.team}</TableCell>
-      <TableCell>{salaryType}</TableCell>
+      <TableCell className={`sticky left-0 z-10 ${stickyBg} w-[60px] min-w-[60px]`}>{index + 1}</TableCell>
+      <TableCell className={`sticky left-[60px] z-10 ${stickyBg} w-[100px] min-w-[100px]`}>{detail.employee_code}</TableCell>
+      <TableCell className={`sticky left-[160px] z-10 ${stickyBg} w-[180px] min-w-[180px]`}>{detail.employee_name}</TableCell>
+      <TableCell className={`sticky left-[340px] z-10 ${stickyBg} w-[100px] min-w-[100px]`}>{detail.team}</TableCell>
+      <TableCell className={`sticky left-[440px] z-10 ${stickyBg} w-[120px] min-w-[120px] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]`}>{salaryType}</TableCell>
       <TableCell>{detail.month.toString().padStart(2, '0')}</TableCell>
       <TableCell>{detail.year}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.gross_salary)}</TableCell>
