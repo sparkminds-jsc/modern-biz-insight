@@ -40,6 +40,8 @@ interface SalaryDetailFiltersProps {
   onCopySalarySheet: () => void;
   month?: number;
   year?: number;
+  salarySheetId?: string;
+  onImported?: () => void;
 }
 
 export function SalaryDetailFilters({
@@ -50,11 +52,14 @@ export function SalaryDetailFilters({
   onCopySalarySheet,
   month,
   year,
+  salarySheetId,
+  onImported,
 }: SalaryDetailFiltersProps) {
   const [teams, setTeams] = useState<string[]>(['Tất cả']);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showConfirmImport, setShowConfirmImport] = useState(false);
   const [importFileName, setImportFileName] = useState('');
+  const [importing, setImporting] = useState(false);
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -189,19 +194,35 @@ export function SalaryDetailFilters({
           <AlertDialogFooter>
             <AlertDialogCancel>Hủy</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
+              disabled={importing}
+              onClick={async (e) => {
+                e.preventDefault();
                 const fileName = importFileName;
                 const label = `${month?.toString().padStart(2, '0')}/${year}`;
-                setShowConfirmImport(false);
-                setImportFileName('');
-                // Fix Radix pointer-events lock after nested dialogs close
-                setTimeout(() => {
-                  document.body.style.pointerEvents = '';
-                }, 100);
-                toast.success(`Đã import ${fileName} vào bảng lương ${label}`);
+                setImporting(true);
+                try {
+                  await handleImportSalary({
+                    fileName,
+                    month: month!,
+                    year: year!,
+                    salarySheetId: salarySheetId!,
+                  });
+                  toast.success(`Đã import ${fileName} vào bảng lương ${label}`);
+                  onImported?.();
+                } catch (err: any) {
+                  console.error('Import salary error:', err);
+                  toast.error(err?.message || 'Không thể import file lương');
+                } finally {
+                  setImporting(false);
+                  setShowConfirmImport(false);
+                  setImportFileName('');
+                  setTimeout(() => {
+                    document.body.style.pointerEvents = '';
+                  }, 100);
+                }
               }}
             >
-              Xác nhận
+              {importing ? 'Đang import...' : 'Xác nhận'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
