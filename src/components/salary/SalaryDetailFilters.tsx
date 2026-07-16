@@ -9,7 +9,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Plus, Copy } from 'lucide-react';
+import { Search, Plus, Copy, Upload } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import type { SalaryDetailFilters } from '@/types/salary';
 
@@ -19,6 +38,8 @@ interface SalaryDetailFiltersProps {
   onSearch: () => void;
   onAddEmployee: () => void;
   onCopySalarySheet: () => void;
+  month?: number;
+  year?: number;
 }
 
 export function SalaryDetailFilters({
@@ -26,9 +47,14 @@ export function SalaryDetailFilters({
   onFiltersChange,
   onSearch,
   onAddEmployee,
-  onCopySalarySheet
+  onCopySalarySheet,
+  month,
+  year,
 }: SalaryDetailFiltersProps) {
   const [teams, setTeams] = useState<string[]>(['Tất cả']);
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [showConfirmImport, setShowConfirmImport] = useState(false);
+  const [importFileName, setImportFileName] = useState('');
 
   useEffect(() => {
     const fetchTeams = async () => {
@@ -110,7 +136,70 @@ export function SalaryDetailFilters({
           <Copy className="w-4 h-4 mr-2" />
           Copy bảng lương
         </Button>
+        <Button onClick={() => setShowImportDialog(true)} variant="outline">
+          <Upload className="w-4 h-4 mr-2" />
+          Import File Lương
+        </Button>
       </div>
+
+      {/* Input file name dialog */}
+      <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Import File Lương</DialogTitle>
+            <DialogDescription>Nhập tên file lương cần import</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <Label htmlFor="import-file-name">Tên file</Label>
+            <Input
+              id="import-file-name"
+              value={importFileName}
+              onChange={(e) => setImportFileName(e.target.value)}
+              placeholder="Nhập tên file..."
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowImportDialog(false)}>Hủy</Button>
+            <Button
+              onClick={() => {
+                if (!importFileName.trim()) {
+                  toast.error('Vui lòng nhập tên file');
+                  return;
+                }
+                setShowImportDialog(false);
+                setShowConfirmImport(true);
+              }}
+            >
+              Đồng ý
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirm import dialog */}
+      <AlertDialog open={showConfirmImport} onOpenChange={setShowConfirmImport}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận import</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn chắc chắn import <strong>{importFileName}</strong> vào bảng lương{' '}
+              <strong>{month?.toString().padStart(2, '0')}/{year}</strong> chứ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                toast.success(`Đã import ${importFileName} vào bảng lương ${month?.toString().padStart(2, '0')}/${year}`);
+                setImportFileName('');
+                setShowConfirmImport(false);
+              }}
+            >
+              Xác nhận
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
