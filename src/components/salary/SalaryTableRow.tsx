@@ -73,7 +73,11 @@ export function SalaryTableRow({ detail, index, onViewDetail, onEdit, onDelete, 
       <TableCell className="text-right">{formatCurrency(detail.net_salary)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.advance_payment)}</TableCell>
       <TableCell className="text-right">{formatCurrency(detail.actual_payment)}</TableCell>
-      <TableCell className="text-right">{formatCurrency(detail.total_company_payment + (detail.daily_salary + detail.kpi_bonus) / 12)}</TableCell>
+      <TableCell className="text-right">{formatCurrency(
+        detail.insurance_base_amount > 0
+          ? detail.total_company_payment + (detail.daily_salary + detail.kpi_bonus) / 12
+          : detail.total_income
+      )}</TableCell>
       <TableCell>
         <SalaryTableActions
           detail={detail}
