@@ -33,11 +33,11 @@ export function SalaryDetailTable({ salaryDetails, onViewDetail, onEdit, onDelet
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>STT</TableHead>
-              <TableHead>Mã NV</TableHead>
-              <TableHead>Tên NV</TableHead>
-              <TableHead>Team</TableHead>
-              <TableHead>Loại lương</TableHead>
+              <TableHead className="sticky left-0 z-20 bg-white w-[60px] min-w-[60px]">STT</TableHead>
+              <TableHead className="sticky left-[60px] z-20 bg-white w-[100px] min-w-[100px]">Mã NV</TableHead>
+              <TableHead className="sticky left-[160px] z-20 bg-white w-[180px] min-w-[180px]">Tên NV</TableHead>
+              <TableHead className="sticky left-[340px] z-20 bg-white w-[100px] min-w-[100px]">Team</TableHead>
+              <TableHead className="sticky left-[440px] z-20 bg-white w-[120px] min-w-[120px] shadow-[2px_0_4px_-2px_rgba(0,0,0,0.15)]">Loại lương</TableHead>
               <TableHead>Tháng</TableHead>
               <TableHead>Năm</TableHead>
               <TableHead>Lương Gross</TableHead>
