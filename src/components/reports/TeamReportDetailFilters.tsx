@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Plus, Copy, FileText, Eraser } from 'lucide-react';
+import { Search, Plus, Copy, FileText, Calculator } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface TeamReportDetailFiltersProps {
@@ -13,7 +13,7 @@ interface TeamReportDetailFiltersProps {
   onCreateBill: () => void;
   onCopyReport: () => void;
   onExportCSV: () => void;
-  onClearOvertime: () => void;
+  onCalculatePayment: () => void;
 }
 
 export function TeamReportDetailFilters({ 
@@ -22,7 +22,7 @@ export function TeamReportDetailFilters({
   onCreateBill, 
   onCopyReport,
   onExportCSV,
-  onClearOvertime,
+  onCalculatePayment,
 }: TeamReportDetailFiltersProps) {
   const [selectedEmployee, setSelectedEmployee] = useState<string>('all');
   const [selectedProject, setSelectedProject] = useState<string>('all');
@@ -126,9 +126,9 @@ export function TeamReportDetailFilters({
           Export CSV
         </Button>
 
-        <Button onClick={onClearOvertime} variant="destructive" className="w-full">
-          <Eraser className="mr-2 h-4 w-4" />
-          Xóa tăng ca
+        <Button onClick={onCalculatePayment} variant="outline" className="w-full">
+          <Calculator className="mr-2 h-4 w-4" />
+          Tính chi trả
         </Button>
       </div>
     </div>

@@ -292,27 +292,70 @@ const TeamReportDetailPage = () => {
     }
   };
 
-  const handleClearOvertime = async () => {
-    if (filteredDetails.length === 0) {
-      toast.error('Không có dữ liệu để xóa tăng ca');
+  const handleCalculatePayment = async () => {
+    const eligible = reportDetails.filter((d) => d.has_salary);
+    if (eligible.length === 0) {
+      toast.error('Không có nhân viên nào có tính lương');
       return;
     }
-    if (!confirm(`Bạn có chắc chắn muốn xóa tăng ca của ${filteredDetails.length} record trong bảng?`)) return;
 
     try {
-      const ids = filteredDetails.map((d) => d.id);
-      const { error } = await supabase
-        .from('team_report_details')
-        .update({ salary_13: 0 })
-        .in('id', ids);
+      // Find salary sheets for this team/month/year
+      const { data: sheets, error: sheetsError } = await supabase
+        .from('salary_sheets')
+        .select('id')
+        .eq('month', teamReport.month)
+        .eq('year', teamReport.year);
 
-      if (error) throw error;
+      if (sheetsError) throw sheetsError;
+      const sheetIds = (sheets || []).map((s: any) => s.id);
+      if (sheetIds.length === 0) {
+        toast.error('Không tìm thấy bảng lương cho tháng/năm này');
+        return;
+      }
 
-      toast.success('Đã xóa tăng ca của tất cả record');
+      const codes = eligible.map((d) => d.employee_code);
+      const { data: details, error: detailsError } = await supabase
+        .from('salary_details')
+        .select('employee_code, insurance_base_amount, total_company_payment, daily_salary, kpi_bonus, total_income')
+        .in('salary_sheet_id', sheetIds)
+        .in('employee_code', codes);
+
+      if (detailsError) throw detailsError;
+
+      const costMap = new Map<string, number>();
+      (details || []).forEach((sd: any) => {
+        const cost = (sd.insurance_base_amount || 0) > 0
+          ? (sd.total_company_payment || 0) + ((sd.daily_salary || 0) + (sd.kpi_bonus || 0)) / 12
+          : (sd.total_income || 0);
+        costMap.set(sd.employee_code, cost);
+      });
+
+      let updated = 0;
+      const missing: string[] = [];
+      for (const detail of eligible) {
+        if (!costMap.has(detail.employee_code)) {
+          missing.push(detail.employee_code);
+          continue;
+        }
+        const newCompanyPayment = costMap.get(detail.employee_code)!;
+        const { error: updError } = await supabase
+          .from('team_report_details')
+          .update({ company_payment: newCompanyPayment })
+          .eq('id', detail.id);
+        if (updError) throw updError;
+        updated++;
+      }
+
+      if (missing.length > 0) {
+        toast.warning(`Đã cập nhật ${updated} nhân viên. Không tìm thấy trong bảng lương: ${missing.join(', ')}`);
+      } else {
+        toast.success(`Đã cập nhật chi trả cho ${updated} nhân viên`);
+      }
       fetchData();
     } catch (error) {
-      console.error('Error clearing overtime:', error);
-      toast.error('Có lỗi xảy ra khi xóa tăng ca');
+      console.error('Error calculating payment:', error);
+      toast.error('Có lỗi xảy ra khi tính chi trả');
     }
   };
 
@@ -370,7 +413,7 @@ const TeamReportDetailPage = () => {
           onCreateBill={() => setShowCreateDialog(true)}
           onCopyReport={() => setShowCopyDialog(true)}
           onExportCSV={handleExportCSV}
-          onClearOvertime={handleClearOvertime}
+          onCalculatePayment={handleCalculatePayment}
         />
 
         {/* Summary */}
