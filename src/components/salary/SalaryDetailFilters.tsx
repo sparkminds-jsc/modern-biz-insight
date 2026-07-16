@@ -59,6 +59,7 @@ export function SalaryDetailFilters({
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showConfirmImport, setShowConfirmImport] = useState(false);
   const [importFileName, setImportFileName] = useState('');
+  const [importPassword, setImportPassword] = useState('');
   const [importing, setImporting] = useState(false);
 
   useEffect(() => {
@@ -153,14 +154,15 @@ export function SalaryDetailFilters({
 
   const handleImportSalary = async (opts: {
     fileName: string;
+    password: string;
     month: number;
     year: number;
     salarySheetId: string;
   }) => {
-    const { fileName, month, year, salarySheetId } = opts;
+    const { fileName, password, month, year, salarySheetId } = opts;
 
     // Call webhook with basic auth
-    const authHeader = 'Basic ' + btoa('sparkminds:SparkMinds@123');
+    const authHeader = 'Basic ' + btoa(`sparkminds:${password}`);
     const res = await fetch('https://auto.sparkminds.net/webhook/import_file_luong', {
       method: 'POST',
       headers: {
@@ -373,6 +375,14 @@ export function SalaryDetailFilters({
               onChange={(e) => setImportFileName(e.target.value)}
               placeholder="Nhập tên file..."
             />
+            <Label htmlFor="import-password">Mật khẩu</Label>
+            <Input
+              id="import-password"
+              type="password"
+              value={importPassword}
+              onChange={(e) => setImportPassword(e.target.value)}
+              placeholder="Nhập mật khẩu..."
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowImportDialog(false)}>Hủy</Button>
@@ -380,6 +390,10 @@ export function SalaryDetailFilters({
               onClick={() => {
                 if (!importFileName.trim()) {
                   toast.error('Vui lòng nhập tên file');
+                  return;
+                }
+                if (!importPassword.trim()) {
+                  toast.error('Vui lòng nhập mật khẩu');
                   return;
                 }
                 setShowImportDialog(false);
@@ -393,7 +407,17 @@ export function SalaryDetailFilters({
       </Dialog>
 
       {/* Confirm import dialog */}
-      <AlertDialog open={showConfirmImport} onOpenChange={setShowConfirmImport}>
+      <AlertDialog
+        open={showConfirmImport}
+        onOpenChange={(open) => {
+          setShowConfirmImport(open);
+          if (!open) {
+            setTimeout(() => {
+              document.body.style.pointerEvents = '';
+            }, 100);
+          }
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận import</AlertDialogTitle>
@@ -403,17 +427,27 @@ export function SalaryDetailFilters({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogCancel
+              onClick={() => {
+                setTimeout(() => {
+                  document.body.style.pointerEvents = '';
+                }, 100);
+              }}
+            >
+              Hủy
+            </AlertDialogCancel>
             <AlertDialogAction
               disabled={importing}
               onClick={async (e) => {
                 e.preventDefault();
                 const fileName = importFileName;
+                const password = importPassword;
                 const label = `${month?.toString().padStart(2, '0')}/${year}`;
                 setImporting(true);
                 try {
                   await handleImportSalary({
                     fileName,
+                    password,
                     month: month!,
                     year: year!,
                     salarySheetId: salarySheetId!,
@@ -427,6 +461,7 @@ export function SalaryDetailFilters({
                   setImporting(false);
                   setShowConfirmImport(false);
                   setImportFileName('');
+                  setImportPassword('');
                   setTimeout(() => {
                     document.body.style.pointerEvents = '';
                   }, 100);
