@@ -483,7 +483,12 @@ export function SalaryDetailEditForm({
               <Label htmlFor="salary_type">Loại lương</Label>
               <Select
                 value={watchedValues.salary_type}
-                onValueChange={(value) => setValue('salary_type', value)}
+                onValueChange={(value) => {
+                  setValue('salary_type', value);
+                  if (value === 'Lương thời vụ') {
+                    setValue('insurance_base_amount', 0);
+                  }
+                }}
               >
                 <SelectTrigger>
                   <SelectValue />
