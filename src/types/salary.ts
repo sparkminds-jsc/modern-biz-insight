@@ -32,6 +32,7 @@ export interface SalaryDetail {
   overtime_3: number;
   total_income: number;
   insurance_base_amount: number;
+  salary_type?: string;
   bhdn_bhxh: number;
   bhdn_tnld: number;
   bhdn_bhyt: number;
