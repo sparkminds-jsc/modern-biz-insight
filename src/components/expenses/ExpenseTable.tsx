@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Eye, Edit, CheckCircle, ArrowUpDown, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -41,7 +41,8 @@ export function ExpenseTable({ data, onViewDetail, onEdit, onFinalize, expenseTy
     if (!sortField) {
       const da = new Date(a.created_date).getTime();
       const db = new Date(b.created_date).getTime();
-      if (da !== db) return da - db;
+      // Ngày tạo chi phí mới nhất trước
+      if (da !== db) return db - da;
       const ta = (a.transaction_number || '').toString();
       const tb = (b.transaction_number || '').toString();
       return ta.localeCompare(tb);
@@ -130,19 +131,13 @@ export function ExpenseTable({ data, onViewDetail, onEdit, onFinalize, expenseTy
                 {expense.is_finalized ? (
                   <Badge variant="secondary">{expense.expense_type}</Badge>
                 ) : (
-                  <Select
+                  <SearchableSelect
                     value={expense.expense_type}
                     onValueChange={(v) => handleTypeChange(expense, v)}
-                  >
-                    <SelectTrigger className="h-8 w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(expenseTypes.includes(expense.expense_type) ? expenseTypes : [expense.expense_type, ...expenseTypes]).map((t) => (
-                        <SelectItem key={t} value={t}>{t}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    options={expenseTypes.includes(expense.expense_type) ? expenseTypes : [expense.expense_type, ...expenseTypes]}
+                    triggerClassName="h-8 w-40"
+                    searchPlaceholder="Tìm loại chi phí..."
+                  />
                 )}
               </TableCell>
               <TableCell>{formatCurrency(expense.amount_vnd)}</TableCell>
