@@ -48,7 +48,7 @@ export const useReportsData = () => {
               .eq('year', report.year),
             supabase
               .from('salary_details')
-              .select('total_company_payment, daily_salary, kpi_bonus, insurance_base_amount, total_income')
+              .select('total_company_payment, daily_salary, kpi_bonus, insurance_base_amount, total_income, salary_type')
               .eq('team', report.team)
               .eq('month', report.month)
               .eq('year', report.year),
@@ -56,8 +56,11 @@ export const useReportsData = () => {
 
           const total_internal_team_cost = (salaryDetails || []).reduce(
             (sum, item: any) => {
-              // Lương thời vụ (insurance_base_amount = 0): Tổng chi phí nội bộ = Tổng thu nhập
-              if (!item.insurance_base_amount) {
+              // Lương thời vụ: Tổng chi phí nội bộ = Tổng thu nhập
+              const isSeasonal = item.salary_type
+                ? item.salary_type === 'Lương thời vụ'
+                : !item.insurance_base_amount;
+              if (isSeasonal) {
                 return sum + (item.total_income || 0);
               }
               return (
