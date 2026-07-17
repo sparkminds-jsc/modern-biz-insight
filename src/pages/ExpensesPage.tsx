@@ -28,7 +28,8 @@ const ExpensesPage = () => {
       const { data, error } = await supabase
         .from('expenses')
         .select('*')
-        .order('created_date', { ascending: false });
+        .order('created_date', { ascending: false })
+        .order('transaction_number', { ascending: true });
 
       if (error) throw error;
       setExpenses(data || []);
