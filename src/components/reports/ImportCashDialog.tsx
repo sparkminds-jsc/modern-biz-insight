@@ -106,17 +106,58 @@ export function ImportCashDialog({ open, onClose, onImported }: Props) {
 
       let revOk = 0;
       let expOk = 0;
-      if (revenues.length > 0) {
-        const { error } = await supabase.from('revenue').insert(revenues);
-        if (error) throw error;
-        revOk = revenues.length;
+      let skipped = 0;
+
+      // Dedupe: check existing rows with same date + content + amount
+      const revDates = Array.from(new Set(revenues.map((r) => r.created_date)));
+      const expDates = Array.from(new Set(expenses.map((r) => r.created_date)));
+      const existingRevKeys = new Set<string>();
+      const existingExpKeys = new Set<string>();
+      if (revDates.length > 0) {
+        const { data: existRev } = await supabase
+          .from('revenue')
+          .select('created_date, content, amount_vnd')
+          .in('created_date', revDates);
+        (existRev || []).forEach((r: any) => {
+          existingRevKeys.add(`${r.created_date}||${(r.content || '').trim()}||${Number(r.amount_vnd) || 0}`);
+        });
       }
-      if (expenses.length > 0) {
-        const { error } = await supabase.from('expenses').insert(expenses);
-        if (error) throw error;
-        expOk = expenses.length;
+      if (expDates.length > 0) {
+        const { data: existExp } = await supabase
+          .from('expenses')
+          .select('created_date, content, amount_vnd')
+          .in('created_date', expDates);
+        (existExp || []).forEach((r: any) => {
+          existingExpKeys.add(`${r.created_date}||${(r.content || '').trim()}||${Number(r.amount_vnd) || 0}`);
+        });
       }
-      toast.success(`Import thành công: ${revOk} doanh thu, ${expOk} chi phí`);
+
+      const seenRev = new Set<string>();
+      const filteredRev = revenues.filter((r) => {
+        const key = `${r.created_date}||${r.content.trim()}||${Number(r.amount_vnd) || 0}`;
+        if (existingRevKeys.has(key) || seenRev.has(key)) { skipped++; return false; }
+        seenRev.add(key);
+        return true;
+      });
+      const seenExp = new Set<string>();
+      const filteredExp = expenses.filter((r) => {
+        const key = `${r.created_date}||${r.content.trim()}||${Number(r.amount_vnd) || 0}`;
+        if (existingExpKeys.has(key) || seenExp.has(key)) { skipped++; return false; }
+        seenExp.add(key);
+        return true;
+      });
+
+      if (filteredRev.length > 0) {
+        const { error } = await supabase.from('revenue').insert(filteredRev);
+        if (error) throw error;
+        revOk = filteredRev.length;
+      }
+      if (filteredExp.length > 0) {
+        const { error } = await supabase.from('expenses').insert(filteredExp);
+        if (error) throw error;
+        expOk = filteredExp.length;
+      }
+      toast.success(`Import thành công: ${revOk} doanh thu, ${expOk} chi phí${skipped > 0 ? `, bỏ qua ${skipped} dòng trùng` : ''}`);
       onImported?.();
       reset();
       onClose();
