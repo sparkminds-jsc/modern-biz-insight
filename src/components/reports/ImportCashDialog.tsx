@@ -54,9 +54,11 @@ export function ImportCashDialog({ open, onClose, onImported }: Props) {
   };
 
   const doImport = async () => {
+    console.log('[ImportCash] doImport called', { fileName, sheetName });
     setImporting(true);
     try {
       const auth = btoa(`sparkminds:${password}`);
+      console.log('[ImportCash] calling webhook...');
       const res = await fetch('https://auto.sparkminds.net/webhook/import_tien_mat', {
         method: 'POST',
         headers: {
@@ -65,6 +67,7 @@ export function ImportCashDialog({ open, onClose, onImported }: Props) {
         },
         body: JSON.stringify({ file_name: fileName, sheet_name: sheetName }),
       });
+      console.log('[ImportCash] webhook status', res.status);
       if (!res.ok) throw new Error(`Webhook lỗi: ${res.status}`);
       const text = await res.text();
       let data: any;
@@ -173,7 +176,7 @@ export function ImportCashDialog({ open, onClose, onImported }: Props) {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={confirming} onOpenChange={setConfirming}>
+      <AlertDialog open={confirming} onOpenChange={(o) => { if (!importing) setConfirming(o); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Xác nhận import</AlertDialogTitle>
@@ -182,10 +185,17 @@ export function ImportCashDialog({ open, onClose, onImported }: Props) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={importing}>Hủy</AlertDialogCancel>
-            <AlertDialogAction onClick={doImport} disabled={importing}>
+            <Button variant="outline" disabled={importing} onClick={() => setConfirming(false)}>Hủy</Button>
+            <Button
+              disabled={importing}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                void doImport();
+              }}
+            >
               {importing ? 'Đang import...' : 'Xác nhận'}
-            </AlertDialogAction>
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
