@@ -6,6 +6,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+
+const parseDMY = (s: any): string | null => {
+  if (!s) return null;
+  const str = String(s).trim();
+  const m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  if (!m) return null;
+  return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+};
+
+const toNumber = (v: any): number => {
+  if (v === null || v === undefined || v === '') return 0;
+  if (typeof v === 'number') return v;
+  const n = parseFloat(String(v).replace(/[^\d.-]/g, ''));
+  return isNaN(n) ? 0 : n;
+};
 
 interface Props {
   open: boolean;
@@ -40,8 +56,64 @@ export function ImportCashDialog({ open, onClose, onImported }: Props) {
   const doImport = async () => {
     setImporting(true);
     try {
-      // Placeholder: hook to webhook when provided
-      toast.success(`Đã gửi yêu cầu import tiền mặt từ sheet ${sheetName}, file ${fileName}`);
+      const auth = btoa(`sparkminds:${password}`);
+      const res = await fetch('https://auto.sparkminds.net/webhook/import_tien_mat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${auth}`,
+        },
+        body: JSON.stringify({ file_name: fileName, sheet_name: sheetName }),
+      });
+      if (!res.ok) throw new Error(`Webhook lỗi: ${res.status}`);
+      const text = await res.text();
+      let data: any;
+      try { data = JSON.parse(text); } catch { data = []; }
+      const list: any[] = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+
+      const revenues: any[] = [];
+      const expenses: any[] = [];
+      for (const item of list) {
+        const date = parseDMY(item?.ngay) || new Date().toISOString().slice(0, 10);
+        const content = String(item?.noiDung || '').trim();
+        const amount = toNumber(item?.soTien);
+        const loai = String(item?.loai || '').trim().toLowerCase();
+        if (loai.includes('doanh')) {
+          revenues.push({
+            created_date: date,
+            content,
+            revenue_type: 'Chưa phân loại',
+            amount_vnd: amount,
+            amount_usd: 0,
+            amount_usdt: 0,
+            wallet_type: 'Tiền Mặt',
+          });
+        } else if (loai.includes('chi')) {
+          expenses.push({
+            created_date: date,
+            content,
+            expense_type: 'Chưa phân loại',
+            amount_vnd: amount,
+            amount_usd: 0,
+            amount_usdt: 0,
+            wallet_type: 'Tiền Mặt',
+          });
+        }
+      }
+
+      let revOk = 0;
+      let expOk = 0;
+      if (revenues.length > 0) {
+        const { error } = await supabase.from('revenue').insert(revenues);
+        if (error) throw error;
+        revOk = revenues.length;
+      }
+      if (expenses.length > 0) {
+        const { error } = await supabase.from('expenses').insert(expenses);
+        if (error) throw error;
+        expOk = expenses.length;
+      }
+      toast.success(`Import thành công: ${revOk} doanh thu, ${expOk} chi phí`);
       onImported?.();
       reset();
       onClose();
