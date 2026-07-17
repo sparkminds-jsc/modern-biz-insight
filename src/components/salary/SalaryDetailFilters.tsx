@@ -109,16 +109,17 @@ export function SalaryDetailFilters({
     const total_income = daily_salary + kpi_bonus + overtime_1_5 + overtime_2 + overtime_3;
 
     const withBH = salary_type === 'Lương có BH';
+    const hasBase = insurance_base_amount > 0;
     const bhdn_bhxh = withBH ? insurance_base_amount * 0.17 : 0;
     const bhdn_tnld = withBH ? insurance_base_amount * 0.005 : 0;
     const bhdn_bhyt = withBH ? insurance_base_amount * 0.03 : 0;
-    const bhdn_bhtn = withBH ? gross_salary * 0.01 : 0;
+    const bhdn_bhtn = withBH && hasBase ? gross_salary * 0.01 : 0;
     const total_bhdn = bhdn_bhxh + bhdn_tnld + bhdn_bhyt + bhdn_bhtn;
     const total_company_payment = total_income + total_bhdn;
 
     const bhnld_bhxh = withBH ? insurance_base_amount * 0.08 : 0;
     const bhnld_bhyt = withBH ? insurance_base_amount * 0.015 : 0;
-    const bhnld_bhtn = withBH ? gross_salary * 0.01 : 0;
+    const bhnld_bhtn = withBH && hasBase ? gross_salary * 0.01 : 0;
     const total_bhnld = bhnld_bhxh + bhnld_bhyt + bhnld_bhtn;
 
     const dependent_deduction = dependent_count * dependent_deduction_unit;
