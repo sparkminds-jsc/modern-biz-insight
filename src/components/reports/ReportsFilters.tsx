@@ -7,7 +7,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { CalendarIcon, Search, ChevronDown, Upload } from 'lucide-react';
+import { CalendarIcon, Search, ChevronDown, Upload, Wallet } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -22,9 +22,10 @@ interface ReportsFiltersProps {
     selectedTypes?: string[];
   }) => void;
   onImport?: () => void;
+  onImportCash?: () => void;
 }
 
-export function ReportsFilters({ onFilter, onImport }: ReportsFiltersProps) {
+export function ReportsFilters({ onFilter, onImport, onImportCash }: ReportsFiltersProps) {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [walletType, setWalletType] = useState<string>('all');
@@ -87,7 +88,7 @@ export function ReportsFilters({ onFilter, onImport }: ReportsFiltersProps) {
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
         {/* Ngày bắt đầu */}
         <div className="space-y-2">
           <Label>Ngày bắt đầu</Label>
@@ -223,20 +224,26 @@ export function ReportsFilters({ onFilter, onImport }: ReportsFiltersProps) {
             </PopoverContent>
           </Popover>
         </div>
+      </div>
 
-        {/* Search Button */}
-        <div className="flex gap-2">
-          <Button onClick={handleSearch} className="flex-1">
-            <Search className="mr-2 h-4 w-4" />
-            Search
+      {/* Action buttons */}
+      <div className="flex flex-wrap gap-2 mt-4">
+        <Button onClick={handleSearch}>
+          <Search className="mr-2 h-4 w-4" />
+          Search
+        </Button>
+        {onImport && (
+          <Button variant="outline" onClick={onImport} title="Import từ Excel">
+            <Upload className="h-4 w-4 mr-2" />
+            Import
           </Button>
-          {onImport && (
-            <Button variant="outline" onClick={onImport} title="Import từ Excel">
-              <Upload className="h-4 w-4 mr-2" />
-              Import
-            </Button>
-          )}
-        </div>
+        )}
+        {onImportCash && (
+          <Button variant="outline" onClick={onImportCash} title="Import Tiền Mặt">
+            <Wallet className="h-4 w-4 mr-2" />
+            Import Tiền Mặt
+          </Button>
+        )}
       </div>
     </div>
   );
