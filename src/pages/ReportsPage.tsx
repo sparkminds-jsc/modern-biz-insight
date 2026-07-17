@@ -13,6 +13,7 @@ import { CreateTeamDialog } from '../components/reports/CreateTeamDialog';
 import { RevenueDetailDialog } from '../components/revenue/RevenueDetailDialog';
 import { ExpenseDetailDialog } from '../components/expenses/ExpenseDetailDialog';
 import { ImportTransactionsDialog } from '../components/reports/ImportTransactionsDialog';
+import { ImportCashDialog } from '../components/reports/ImportCashDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -52,6 +53,7 @@ const ReportsPage = () => {
   const [selectedYears, setSelectedYears] = useState<number[]>([]);
   const [currentTeamFilters, setCurrentTeamFilters] = useState<any>({});
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [showImportCashDialog, setShowImportCashDialog] = useState(false);
 
   const { handleFilter, handleTeamFilter } = useReportsFilters(
     revenues,
@@ -227,7 +229,11 @@ const ReportsPage = () => {
           
           <TabsContent value="revenue-expense" className="space-y-6">
             {/* Filters */}
-            <ReportsFilters onFilter={handleReportsFilter} onImport={() => setShowImportDialog(true)} />
+            <ReportsFilters
+              onFilter={handleReportsFilter}
+              onImport={() => setShowImportDialog(true)}
+              onImportCash={() => setShowImportCashDialog(true)}
+            />
 
             {/* Summary */}
             <ReportsSummary 
@@ -313,6 +319,12 @@ const ReportsPage = () => {
         <ImportTransactionsDialog
           open={showImportDialog}
           onClose={() => setShowImportDialog(false)}
+          onImported={fetchData}
+        />
+
+        <ImportCashDialog
+          open={showImportCashDialog}
+          onClose={() => setShowImportCashDialog(false)}
           onImported={fetchData}
         />
 
