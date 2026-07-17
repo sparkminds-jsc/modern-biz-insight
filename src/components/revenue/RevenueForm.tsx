@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -155,15 +156,13 @@ export function RevenueForm({ open, onClose, onSubmit, revenue, mode }: RevenueF
           {/* Loại Doanh Thu */}
           <div className="space-y-2">
             <Label>Loại Doanh Thu *</Label>
-            <Select value={formData.revenue_type} onValueChange={(value) => handleInputChange('revenue_type', value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Lãi Ngân Hàng">Lãi Ngân Hàng</SelectItem>
-                <SelectItem value="Invoice">Invoice</SelectItem>
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+              value={formData.revenue_type}
+              onValueChange={(value) => handleInputChange('revenue_type', value)}
+              options={['Lãi Ngân Hàng', 'Invoice']}
+              placeholder="Chọn loại doanh thu"
+              searchPlaceholder="Tìm loại doanh thu..."
+            />
           </div>
 
           {/* Dự án */}

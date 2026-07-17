@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -176,16 +177,13 @@ export function ExpenseForm({ open, onClose, expense, onSuccess }: ExpenseFormPr
 
             <div className="space-y-2">
               <Label>Loại Chi Phí *</Label>
-              <Select value={expenseType} onValueChange={setExpenseType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn loại chi phí" />
-                </SelectTrigger>
-                <SelectContent>
-                  {expenseTypes.map((type) => (
-                    <SelectItem key={type} value={type}>{type}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={expenseType}
+                onValueChange={setExpenseType}
+                options={expenseTypes}
+                placeholder="Chọn loại chi phí"
+                searchPlaceholder="Tìm loại chi phí..."
+              />
             </div>
           </div>
 
