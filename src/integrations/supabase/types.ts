@@ -786,6 +786,7 @@ export type Database = {
           overtime_3: number
           personal_deduction: number
           salary_sheet_id: string
+          salary_type: string
           tax_10_percent: number
           tax_15_percent: number
           tax_20_percent: number
@@ -835,6 +836,7 @@ export type Database = {
           overtime_3?: number
           personal_deduction?: number
           salary_sheet_id: string
+          salary_type?: string
           tax_10_percent?: number
           tax_15_percent?: number
           tax_20_percent?: number
@@ -884,6 +886,7 @@ export type Database = {
           overtime_3?: number
           personal_deduction?: number
           salary_sheet_id?: string
+          salary_type?: string
           tax_10_percent?: number
           tax_15_percent?: number
           tax_20_percent?: number

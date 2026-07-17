@@ -317,7 +317,7 @@ const TeamReportDetailPage = () => {
       const codes = eligible.map((d) => d.employee_code);
       const { data: details, error: detailsError } = await supabase
         .from('salary_details')
-        .select('employee_code, insurance_base_amount, total_company_payment, daily_salary, kpi_bonus, total_income')
+        .select('employee_code, insurance_base_amount, total_company_payment, daily_salary, kpi_bonus, total_income, salary_type')
         .in('salary_sheet_id', sheetIds)
         .in('employee_code', codes);
 
@@ -325,9 +325,12 @@ const TeamReportDetailPage = () => {
 
       const costMap = new Map<string, number>();
       (details || []).forEach((sd: any) => {
-        const cost = (sd.insurance_base_amount || 0) > 0
-          ? (sd.total_company_payment || 0) + ((sd.daily_salary || 0) + (sd.kpi_bonus || 0)) / 12
-          : (sd.total_income || 0);
+        const isSeasonal = sd.salary_type
+          ? sd.salary_type === 'Lương thời vụ'
+          : !(sd.insurance_base_amount || 0);
+        const cost = isSeasonal
+          ? (sd.total_income || 0)
+          : (sd.total_company_payment || 0) + ((sd.daily_salary || 0) + (sd.kpi_bonus || 0)) / 12;
         costMap.set(sd.employee_code, cost);
       });
 

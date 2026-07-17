@@ -1,0 +1,2 @@
+ALTER TABLE public.salary_details ADD COLUMN IF NOT EXISTS salary_type text NOT NULL DEFAULT 'Lương có BH';
+UPDATE public.salary_details SET salary_type = CASE WHEN insurance_base_amount > 0 THEN 'Lương có BH' ELSE 'Lương thời vụ' END;
