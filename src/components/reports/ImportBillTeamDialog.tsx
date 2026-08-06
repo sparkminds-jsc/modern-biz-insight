@@ -85,7 +85,8 @@ export function ImportBillTeamDialog({ open, onClose, onImported }: ImportBillTe
   const doImport = async () => {
     setLoading(true);
     try {
-      const res = await fetch(WEBHOOK_URL, {
+      const url = `${WEBHOOK_URL}?month=${encodeURIComponent(String(Number(month)))}&year=${encodeURIComponent(String(Number(year)))}`;
+      const res = await fetch(url, {
         method: 'GET',
         headers: {
           Authorization: 'Basic ' + btoa(`sparkminds:${password}`),
