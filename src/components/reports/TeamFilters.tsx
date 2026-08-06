@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, Search, FileText, FileCheck, Calculator } from 'lucide-react';
+import { Plus, Search, FileText, FileCheck, Calculator, Upload } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
   Dialog,
@@ -42,9 +42,10 @@ interface TeamFiltersProps {
   teams: string[];
   onCheckComplete?: () => void;
   onCheckTeamSpending?: () => void;
+  onImportBillTeam?: () => void;
 }
 
-export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreateTeam, onExportCSV, teams, onCheckComplete, onCheckTeamSpending }: TeamFiltersProps) {
+export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreateTeam, onExportCSV, teams, onCheckComplete, onCheckTeamSpending, onImportBillTeam }: TeamFiltersProps) {
   const [searchParams] = useSearchParams();
   const [showCheckDialog, setShowCheckDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -226,6 +227,12 @@ export function TeamFilters({ onFilter, onFilterChange, onCreateReport, onCreate
             <Calculator className="mr-2 h-4 w-4" />
             {isCheckingTeamSpending ? 'Đang cập nhật...' : 'Check chi team'}
           </Button>
+          {onImportBillTeam && (
+            <Button onClick={onImportBillTeam} variant="outline">
+              <Upload className="mr-2 h-4 w-4" />
+              Import Bill Team
+            </Button>
+          )}
         </div>
       </div>
 

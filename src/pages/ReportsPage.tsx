@@ -14,6 +14,7 @@ import { RevenueDetailDialog } from '../components/revenue/RevenueDetailDialog';
 import { ExpenseDetailDialog } from '../components/expenses/ExpenseDetailDialog';
 import { ImportTransactionsDialog } from '../components/reports/ImportTransactionsDialog';
 import { ImportCashDialog } from '../components/reports/ImportCashDialog';
+import { ImportBillTeamDialog } from '../components/reports/ImportBillTeamDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -54,6 +55,7 @@ const ReportsPage = () => {
   const [currentTeamFilters, setCurrentTeamFilters] = useState<any>({});
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showImportCashDialog, setShowImportCashDialog] = useState(false);
+  const [showImportBillTeamDialog, setShowImportBillTeamDialog] = useState(false);
 
   const { handleFilter, handleTeamFilter } = useReportsFilters(
     revenues,
@@ -268,6 +270,7 @@ const ReportsPage = () => {
               teams={teams}
               onCheckComplete={fetchData}
               onCheckTeamSpending={fetchData}
+              onImportBillTeam={() => setShowImportBillTeamDialog(true)}
             />
 
             {/* Team Summary */}
@@ -325,6 +328,12 @@ const ReportsPage = () => {
         <ImportCashDialog
           open={showImportCashDialog}
           onClose={() => setShowImportCashDialog(false)}
+          onImported={fetchData}
+        />
+
+        <ImportBillTeamDialog
+          open={showImportBillTeamDialog}
+          onClose={() => setShowImportBillTeamDialog(false)}
           onImported={fetchData}
         />
 
