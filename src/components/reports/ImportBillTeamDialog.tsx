@@ -85,7 +85,8 @@ export function ImportBillTeamDialog({ open, onClose, onImported }: ImportBillTe
   const doImport = async () => {
     setLoading(true);
     try {
-      const url = `${WEBHOOK_URL}?month=${encodeURIComponent(String(Number(month)))}&year=${encodeURIComponent(String(Number(year)))}`;
+      const monthParam = String(Number(month)).padStart(2, '0');
+      const url = `${WEBHOOK_URL}?month=${encodeURIComponent(monthParam)}&year=${encodeURIComponent(String(Number(year)))}`;
       const res = await fetch(url, {
         method: 'GET',
         headers: {
