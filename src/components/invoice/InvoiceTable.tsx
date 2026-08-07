@@ -36,10 +36,28 @@ export function InvoiceTable({ invoices, onViewDetail, onCopy, onEdit, onDelete 
     }
   });
 
-  const getProjectName = (projectId: string | null) => {
-    if (!projectId) return '';
-    const project = projects.find(p => p.id === projectId);
-    return project?.name || '';
+  // Fetch invoice items to resolve projects linked per invoice
+  const { data: items = [] } = useQuery({
+    queryKey: ['invoice-items-projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('invoice_items')
+        .select('invoice_id, project_id');
+      if (error) throw error;
+      return data as { invoice_id: string; project_id: string | null }[];
+    }
+  });
+
+  const getProjectNames = (invoice: Invoice) => {
+    const ids = new Set<string>();
+    items
+      .filter(i => i.invoice_id === invoice.id && i.project_id)
+      .forEach(i => ids.add(i.project_id as string));
+    if (ids.size === 0 && invoice.project_id) ids.add(invoice.project_id);
+    const names = Array.from(ids)
+      .map(id => projects.find(p => p.id === id)?.name)
+      .filter(Boolean) as string[];
+    return names.join(', ');
   };
 
   const handleSort = (field: SortField) => {
@@ -156,7 +174,7 @@ export function InvoiceTable({ invoices, onViewDetail, onCopy, onEdit, onDelete 
             <TableRow key={invoice.id}>
               <TableCell className="font-medium">{invoice.customer_name}</TableCell>
               <TableCell>{invoice.invoice_name}</TableCell>
-              <TableCell>{getProjectName(invoice.project_id)}</TableCell>
+              <TableCell>{getProjectNames(invoice)}</TableCell>
               <TableCell>{formatDate(invoice.created_date)}</TableCell>
               <TableCell>{formatDate(invoice.due_date)}</TableCell>
               <TableCell>

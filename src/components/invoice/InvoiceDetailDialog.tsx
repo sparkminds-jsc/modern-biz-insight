@@ -2,6 +2,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Invoice, InvoiceItem } from '@/types/invoice';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Project } from '@/types/project';
 
 interface InvoiceDetailDialogProps {
   open: boolean;
@@ -11,6 +14,15 @@ interface InvoiceDetailDialogProps {
 }
 
 export function InvoiceDetailDialog({ open, onClose, invoice, invoiceItems }: InvoiceDetailDialogProps) {
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('projects').select('*').order('name');
+      if (error) throw error;
+      return data as Project[];
+    }
+  });
+
   if (!invoice) return null;
 
   const formatDate = (dateString: string) => {
@@ -106,6 +118,7 @@ export function InvoiceDetailDialog({ open, onClose, invoice, invoiceItems }: In
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Project</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Unit</TableHead>
                   <TableHead>Qty</TableHead>
@@ -117,6 +130,7 @@ export function InvoiceDetailDialog({ open, onClose, invoice, invoiceItems }: In
               <TableBody>
                 {invoiceItems.map((item) => (
                   <TableRow key={item.id}>
+                    <TableCell>{projects.find(p => p.id === item.project_id)?.name || '-'}</TableCell>
                     <TableCell>{item.description}</TableCell>
                     <TableCell>{item.unit}</TableCell>
                     <TableCell>{item.qty}</TableCell>
