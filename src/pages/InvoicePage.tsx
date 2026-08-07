@@ -52,7 +52,14 @@ const InvoicePage = () => {
         query = query.eq('is_crypto', filters.is_crypto === 'true');
       }
       if (filters.project_id) {
-        query = query.eq('project_id', filters.project_id);
+        const { data: itemRows, error: itemsErr } = await supabase
+          .from('invoice_items')
+          .select('invoice_id')
+          .eq('project_id', filters.project_id);
+        if (itemsErr) throw itemsErr;
+        const ids = Array.from(new Set((itemRows || []).map(r => r.invoice_id)));
+        if (ids.length === 0) return [] as Invoice[];
+        query = query.in('id', ids);
       }
 
       const { data, error } = await query;
@@ -97,6 +104,7 @@ const InvoicePage = () => {
         const invoiceItems = items.map(item => ({
           ...item,
           invoice_id: invoice.id,
+          project_id: item.project_id || null,
           amount: item.qty * item.unit_price
         }));
 
@@ -115,6 +123,7 @@ const InvoicePage = () => {
         description: "Invoice đã được tạo thành công."
       });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['invoice-items-projects'] });
       setShowForm(false);
     },
     onError: (error) => {
@@ -158,6 +167,7 @@ const InvoicePage = () => {
         const invoiceItems = items.map(item => ({
           ...item,
           invoice_id: id,
+          project_id: item.project_id || null,
           amount: item.qty * item.unit_price
         }));
 
@@ -176,6 +186,7 @@ const InvoicePage = () => {
         description: "Invoice đã được cập nhật thành công."
       });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['invoice-items-projects'] });
       queryClient.invalidateQueries({ queryKey: ['invoice-items'] });
       setShowForm(false);
     },
@@ -204,6 +215,7 @@ const InvoicePage = () => {
         description: "Invoice đã được xóa thành công."
       });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['invoice-items-projects'] });
     },
     onError: (error) => {
       toast({
@@ -217,6 +229,7 @@ const InvoicePage = () => {
 
   const handleSearch = () => {
     queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['invoice-items-projects'] });
   };
 
   const handleAddInvoice = () => {
@@ -263,6 +276,7 @@ const InvoicePage = () => {
 
       toast({ title: "Thành công", description: "Đã sao chép invoice." });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['invoice-items-projects'] });
     } catch (err) {
       console.error('Error copying invoice:', err);
       toast({ title: "Lỗi", description: "Có lỗi khi sao chép invoice.", variant: "destructive" });

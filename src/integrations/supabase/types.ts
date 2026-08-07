@@ -392,6 +392,7 @@ export type Database = {
           id: string
           invoice_id: string
           note: string | null
+          project_id: string | null
           qty: number
           unit: string
           unit_price: number
@@ -404,6 +405,7 @@ export type Database = {
           id?: string
           invoice_id: string
           note?: string | null
+          project_id?: string | null
           qty?: number
           unit: string
           unit_price?: number
@@ -416,6 +418,7 @@ export type Database = {
           id?: string
           invoice_id?: string
           note?: string | null
+          project_id?: string | null
           qty?: number
           unit?: string
           unit_price?: number
@@ -427,6 +430,13 @@ export type Database = {
             columns: ["invoice_id"]
             isOneToOne: false
             referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_items_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]

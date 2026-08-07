@@ -28,6 +28,7 @@ export interface InvoiceItem {
   unit_price: number;
   amount: number;
   note: string | null;
+  project_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -63,4 +64,5 @@ export interface CreateInvoiceItemData {
   qty: number;
   unit_price: number;
   note?: string;
+  project_id?: string | null;
 }

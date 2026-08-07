@@ -104,7 +104,8 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
         unit: item.unit,
         qty: item.qty,
         unit_price: item.unit_price,
-        note: item.note || ''
+        note: item.note || '',
+        project_id: item.project_id || null
       })));
     } else if (mode === 'create') {
       // Reset to default values for create mode
@@ -221,22 +222,6 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">Dự án</label>
-                <Select value={formData.project_id || 'none'} onValueChange={(value) => handleInputChange('project_id', value === 'none' ? undefined : value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Chọn dự án" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Không chọn dự án</SelectItem>
-                    {projects.map((project) => (
-                      <SelectItem key={project.id} value={project.id}>
-                        {project.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
 
             <div>
@@ -401,6 +386,7 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead>Project</TableHead>
                     <TableHead>Description</TableHead>
                     <TableHead>Unit</TableHead>
                     <TableHead>Qty</TableHead>
@@ -413,6 +399,7 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
                 <TableBody>
                   {items.map((item, index) => (
                     <TableRow key={index}>
+                      <TableCell>{projects.find(p => p.id === item.project_id)?.name || '-'}</TableCell>
                       <TableCell>{item.description}</TableCell>
                       <TableCell>{item.unit}</TableCell>
                       <TableCell>{item.qty}</TableCell>
@@ -461,6 +448,7 @@ export function InvoiceForm({ open, onClose, onSubmit, invoice, invoiceItems = [
         }}
         onSubmit={handleAddItem}
         item={editingItem !== null ? items[editingItem] : undefined}
+        projects={projects}
       />
     </>
   );
