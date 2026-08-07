@@ -4,33 +4,38 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CreateInvoiceItemData } from '@/types/invoice';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Project } from '@/types/project';
 
 interface InvoiceItemFormProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: CreateInvoiceItemData) => void;
   item?: CreateInvoiceItemData;
+  projects?: Project[];
 }
 
-export function InvoiceItemForm({ open, onClose, onSubmit, item }: InvoiceItemFormProps) {
+export function InvoiceItemForm({ open, onClose, onSubmit, item, projects = [] }: InvoiceItemFormProps) {
   const [formData, setFormData] = useState<CreateInvoiceItemData>({
     description: '',
     unit: '',
     qty: 1,
     unit_price: 0,
-    note: ''
+    note: '',
+    project_id: null
   });
 
   useEffect(() => {
     if (item) {
-      setFormData(item);
+      setFormData({ ...item, project_id: item.project_id ?? null });
     } else {
       setFormData({
         description: '',
         unit: '',
         qty: 1,
         unit_price: 0,
-        note: ''
+        note: '',
+        project_id: null
       });
     }
   }, [item, open]);
@@ -46,7 +51,8 @@ export function InvoiceItemForm({ open, onClose, onSubmit, item }: InvoiceItemFo
       unit: '',
       qty: 1,
       unit_price: 0,
-      note: ''
+      note: '',
+      project_id: null
     });
   };
 
@@ -62,6 +68,26 @@ export function InvoiceItemForm({ open, onClose, onSubmit, item }: InvoiceItemFo
         </DialogHeader>
         
         <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Project</label>
+            <Select
+              value={formData.project_id || 'none'}
+              onValueChange={(value) => handleInputChange('project_id', value === 'none' ? null : value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn dự án" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Không chọn dự án</SelectItem>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div>
             <label className="block text-sm font-medium mb-1">Description *</label>
             <Input
