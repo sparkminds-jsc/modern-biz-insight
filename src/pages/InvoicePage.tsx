@@ -166,6 +166,7 @@ const InvoicePage = () => {
         const invoiceItems = items.map(item => ({
           ...item,
           invoice_id: id,
+          project_id: item.project_id || null,
           amount: item.qty * item.unit_price
         }));
 
