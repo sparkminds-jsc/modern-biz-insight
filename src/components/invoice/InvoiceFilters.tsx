@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, Upload } from 'lucide-react';
 import { InvoiceFilters as InvoiceFiltersType } from '@/types/invoice';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,9 +14,10 @@ interface InvoiceFiltersProps {
   onFiltersChange: (filters: InvoiceFiltersType) => void;
   onSearch: () => void;
   onAddInvoice: () => void;
+  onImportInvoice?: () => void;
 }
 
-export function InvoiceFilters({ filters, onFiltersChange, onSearch, onAddInvoice }: InvoiceFiltersProps) {
+export function InvoiceFilters({ filters, onFiltersChange, onSearch, onAddInvoice, onImportInvoice }: InvoiceFiltersProps) {
   // Fetch projects
   const { data: projects = [] } = useQuery({
     queryKey: ['projects'],
@@ -133,7 +134,7 @@ export function InvoiceFilters({ filters, onFiltersChange, onSearch, onAddInvoic
         </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <Button onClick={onSearch} className="bg-blue-600 hover:bg-blue-700">
           <Search className="w-4 h-4 mr-2" />
           Tìm kiếm
@@ -142,6 +143,12 @@ export function InvoiceFilters({ filters, onFiltersChange, onSearch, onAddInvoic
           <Plus className="w-4 h-4 mr-2" />
           Thêm Invoice
         </Button>
+        {onImportInvoice && (
+          <Button variant="outline" onClick={onImportInvoice}>
+            <Upload className="w-4 h-4 mr-2" />
+            Import Invoice
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { InvoiceTable } from '../components/invoice/InvoiceTable';
 import { InvoiceForm } from '../components/invoice/InvoiceForm';
 import { InvoiceDetailDialog } from '../components/invoice/InvoiceDetailDialog';
 import { InvoiceChart } from '../components/invoice/InvoiceChart';
+import { ImportInvoiceDialog } from '../components/invoice/ImportInvoiceDialog';
 import { supabase } from '../integrations/supabase/client';
 import { Invoice, InvoiceItem, InvoiceFilters as InvoiceFiltersType, CreateInvoiceData, CreateInvoiceItemData } from '../types/invoice';
 import { useToast } from '../hooks/use-toast';
@@ -26,6 +27,7 @@ const InvoicePage = () => {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [selectedInvoiceItems, setSelectedInvoiceItems] = useState<InvoiceItem[]>([]);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
+  const [showImportInvoice, setShowImportInvoice] = useState(false);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -323,6 +325,7 @@ const InvoicePage = () => {
           onFiltersChange={setFilters}
           onSearch={handleSearch}
           onAddInvoice={handleAddInvoice}
+          onImportInvoice={() => setShowImportInvoice(true)}
         />
 
         {isLoading ? (
@@ -355,6 +358,12 @@ const InvoicePage = () => {
           onClose={() => setShowDetail(false)}
           invoice={selectedInvoice}
           invoiceItems={selectedInvoiceItems}
+        />
+
+        <ImportInvoiceDialog
+          open={showImportInvoice}
+          onClose={() => setShowImportInvoice(false)}
+          onImported={() => queryClient.invalidateQueries({ queryKey: ['invoices'] })}
         />
       </div>
     </AppLayout>
