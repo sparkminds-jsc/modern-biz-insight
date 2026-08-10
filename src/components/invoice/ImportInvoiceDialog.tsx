@@ -169,7 +169,7 @@ export function ImportInvoiceDialog({ open, onClose, onImported }: ImportInvoice
             payment_unit: isVnd ? 'VND' : 'USD',
             created_date: today,
             due_date: today,
-            status: 'Mới tạo',
+            status: isCrypto ? 'Không xuất hóa đơn' : 'Mới tạo',
             total_amount: totalAmount,
             payment_status: 'Chưa thu',
             remaining_amount: totalAmount,
