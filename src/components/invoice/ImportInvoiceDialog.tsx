@@ -149,7 +149,7 @@ export function ImportInvoiceDialog({ open, onClose, onImported }: ImportInvoice
             ? toNumber(r['Total Bill VND'])
             : toNumber(r['SUM USD']);
           return {
-            description: String(r['Description'] ?? projectName || invoiceTitle),
+            description: String(r['Description'] ?? (projectName || invoiceTitle)),
             unit: 'pack',
             qty: 1,
             unit_price: unitPrice,
