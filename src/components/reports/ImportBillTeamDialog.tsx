@@ -109,13 +109,11 @@ export function ImportBillTeamDialog({ open, onClose, onImported }: ImportBillTe
 
       const nodes = collectObjects(payload);
       const billTeam: any[] = [];
-      const invoiceArr: any[] = [];
       nodes.forEach((node) => {
         if (Array.isArray(node.billTeam)) billTeam.push(...node.billTeam);
-        if (Array.isArray(node.invoiceArr)) invoiceArr.push(...node.invoiceArr);
       });
 
-      if (billTeam.length === 0 && invoiceArr.length === 0) {
+      if (billTeam.length === 0) {
         toast.error('Webhook không trả về dữ liệu để import');
         return;
       }
@@ -188,64 +186,9 @@ export function ImportBillTeamDialog({ open, onClose, onImported }: ImportBillTe
         if (error) throw error;
       }
 
-      // ---- invoiceArr -> invoices + invoice_items ----
-      let importedInvoices = 0;
-      let skippedInvoices = 0;
-
-      for (const item of invoiceArr) {
-        const time = parseTime(item['Time']);
-        const projectName = String(item['Project Name'] ?? '').trim();
-        const project = projectByName.get(projectName.toLowerCase());
-        if (!time) {
-          skippedInvoices++;
-          continue;
-        }
-
-        const isVnd = isYes(item['Is VND']);
-        const timeLabel = String(item['Time'] ?? '').trim();
-        const unitPrice = isVnd ? toNumber(item['Total Bill VND']) : toNumber(item['SUM USD']);
-        const createdDate = new Date(time.year, time.month, 0);
-        const dueDate = new Date(time.year, time.month, 15);
-        const fmt = (d: Date) =>
-          `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-
-        const { data: invoice, error: invoiceError } = await supabase
-          .from('invoices')
-          .insert({
-            customer_name: String(item['Client Name'] ?? '').trim(),
-            invoice_name: `${projectName}_${timeLabel}`,
-            payment_unit: isVnd ? 'VND' : 'USD',
-            created_date: fmt(createdDate),
-            due_date: fmt(dueDate),
-            status: 'Mới tạo',
-            payment_status: 'Chưa thu',
-            total_amount: unitPrice,
-            remaining_amount: unitPrice,
-            is_crypto: isYes(item['Is USDT']),
-            project_id: project ? project.id : null,
-          })
-          .select()
-          .single();
-
-        if (invoiceError) throw invoiceError;
-
-        const { error: itemError } = await supabase.from('invoice_items').insert({
-          invoice_id: invoice.id,
-          description: String(item['Description'] ?? `${projectName}_${timeLabel}`),
-          unit: 'package',
-          qty: 1,
-          unit_price: unitPrice,
-          amount: unitPrice,
-          note: item['Note'] === null || item['Note'] === undefined || item['Note'] === '' ? null : String(item['Note']),
-        });
-
-        if (itemError) throw itemError;
-        importedInvoices++;
-      }
-
       toast.success(
-        `Import xong: ${detailRows.length} bill team, ${importedInvoices} invoice.` +
-          (skippedBill + skippedInvoices > 0 ? ` Bỏ qua ${skippedBill + skippedInvoices} dòng không hợp lệ.` : '')
+        `Import xong: ${detailRows.length} bill team.` +
+          (skippedBill > 0 ? ` Bỏ qua ${skippedBill} dòng không hợp lệ.` : '')
       );
       onImported?.();
       reset();
