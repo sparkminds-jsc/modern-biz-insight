@@ -14,10 +14,10 @@ interface ProjectBillData {
 }
 
 interface ProjectBillFilters {
-  projectId?: string;
+  projectIds?: string[];
   months: number[];
   years: number[];
-  team?: string;
+  teams?: string[];
   exchangeRate?: number;
 }
 
@@ -101,11 +101,13 @@ export function useProjectBillData() {
     setSelectedMonths(filters.months);
     setSelectedYears(filters.years);
 
-    // Filter by project
-    if (filters.projectId) {
-      const selectedProject = projects.find(p => p.id === filters.projectId);
-      if (selectedProject) {
-        filtered = filtered.filter(item => item.projectName === selectedProject.name);
+    // Filter by projects (multi-select)
+    if (filters.projectIds && filters.projectIds.length > 0) {
+      const names = filters.projectIds
+        .map(id => projects.find(p => p.id === id)?.name)
+        .filter(Boolean) as string[];
+      if (names.length > 0) {
+        filtered = filtered.filter(item => names.includes(item.projectName));
       }
     }
 
@@ -119,9 +121,9 @@ export function useProjectBillData() {
       filtered = filtered.filter(item => filters.years.includes(item.year));
     }
 
-    // Filter by team
-    if (filters.team) {
-      filtered = filtered.filter(item => item.team === filters.team);
+    // Filter by teams (multi-select)
+    if (filters.teams && filters.teams.length > 0) {
+      filtered = filtered.filter(item => filters.teams!.includes(item.team));
     }
 
     // Set exchange rate if provided

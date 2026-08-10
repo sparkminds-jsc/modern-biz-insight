@@ -3,16 +3,17 @@ import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MultiSelect } from '@/components/ui/multi-select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Search } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ProjectBillFiltersProps {
   onFilter: (filters: {
-    projectId?: string;
+    projectIds: string[];
     months: number[];
     years: number[];
-    team?: string;
+    teams: string[];
     exchangeRate?: number;
   }) => void;
 }
@@ -21,8 +22,9 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Initialize state from URL params
-  const [selectedProject, setSelectedProject] = useState<string>(() => {
-    return searchParams.get('billProject') || 'all';
+  const [selectedProjects, setSelectedProjects] = useState<string[]>(() => {
+    const p = searchParams.get('billProject');
+    return p ? p.split(',').filter(Boolean) : [];
   });
   const [selectedMonths, setSelectedMonths] = useState<number[]>(() => {
     const monthsParam = searchParams.get('billMonths');
@@ -32,8 +34,9 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
     const yearsParam = searchParams.get('billYears');
     return yearsParam ? yearsParam.split(',').map(Number) : [];
   });
-  const [selectedTeam, setSelectedTeam] = useState<string>(() => {
-    return searchParams.get('billTeam') || 'all';
+  const [selectedTeams, setSelectedTeams] = useState<string[]>(() => {
+    const t = searchParams.get('billTeam');
+    return t ? t.split(',').filter(Boolean) : [];
   });
   const [selectedExchangeRate, setSelectedExchangeRate] = useState<number>(() => {
     const rateParam = searchParams.get('billRate');
@@ -102,10 +105,10 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
     
     if (hasFilters) {
       onFilter({
-        projectId: selectedProject === 'all' ? undefined : selectedProject,
+        projectIds: selectedProjects,
         months: selectedMonths,
         years: selectedYears,
-        team: selectedTeam === 'all' ? undefined : selectedTeam,
+        teams: selectedTeams,
         exchangeRate: selectedExchangeRate,
       });
     }
@@ -132,8 +135,8 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
     const newParams = new URLSearchParams(searchParams);
     newParams.set('tab', 'project-bills');
     
-    if (selectedProject !== 'all') {
-      newParams.set('billProject', selectedProject);
+    if (selectedProjects.length > 0) {
+      newParams.set('billProject', selectedProjects.join(','));
     } else {
       newParams.delete('billProject');
     }
@@ -147,8 +150,8 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
     } else {
       newParams.delete('billYears');
     }
-    if (selectedTeam !== 'all') {
-      newParams.set('billTeam', selectedTeam);
+    if (selectedTeams.length > 0) {
+      newParams.set('billTeam', selectedTeams.join(','));
     } else {
       newParams.delete('billTeam');
     }
@@ -157,10 +160,10 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
     setSearchParams(newParams, { replace: true });
     
     onFilter({
-      projectId: selectedProject === 'all' ? undefined : selectedProject,
+      projectIds: selectedProjects,
       months: selectedMonths,
       years: selectedYears,
-      team: selectedTeam === 'all' ? undefined : selectedTeam,
+      teams: selectedTeams,
       exchangeRate: selectedExchangeRate,
     });
   };
@@ -172,37 +175,25 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
           {/* Project Filter */}
           <div className="space-y-2">
             <Label>Dự án</Label>
-            <Select value={selectedProject} onValueChange={setSelectedProject}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-white z-50">
-                <SelectItem value="all">Tất cả dự án</SelectItem>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <MultiSelect
+              options={projects.map((project) => ({ value: project.id, label: project.name }))}
+              value={selectedProjects}
+              onChange={setSelectedProjects}
+              allLabel="Tất cả dự án"
+              searchPlaceholder="Tìm dự án..."
+            />
           </div>
 
           {/* Team Filter */}
           <div className="space-y-2">
             <Label>Team</Label>
-            <Select value={selectedTeam} onValueChange={setSelectedTeam}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-white z-50">
-                <SelectItem value="all">Tất cả team</SelectItem>
-                {teams.map((team) => (
-                  <SelectItem key={team.id} value={team.name}>
-                    {team.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <MultiSelect
+              options={teams.map((team) => ({ value: team.name, label: team.name }))}
+              value={selectedTeams}
+              onChange={setSelectedTeams}
+              allLabel="Tất cả team"
+              searchPlaceholder="Tìm team..."
+            />
           </div>
 
           {/* Exchange Rate Filter */}
