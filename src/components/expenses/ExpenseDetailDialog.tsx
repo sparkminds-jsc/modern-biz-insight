@@ -1,8 +1,13 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import type { ExpenseInvoiceFile } from './ExpenseInvoiceFilesDialog';
+
 
 interface ExpenseDetailDialogProps {
   open: boolean;
