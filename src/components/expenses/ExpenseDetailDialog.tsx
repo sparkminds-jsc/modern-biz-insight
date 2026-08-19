@@ -107,12 +107,26 @@ export function ExpenseDetailDialog({ open, onClose, expense }: ExpenseDetailDia
             </div>
             <div>
               <label className="text-sm font-medium text-gray-500">Hóa đơn</label>
-              <p className="text-lg">
-                {expense.invoice_files && expense.invoice_files.length > 0 
-                  ? `${expense.invoice_files.length} file(s)` 
-                  : 'Không có'}
-              </p>
+              {expense.invoice_files && expense.invoice_files.length > 0 ? (
+                <ul className="mt-1 space-y-1 max-h-40 overflow-y-auto">
+                  {(expense.invoice_files as ExpenseInvoiceFile[]).map((file, i) => (
+                    <li key={`${file.path || file.url || file.name}-${i}`}>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenFile(file)}
+                        className="flex w-full items-center gap-2 text-left text-sm text-primary hover:underline"
+                      >
+                        <FileText className="h-4 w-4 shrink-0" />
+                        <span className="truncate">{file.name}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-lg mt-1">Không có</p>
+              )}
             </div>
+
           </div>
 
           {expense.notes && (
