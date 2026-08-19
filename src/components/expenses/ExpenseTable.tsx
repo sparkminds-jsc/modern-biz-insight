@@ -3,12 +3,13 @@ import { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Edit, CheckCircle, ArrowUpDown, FileText } from 'lucide-react';
+import { Eye, Edit, CheckCircle, ArrowUpDown, FileText, Upload } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ExpenseInvoiceFilesDialog } from './ExpenseInvoiceFilesDialog';
 
 interface ExpenseTableProps {
   data: any[];
@@ -23,6 +24,7 @@ interface ExpenseTableProps {
 export function ExpenseTable({ data, onViewDetail, onEdit, onFinalize, expenseTypes = [], onRefresh, onFinalizeAll }: ExpenseTableProps) {
   const [sortField, setSortField] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [invoiceExpense, setInvoiceExpense] = useState<any>(null);
 
   const formatCurrency = (amount: number) => {
     return Math.round(amount).toLocaleString('vi-VN');
@@ -148,14 +150,17 @@ export function ExpenseTable({ data, onViewDetail, onEdit, onFinalize, expenseTy
               </TableCell>
               <TableCell className="max-w-32 truncate">{expense.notes || '-'}</TableCell>
               <TableCell>
-                {expense.invoice_files && expense.invoice_files.length > 0 ? (
-                  <div className="flex items-center">
-                    <FileText className="h-4 w-4 mr-1" />
-                    <span className="text-sm">{expense.invoice_files.length}</span>
-                  </div>
-                ) : (
-                  '-'
-                )}
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setInvoiceExpense(expense)}>
+                    <Upload className="h-3 w-3" />
+                  </Button>
+                  {expense.invoice_files && expense.invoice_files.length > 0 && (
+                    <span className="flex items-center text-sm">
+                      <FileText className="h-4 w-4 mr-1" />
+                      {expense.invoice_files.length}
+                    </span>
+                  )}
+                </div>
               </TableCell>
               <TableCell>
                 <div className="flex space-x-1">
@@ -188,6 +193,14 @@ export function ExpenseTable({ data, onViewDetail, onEdit, onFinalize, expenseTy
           ))}
         </TableBody>
       </Table>
+      {invoiceExpense && (
+        <ExpenseInvoiceFilesDialog
+          open={!!invoiceExpense}
+          onClose={() => setInvoiceExpense(null)}
+          expense={invoiceExpense}
+          onSaved={() => onRefresh?.()}
+        />
+      )}
     </div>
   );
 }

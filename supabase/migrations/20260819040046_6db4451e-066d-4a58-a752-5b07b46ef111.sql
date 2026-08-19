@@ -1,0 +1,1 @@
+CREATE POLICY "Authenticated can manage expense invoice files" ON storage.objects FOR ALL TO authenticated USING (bucket_id = 'expense-invoices') WITH CHECK (bucket_id = 'expense-invoices');
