@@ -715,6 +715,7 @@ export type Database = {
           created_at: string
           created_date: string
           id: string
+          invoice_files: Json | null
           is_finalized: boolean
           needs_debt_collection: boolean
           project_id: string | null
@@ -731,6 +732,7 @@ export type Database = {
           created_at?: string
           created_date?: string
           id?: string
+          invoice_files?: Json | null
           is_finalized?: boolean
           needs_debt_collection?: boolean
           project_id?: string | null
@@ -747,6 +749,7 @@ export type Database = {
           created_at?: string
           created_date?: string
           id?: string
+          invoice_files?: Json | null
           is_finalized?: boolean
           needs_debt_collection?: boolean
           project_id?: string | null

@@ -1,0 +1,1 @@
+ALTER TABLE public.revenue ADD COLUMN IF NOT EXISTS invoice_files jsonb DEFAULT '[]'::jsonb;
