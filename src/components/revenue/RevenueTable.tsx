@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Edit, CheckCircle, ArrowUpDown } from 'lucide-react';
+import { Eye, Edit, CheckCircle, ArrowUpDown, Upload, FileText } from 'lucide-react';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { useQuery } from '@tanstack/react-query';
@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Project } from '@/types/project';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { RevenueInvoiceFilesDialog } from './RevenueInvoiceFilesDialog';
 
 interface RevenueTableProps {
   data: any[];
@@ -26,6 +27,7 @@ const REVENUE_TYPE_OPTIONS = ['Invoice', 'Lãi Ngân Hàng', 'Chưa phân loại
 export function RevenueTable({ data, onViewDetail, onEdit, onFinalize, onRefresh, onFinalizeAll }: RevenueTableProps) {
   const [sortField, setSortField] = useState<string>('');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [invoiceRevenue, setInvoiceRevenue] = useState<any>(null);
 
   // Fetch projects to display project names
   const { data: projects = [] } = useQuery({
@@ -127,6 +129,7 @@ export function RevenueTable({ data, onViewDetail, onEdit, onFinalize, onRefresh
             <SortableHeader field="amount_usdt">Số tiền USDT</SortableHeader>
             <SortableHeader field="wallet_type">Lưu Ví</SortableHeader>
             <SortableHeader field="needs_debt_collection">Cần Đòi Nợ</SortableHeader>
+            <TableHead>Hóa đơn</TableHead>
             <TableHead className="w-52">
               <div className="flex items-center justify-between gap-2">
                 <span>Action</span>
@@ -182,6 +185,19 @@ export function RevenueTable({ data, onViewDetail, onEdit, onFinalize, onRefresh
                 </Badge>
               </TableCell>
               <TableCell>
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setInvoiceRevenue(revenue)}>
+                    <Upload className="h-3 w-3" />
+                  </Button>
+                  {revenue.invoice_files && revenue.invoice_files.length > 0 && (
+                    <span className="flex items-center text-sm">
+                      <FileText className="h-4 w-4 mr-1" />
+                      {revenue.invoice_files.length}
+                    </span>
+                  )}
+                </div>
+              </TableCell>
+              <TableCell>
                 <div className="flex space-x-1">
                   <Button
                     size="sm"
@@ -212,6 +228,14 @@ export function RevenueTable({ data, onViewDetail, onEdit, onFinalize, onRefresh
           ))}
         </TableBody>
       </Table>
+      {invoiceRevenue && (
+        <RevenueInvoiceFilesDialog
+          open={!!invoiceRevenue}
+          onClose={() => setInvoiceRevenue(null)}
+          revenue={invoiceRevenue}
+          onSaved={() => onRefresh?.()}
+        />
+      )}
     </div>
   );
 }
