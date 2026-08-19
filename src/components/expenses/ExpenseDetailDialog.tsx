@@ -18,7 +18,23 @@ interface ExpenseDetailDialogProps {
 export function ExpenseDetailDialog({ open, onClose, expense }: ExpenseDetailDialogProps) {
   if (!expense) return null;
 
+  const handleOpenFile = async (file: ExpenseInvoiceFile) => {
+    try {
+      if (file.path) {
+        const { data, error } = await supabase.storage.from('expense-invoices').createSignedUrl(file.path, 3600);
+        if (error) throw error;
+        window.open(data.signedUrl, '_blank');
+      } else if (file.url) {
+        window.open(file.url, '_blank');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Không thể mở file');
+    }
+  };
+
   const formatCurrency = (amount: number, currency: string) => {
+
     const rounded = Math.round(amount);
     if (currency === 'USDT') {
       return `${rounded.toLocaleString('vi-VN')} USDT`;
