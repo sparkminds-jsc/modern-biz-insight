@@ -269,6 +269,7 @@ export function SalaryDetailFilters({
         kpi_bonus, overtime_1_5, overtime_2, overtime_3,
         total_income: calc.total_income,
         insurance_base_amount,
+        salary_type,
         bhdn_bhxh: calc.bhdn_bhxh,
         bhdn_tnld: calc.bhdn_tnld,
         bhdn_bhyt: calc.bhdn_bhyt,
