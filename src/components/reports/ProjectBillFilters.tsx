@@ -67,10 +67,11 @@ export function ProjectBillFilters({ onFilter }: ProjectBillFiltersProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch projects
+        // Fetch active projects only
         const { data: projectsData, error: projectsError } = await supabase
           .from('projects')
           .select('id, name')
+          .eq('status', 'Đang chạy')
           .order('name');
         
         if (projectsError) throw projectsError;
