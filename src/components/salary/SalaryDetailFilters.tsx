@@ -236,7 +236,10 @@ export function SalaryDetailFilters({
       const emp = empMap.get(code);
       if (!emp) { skipped++; continue; }
 
-      const salary_type = String(row['Loại lương'] || 'Lương có BH');
+      const rawSalaryType = String(row['Loại lương'] ?? '').trim().toLowerCase();
+      const salary_type = rawSalaryType.includes('thời vụ') || rawSalaryType.includes('thoi vu')
+        ? 'Lương thời vụ'
+        : 'Lương có BH';
       const gross_salary = Number(row['Lương Gross']) || 0;
       const working_days = Number(row['Ngày công']) || 0;
       const kpi_bonus = Number(row['Thưởng KPI']) || 0;
@@ -266,6 +269,7 @@ export function SalaryDetailFilters({
         kpi_bonus, overtime_1_5, overtime_2, overtime_3,
         total_income: calc.total_income,
         insurance_base_amount,
+        salary_type,
         bhdn_bhxh: calc.bhdn_bhxh,
         bhdn_tnld: calc.bhdn_tnld,
         bhdn_bhyt: calc.bhdn_bhyt,
