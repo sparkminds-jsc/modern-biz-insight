@@ -445,22 +445,18 @@ export function SalaryDetailEditForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="employee_code">Mã nhân viên *</Label>
-              <Select
-                value={watchedValues.employee_code}
-                onValueChange={handleEmployeeChange}
+              <SearchableSelect
+                value={
+                  watchedValues.employee_code
+                    ? `${watchedValues.employee_code} - ${employees.find((e) => e.employee_code === watchedValues.employee_code)?.full_name ?? ''}`
+                    : ''
+                }
+                onValueChange={(opt) => handleEmployeeChange(opt.split(' - ')[0])}
+                options={employees.map((e) => `${e.employee_code} - ${e.full_name}`)}
+                placeholder="Chọn nhân viên"
+                searchPlaceholder="Tìm mã hoặc tên nhân viên..."
                 disabled={!!salaryDetail}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn nhân viên" />
-                </SelectTrigger>
-                <SelectContent className="bg-white">
-                  {employees.map((employee) => (
-                    <SelectItem key={employee.id} value={employee.employee_code}>
-                      {employee.employee_code} - {employee.full_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
             </div>
 
             <div className="space-y-2">
