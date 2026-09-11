@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { toast } from 'sonner';
 
 interface CreateTeamReportDetailDialogProps {
@@ -248,18 +249,17 @@ export function CreateTeamReportDetailDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="employee_code">Mã nhân viên</Label>
-              <Select value={formData.employee_code} onValueChange={handleEmployeeChange}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn nhân viên" />
-                </SelectTrigger>
-                <SelectContent>
-                  {employees.map((employee) => (
-                    <SelectItem key={employee.employee_code} value={employee.employee_code}>
-                      {employee.employee_code} - {employee.full_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                value={
+                  formData.employee_code
+                    ? `${formData.employee_code} - ${employees.find((e) => e.employee_code === formData.employee_code)?.full_name ?? ''}`
+                    : ''
+                }
+                onValueChange={(opt) => handleEmployeeChange(opt.split(' - ')[0])}
+                options={employees.map((e) => `${e.employee_code} - ${e.full_name}`)}
+                placeholder="Chọn nhân viên"
+                searchPlaceholder="Tìm mã hoặc tên nhân viên..."
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="employee_name">Tên nhân viên</Label>
